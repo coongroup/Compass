@@ -1,0 +1,611 @@
+﻿namespace Protein_Hoarder
+{
+    partial class Form1
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            this.logGB = new System.Windows.Forms.GroupBox();
+            this.logTB = new System.Windows.Forms.RichTextBox();
+            this.hoardB = new System.Windows.Forms.Button();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.inputGB = new System.Windows.Forms.GroupBox();
+            this.csvclearB = new System.Windows.Forms.Button();
+            this.csvsB = new System.Windows.Forms.Button();
+            this.csvDGV = new System.Windows.Forms.DataGridView();
+            this.label5 = new System.Windows.Forms.Label();
+            this.databaseB = new System.Windows.Forms.Button();
+            this.databaseTB = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.optionsGB = new System.Windows.Forms.GroupBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.outputGB = new System.Windows.Forms.GroupBox();
+            this.outputdirectoryB = new System.Windows.Forms.Button();
+            this.outputTB = new System.Windows.Forms.TextBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.quantGB = new System.Windows.Forms.GroupBox();
+            this.quantigorneinterferenceCB = new System.Windows.Forms.CheckBox();
+            this.quantintferenceUD = new System.Windows.Forms.NumericUpDown();
+            this.label6 = new System.Windows.Forms.Label();
+            this.ignoreModsCLB = new System.Windows.Forms.CheckedListBox();
+            this.enableQuantCB = new System.Windows.Forms.CheckBox();
+            this.maxMissedCleavagedUD = new System.Windows.Forms.NumericUpDown();
+            this.includeUnfliterCB = new System.Windows.Forms.CheckBox();
+            this.proteinscoringCB = new System.Windows.Forms.ComboBox();
+            this.minpepspergroupUD = new System.Windows.Forms.NumericUpDown();
+            this.fdrUD = new System.Windows.Forms.NumericUpDown();
+            this.conservativeCB = new System.Windows.Forms.CheckBox();
+            this.csvD = new System.Windows.Forms.OpenFileDialog();
+            this.databaseD = new System.Windows.Forms.OpenFileDialog();
+            this.outputD = new System.Windows.Forms.FolderBrowserDialog();
+            this.label7 = new System.Windows.Forms.Label();
+            this.ignorePepMissingCB = new System.Windows.Forms.CheckBox();
+            this.logGB.SuspendLayout();
+            this.inputGB.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.csvDGV)).BeginInit();
+            this.optionsGB.SuspendLayout();
+            this.outputGB.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            this.quantGB.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.quantintferenceUD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minpepspergroupUD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fdrUD)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // logGB
+            // 
+            this.logGB.Controls.Add(this.logTB);
+            this.logGB.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logGB.Location = new System.Drawing.Point(3, 3);
+            this.logGB.Name = "logGB";
+            this.logGB.Padding = new System.Windows.Forms.Padding(5);
+            this.logGB.Size = new System.Drawing.Size(831, 153);
+            this.logGB.TabIndex = 0;
+            this.logGB.TabStop = false;
+            this.logGB.Text = "Log";
+            // 
+            // logTB
+            // 
+            this.logTB.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logTB.Location = new System.Drawing.Point(5, 18);
+            this.logTB.Margin = new System.Windows.Forms.Padding(5);
+            this.logTB.Name = "logTB";
+            this.logTB.ReadOnly = true;
+            this.logTB.Size = new System.Drawing.Size(821, 130);
+            this.logTB.TabIndex = 0;
+            this.logTB.Text = "";
+            this.logTB.WordWrap = false;
+            // 
+            // hoardB
+            // 
+            this.hoardB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.hoardB.Location = new System.Drawing.Point(763, 444);
+            this.hoardB.Name = "hoardB";
+            this.hoardB.Size = new System.Drawing.Size(66, 23);
+            this.hoardB.TabIndex = 1;
+            this.hoardB.Text = "Hoard";
+            this.hoardB.UseVisualStyleBackColor = true;
+            this.hoardB.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // progressBar
+            // 
+            this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.progressBar.Location = new System.Drawing.Point(5, 444);
+            this.progressBar.Maximum = 10000;
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(745, 23);
+            this.progressBar.TabIndex = 2;
+            // 
+            // inputGB
+            // 
+            this.inputGB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.inputGB.Controls.Add(this.csvclearB);
+            this.inputGB.Controls.Add(this.csvsB);
+            this.inputGB.Controls.Add(this.maxMissedCleavagedUD);
+            this.inputGB.Controls.Add(this.csvDGV);
+            this.inputGB.Controls.Add(this.label5);
+            this.inputGB.Controls.Add(this.databaseB);
+            this.inputGB.Controls.Add(this.databaseTB);
+            this.inputGB.Controls.Add(this.label1);
+            this.inputGB.Location = new System.Drawing.Point(3, 3);
+            this.inputGB.Name = "inputGB";
+            this.inputGB.Size = new System.Drawing.Size(831, 202);
+            this.inputGB.TabIndex = 3;
+            this.inputGB.TabStop = false;
+            this.inputGB.Text = "Input Files";
+            // 
+            // csvclearB
+            // 
+            this.csvclearB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.csvclearB.Location = new System.Drawing.Point(760, 48);
+            this.csvclearB.Name = "csvclearB";
+            this.csvclearB.Size = new System.Drawing.Size(66, 23);
+            this.csvclearB.TabIndex = 7;
+            this.csvclearB.Text = "Clear";
+            this.csvclearB.UseVisualStyleBackColor = true;
+            this.csvclearB.Click += new System.EventHandler(this.csvclearB_Click);
+            // 
+            // csvsB
+            // 
+            this.csvsB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.csvsB.Location = new System.Drawing.Point(759, 19);
+            this.csvsB.Name = "csvsB";
+            this.csvsB.Size = new System.Drawing.Size(66, 23);
+            this.csvsB.TabIndex = 6;
+            this.csvsB.Text = "Browse";
+            this.csvsB.UseVisualStyleBackColor = true;
+            this.csvsB.Click += new System.EventHandler(this.csvsB_Click);
+            // 
+            // csvDGV
+            // 
+            this.csvDGV.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.csvDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.csvDGV.Location = new System.Drawing.Point(9, 19);
+            this.csvDGV.Name = "csvDGV";
+            this.csvDGV.Size = new System.Drawing.Size(744, 148);
+            this.csvDGV.TabIndex = 5;
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(8, 176);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(134, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Maximum Missed Clevages";
+            // 
+            // databaseB
+            // 
+            this.databaseB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.databaseB.Location = new System.Drawing.Point(760, 171);
+            this.databaseB.Name = "databaseB";
+            this.databaseB.Size = new System.Drawing.Size(66, 23);
+            this.databaseB.TabIndex = 4;
+            this.databaseB.Text = "Browse";
+            this.databaseB.UseVisualStyleBackColor = true;
+            this.databaseB.Click += new System.EventHandler(this.databaseB_Click);
+            // 
+            // databaseTB
+            // 
+            this.databaseTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.databaseTB.Location = new System.Drawing.Point(309, 173);
+            this.databaseTB.Name = "databaseTB";
+            this.databaseTB.Size = new System.Drawing.Size(444, 20);
+            this.databaseTB.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(200, 176);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(104, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Database file (.fasta)";
+            // 
+            // optionsGB
+            // 
+            this.optionsGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.optionsGB.Controls.Add(this.includeUnfliterCB);
+            this.optionsGB.Controls.Add(this.label4);
+            this.optionsGB.Controls.Add(this.proteinscoringCB);
+            this.optionsGB.Controls.Add(this.label3);
+            this.optionsGB.Controls.Add(this.minpepspergroupUD);
+            this.optionsGB.Controls.Add(this.label2);
+            this.optionsGB.Controls.Add(this.fdrUD);
+            this.optionsGB.Controls.Add(this.conservativeCB);
+            this.optionsGB.Location = new System.Drawing.Point(5, 262);
+            this.optionsGB.Name = "optionsGB";
+            this.optionsGB.Size = new System.Drawing.Size(276, 176);
+            this.optionsGB.TabIndex = 4;
+            this.optionsGB.TabStop = false;
+            this.optionsGB.Text = "Options";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(5, 21);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(118, 13);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "Protein Scoring Method";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(5, 69);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(146, 13);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "Minimum Peptides per Protein";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(5, 95);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(93, 13);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Maximum FDR (%)";
+            // 
+            // outputGB
+            // 
+            this.outputGB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputGB.Controls.Add(this.outputdirectoryB);
+            this.outputGB.Controls.Add(this.outputTB);
+            this.outputGB.Location = new System.Drawing.Point(5, 211);
+            this.outputGB.Name = "outputGB";
+            this.outputGB.Size = new System.Drawing.Size(831, 45);
+            this.outputGB.TabIndex = 8;
+            this.outputGB.TabStop = false;
+            this.outputGB.Text = "Output Location";
+            // 
+            // outputdirectoryB
+            // 
+            this.outputdirectoryB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputdirectoryB.Location = new System.Drawing.Point(760, 15);
+            this.outputdirectoryB.Name = "outputdirectoryB";
+            this.outputdirectoryB.Size = new System.Drawing.Size(66, 23);
+            this.outputdirectoryB.TabIndex = 8;
+            this.outputdirectoryB.Text = "Browse";
+            this.outputdirectoryB.UseVisualStyleBackColor = true;
+            this.outputdirectoryB.Click += new System.EventHandler(this.outputdirectoryB_Click);
+            // 
+            // outputTB
+            // 
+            this.outputTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.outputTB.Location = new System.Drawing.Point(9, 16);
+            this.outputTB.Name = "outputTB";
+            this.outputTB.Size = new System.Drawing.Size(744, 20);
+            this.outputTB.TabIndex = 1;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.quantGB);
+            this.splitContainer1.Panel1.Controls.Add(this.progressBar);
+            this.splitContainer1.Panel1.Controls.Add(this.inputGB);
+            this.splitContainer1.Panel1.Controls.Add(this.outputGB);
+            this.splitContainer1.Panel1.Controls.Add(this.hoardB);
+            this.splitContainer1.Panel1.Controls.Add(this.optionsGB);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.logGB);
+            this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(3);
+            this.splitContainer1.Size = new System.Drawing.Size(841, 641);
+            this.splitContainer1.SplitterDistance = 474;
+            this.splitContainer1.TabIndex = 9;
+            // 
+            // quantGB
+            // 
+            this.quantGB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.quantGB.Controls.Add(this.ignorePepMissingCB);
+            this.quantGB.Controls.Add(this.label7);
+            this.quantGB.Controls.Add(this.quantigorneinterferenceCB);
+            this.quantGB.Controls.Add(this.quantintferenceUD);
+            this.quantGB.Controls.Add(this.label6);
+            this.quantGB.Controls.Add(this.ignoreModsCLB);
+            this.quantGB.Controls.Add(this.enableQuantCB);
+            this.quantGB.Location = new System.Drawing.Point(287, 262);
+            this.quantGB.Name = "quantGB";
+            this.quantGB.Size = new System.Drawing.Size(547, 176);
+            this.quantGB.TabIndex = 9;
+            this.quantGB.TabStop = false;
+            this.quantGB.Text = "Protein Quantitation";
+            // 
+            // quantigorneinterferenceCB
+            // 
+            this.quantigorneinterferenceCB.AutoSize = true;
+            this.quantigorneinterferenceCB.Enabled = false;
+            this.quantigorneinterferenceCB.Location = new System.Drawing.Point(25, 131);
+            this.quantigorneinterferenceCB.Name = "quantigorneinterferenceCB";
+            this.quantigorneinterferenceCB.Size = new System.Drawing.Size(188, 17);
+            this.quantigorneinterferenceCB.TabIndex = 4;
+            this.quantigorneinterferenceCB.Text = "Ignore Peptides with Interfence >=";
+            this.quantigorneinterferenceCB.UseVisualStyleBackColor = true;
+            // 
+            // quantintferenceUD
+            // 
+            this.quantintferenceUD.DecimalPlaces = 3;
+            this.quantintferenceUD.Enabled = false;
+            this.quantintferenceUD.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.quantintferenceUD.Location = new System.Drawing.Point(213, 130);
+            this.quantintferenceUD.Maximum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.quantintferenceUD.Name = "quantintferenceUD";
+            this.quantintferenceUD.Size = new System.Drawing.Size(60, 20);
+            this.quantintferenceUD.TabIndex = 3;
+            this.quantintferenceUD.Value = new decimal(new int[] {
+            25,
+            0,
+            0,
+            131072});
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(22, 41);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(215, 13);
+            this.label6.TabIndex = 2;
+            this.label6.Text = "Ignore Peptides with Following Modifications";
+            // 
+            // ignoreModsCLB
+            // 
+            this.ignoreModsCLB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ignoreModsCLB.CheckOnClick = true;
+            this.ignoreModsCLB.Enabled = false;
+            this.ignoreModsCLB.FormattingEnabled = true;
+            this.ignoreModsCLB.Location = new System.Drawing.Point(25, 60);
+            this.ignoreModsCLB.Name = "ignoreModsCLB";
+            this.ignoreModsCLB.Size = new System.Drawing.Size(515, 64);
+            this.ignoreModsCLB.TabIndex = 1;
+            // 
+            // enableQuantCB
+            // 
+            this.enableQuantCB.AutoSize = true;
+            this.enableQuantCB.Location = new System.Drawing.Point(6, 21);
+            this.enableQuantCB.Name = "enableQuantCB";
+            this.enableQuantCB.Size = new System.Drawing.Size(125, 17);
+            this.enableQuantCB.TabIndex = 0;
+            this.enableQuantCB.Text = "Enabled Quantitation";
+            this.enableQuantCB.UseVisualStyleBackColor = true;
+            this.enableQuantCB.CheckedChanged += new System.EventHandler(this.enableQuantCB_CheckedChanged);
+            // 
+            // maxMissedCleavagedUD
+            // 
+            this.maxMissedCleavagedUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.maxMissedCleavagedUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxMissedCleavages", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.maxMissedCleavagedUD.Location = new System.Drawing.Point(148, 174);
+            this.maxMissedCleavagedUD.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.maxMissedCleavagedUD.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.maxMissedCleavagedUD.Name = "maxMissedCleavagedUD";
+            this.maxMissedCleavagedUD.Size = new System.Drawing.Size(46, 20);
+            this.maxMissedCleavagedUD.TabIndex = 9;
+            this.maxMissedCleavagedUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxMissedCleavages;
+            // 
+            // includeUnfliterCB
+            // 
+            this.includeUnfliterCB.AutoSize = true;
+            this.includeUnfliterCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.includeUnfilterResults;
+            this.includeUnfliterCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "includeUnfilterResults", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.includeUnfliterCB.Location = new System.Drawing.Point(26, 114);
+            this.includeUnfliterCB.Name = "includeUnfliterCB";
+            this.includeUnfliterCB.Size = new System.Drawing.Size(219, 17);
+            this.includeUnfliterCB.TabIndex = 5;
+            this.includeUnfliterCB.Text = "Write Unfiltered Protein Groups to Output";
+            this.includeUnfliterCB.UseVisualStyleBackColor = true;
+            // 
+            // proteinscoringCB
+            // 
+            this.proteinscoringCB.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.proteinscoringCB.DataBindings.Add(new System.Windows.Forms.Binding("Name", global::Protein_Hoarder.Properties.Settings.Default, "ProteinScoringValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.proteinscoringCB.FormattingEnabled = true;
+            this.proteinscoringCB.Location = new System.Drawing.Point(130, 18);
+            this.proteinscoringCB.Name = global::Protein_Hoarder.Properties.Settings.Default.ProteinScoringValue;
+            this.proteinscoringCB.Size = new System.Drawing.Size(140, 21);
+            this.proteinscoringCB.TabIndex = 10;
+            // 
+            // minpepspergroupUD
+            // 
+            this.minpepspergroupUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "minPeptidesPerProteinGroup", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.minpepspergroupUD.Location = new System.Drawing.Point(224, 67);
+            this.minpepspergroupUD.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.minpepspergroupUD.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.minpepspergroupUD.Name = "minpepspergroupUD";
+            this.minpepspergroupUD.Size = new System.Drawing.Size(46, 20);
+            this.minpepspergroupUD.TabIndex = 6;
+            this.minpepspergroupUD.Value = global::Protein_Hoarder.Properties.Settings.Default.minPeptidesPerProteinGroup;
+            // 
+            // fdrUD
+            // 
+            this.fdrUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxFDR", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.fdrUD.DecimalPlaces = 2;
+            this.fdrUD.Location = new System.Drawing.Point(224, 93);
+            this.fdrUD.Name = "fdrUD";
+            this.fdrUD.Size = new System.Drawing.Size(46, 20);
+            this.fdrUD.TabIndex = 5;
+            this.fdrUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxFDR;
+            // 
+            // conservativeCB
+            // 
+            this.conservativeCB.AutoSize = true;
+            this.conservativeCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.conservativePScore;
+            this.conservativeCB.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.conservativeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "conservativePScore", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.conservativeCB.Location = new System.Drawing.Point(26, 45);
+            this.conservativeCB.Name = "conservativeCB";
+            this.conservativeCB.Size = new System.Drawing.Size(229, 17);
+            this.conservativeCB.TabIndex = 5;
+            this.conservativeCB.Text = "Conservative Protein P-Value (Use Lowest)";
+            this.conservativeCB.UseVisualStyleBackColor = true;
+            // 
+            // csvD
+            // 
+            this.csvD.Filter = "Omssa CSV|*.csv";
+            this.csvD.InitialDirectory = global::Protein_Hoarder.Properties.Settings.Default.csvDirectory;
+            this.csvD.Multiselect = true;
+            this.csvD.Title = "Select csvs to herd";
+            // 
+            // databaseD
+            // 
+            this.databaseD.Filter = "FASTA|*.fa*|All Files|*.*";
+            this.databaseD.InitialDirectory = global::Protein_Hoarder.Properties.Settings.Default.databaseDirectory;
+            this.databaseD.Title = "Select the protein database used to search the data with";
+            // 
+            // outputD
+            // 
+            this.outputD.Description = "Select the Output Directory";
+            this.outputD.SelectedPath = global::Protein_Hoarder.Properties.Settings.Default.outputDirectory;
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(309, 15);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(237, 26);
+            this.label7.TabIndex = 5;
+            this.label7.Text = "Quantitation only uses unshared peptides\r\n(peptides that map uniquely to one prot" +
+    "ein group)";
+            // 
+            // ignorePepMissingCB
+            // 
+            this.ignorePepMissingCB.AutoSize = true;
+            this.ignorePepMissingCB.Location = new System.Drawing.Point(25, 153);
+            this.ignorePepMissingCB.Name = "ignorePepMissingCB";
+            this.ignorePepMissingCB.Size = new System.Drawing.Size(186, 17);
+            this.ignorePepMissingCB.TabIndex = 12;
+            this.ignorePepMissingCB.Text = "Ignore Peptides with Missing Data";
+            this.ignorePepMissingCB.UseVisualStyleBackColor = true;
+            // 
+            // Form1
+            // 
+            this.AllowDrop = true;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(841, 641);
+            this.Controls.Add(this.splitContainer1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(600, 480);
+            this.Name = "Form1";
+            this.Text = "Protein Hoarder";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
+            this.logGB.ResumeLayout(false);
+            this.inputGB.ResumeLayout(false);
+            this.inputGB.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.csvDGV)).EndInit();
+            this.optionsGB.ResumeLayout(false);
+            this.optionsGB.PerformLayout();
+            this.outputGB.ResumeLayout(false);
+            this.outputGB.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
+            this.quantGB.ResumeLayout(false);
+            this.quantGB.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.quantintferenceUD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.minpepspergroupUD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fdrUD)).EndInit();
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private System.Windows.Forms.GroupBox logGB;
+        private System.Windows.Forms.RichTextBox logTB;
+        private System.Windows.Forms.Button hoardB;
+        private System.Windows.Forms.ProgressBar progressBar;
+        private System.Windows.Forms.GroupBox inputGB;
+        private System.Windows.Forms.Button csvclearB;
+        private System.Windows.Forms.Button csvsB;
+        private System.Windows.Forms.DataGridView csvDGV;
+        private System.Windows.Forms.Button databaseB;
+        private System.Windows.Forms.TextBox databaseTB;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.GroupBox optionsGB;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown minpepspergroupUD;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.NumericUpDown fdrUD;
+        private System.Windows.Forms.CheckBox conservativeCB;
+        private System.Windows.Forms.GroupBox outputGB;
+        private System.Windows.Forms.Button outputdirectoryB;
+        private System.Windows.Forms.TextBox outputTB;
+        private System.Windows.Forms.FolderBrowserDialog outputD;
+        private System.Windows.Forms.OpenFileDialog databaseD;
+        private System.Windows.Forms.OpenFileDialog csvD;
+        private System.Windows.Forms.NumericUpDown maxMissedCleavagedUD;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ComboBox proteinscoringCB;
+        private System.Windows.Forms.GroupBox quantGB;
+        private System.Windows.Forms.CheckBox enableQuantCB;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckedListBox ignoreModsCLB;
+        private System.Windows.Forms.CheckBox quantigorneinterferenceCB;
+        private System.Windows.Forms.NumericUpDown quantintferenceUD;
+        private System.Windows.Forms.CheckBox includeUnfliterCB;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox ignorePepMissingCB;
+    }
+}
+

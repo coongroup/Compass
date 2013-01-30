@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMaker.gui", "DatabaseMaker.gui\DatabaseMaker.gui.csproj", "{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSMSL", "..\..\CSMSL\CSMSL\CSMSL.csproj", "{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMaker.lib", "DatabaseMaker.lib\DatabaseMaker.lib.csproj", "{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseMaker.cmd", "DatabaseMaker.cmd\DatabaseMaker.cmd.csproj", "{D618F29A-53F7-4CA7-A948-582E369407EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLine", "..\..\Third Parties\commandline\src\libcmdline\CommandLine.csproj", "{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		DebugTests|Any CPU = DebugTests|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}.DebugTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
+		{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.DebugTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}.DebugTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
+		{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{016CC3A6-EA74-4856-8BC5-B9CE9DAFEFF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D618F29A-53F7-4CA7-A948-582E369407EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D618F29A-53F7-4CA7-A948-582E369407EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D618F29A-53F7-4CA7-A948-582E369407EC}.DebugTests|Any CPU.ActiveCfg = Debug|Any CPU
+		{D618F29A-53F7-4CA7-A948-582E369407EC}.DebugTests|Any CPU.Build.0 = Debug|Any CPU
+		{D618F29A-53F7-4CA7-A948-582E369407EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D618F29A-53F7-4CA7-A948-582E369407EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}.DebugTests|Any CPU.ActiveCfg = DebugTests|Any CPU
+		{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}.DebugTests|Any CPU.Build.0 = DebugTests|Any CPU
+		{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DEA2811-2FFA-4959-830B-CAD3ACACABEB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

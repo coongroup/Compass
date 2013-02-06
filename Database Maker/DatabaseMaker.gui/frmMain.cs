@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
+using CSMSL.IO;
 
 namespace Coon.Compass.DatabaseMaker
 {
@@ -148,18 +149,18 @@ namespace Coon.Compass.DatabaseMaker
             {
                 database_type = DatabaseType.Target;
             }
-            DecoyDatabaseMethod decoy_database_method;
+            DecoyType decoy_database_method;
             if(radShuffle.Checked)
             {
-                decoy_database_method = DecoyDatabaseMethod.Shuffle;
+                decoy_database_method = DecoyType.Shuffle;
             }
             else if(radRandom.Checked)
             {
-                decoy_database_method = DecoyDatabaseMethod.Random;
+                decoy_database_method = DecoyType.Random;
             }
             else
             {
-                decoy_database_method = DecoyDatabaseMethod.Reverse;
+                decoy_database_method = DecoyType.Reverse;
             }
             bool exclude_n_terminus = chkExcludeNTerminus.Checked;
             bool only_if_n_terminus_is_methionine = chkOnlyIfNTerminusIsMethionine.Checked;
@@ -174,7 +175,7 @@ namespace Coon.Compass.DatabaseMaker
 
             DatabaseMaker database_maker = new DatabaseMaker(FastaFiles, database_type, decoy_database_method,
                 exclude_n_terminus, only_if_n_terminus_is_methionine,blast_format_for_omssa, merge,
-                formatdb_filepath, output_folder);
+                formatdb_filepath, output_folder, "DECOY_");
 
             database_maker.CreateDatabase();
         }

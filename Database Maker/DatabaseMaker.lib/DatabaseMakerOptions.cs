@@ -5,11 +5,24 @@ using System.Text;
 using System.Threading.Tasks;
 using CommandLine;
 using CommandLine.Text;
+using CSMSL.IO;
 
 namespace Coon.Compass.DatabaseMaker
 {
     public class DatabaseMakerOptions
-    {     
+    {
+        [Option('e', "extension", MetaValue = "STRING", Required = false, DefaultValue = ".fasta", HelpText = "Output file extension")]
+        public string FileExtension { get; set; }
+
+        [Option("do-not-append", DefaultValue = false, HelpText = "Appends the output file name with the database type (CONCAT_, TARGET_, DECOY_)")]
+        public bool DoNotAppendDatabaseType { get; set; }
+
+        [Option("do-not-merge", DefaultValue = false, HelpText = "Do not merge files")]
+        public bool DoNotMergeFiles { get; set; }
+
+        [Option('l', null, DefaultValue = true, HelpText = "Generate a .log file.")]
+        public bool GenerateLogFile { get; set; }
+
         [Option('o', "output", MetaValue="FILE", Required = true, HelpText = "The base name of the FILE to write the fasta file to")]
         public string OutputFastaFile { get; set; }
 
@@ -19,16 +32,16 @@ namespace Coon.Compass.DatabaseMaker
         [Option('p', "prefix", MetaValue="STRING", Required = false, DefaultValue = "DECOY_", HelpText = "Decoy prefix to add to the front of the protein description")]
         public string DecoyPrefix { get; set; }
 
-        [Option('d', "decoy", MetaValue = "TYPE", Required = false, DefaultValue = DecoyDatabaseMethod.Reverse, HelpText = "How to generate a decoy database (Options: reverse, shuffle, random)")]
-        public DecoyDatabaseMethod DecoyType { get; set; }
+        [Option('d', "decoy", MetaValue = "TYPE", Required = false, DefaultValue = DecoyType.Reverse, HelpText = "How to generate a decoy database (Options: reverse, shuffle, random)")]
+        public DecoyType DecoyType { get; set; }
 
         [Option('t', "type", MetaValue = "TYPE", Required = false, DefaultValue = DatabaseType.Concatenated, HelpText = "Type of file to generate (concat, target, decoy)")]
         public DatabaseType OutputType { get; set; }
 
         [Option('b', null, HelpText = "Make a BLAST database")]
-        public bool MakeBlastDatabase { get; set; }
+        public bool BlastDatabase { get; set; }
 
-        [Option('m', null, HelpText = "Exclude N-Terminal if Methionine (requires -x)")]
+        [Option("exclude-if-meth", HelpText = "Exclude N-Terminal if Methionine (requires -x)")]
         public bool ExcludeNTerminalMethionine { get; set; }
 
         [Option('x', null, HelpText = "Exclude N-Terminal Amino Acid Residue (requires reversed or shuffled)")]
@@ -50,29 +63,6 @@ namespace Coon.Compass.DatabaseMaker
             text.AddPreOptionsLine("Usage: dbmaker [Input Files]... [OPTIONS] -o <Output Base Name>");      
             text.MaximumDisplayWidth = 80;
             return text;
-            //var help = new HelpText
-            //{
-            //    Heading = new HeadingInfo("<>", "<>"),
-            //    Copyright = new CopyrightInfo("<>", 2013),
-            //    AdditionalNewLineAfterOption = false,
-            //    AddDashesToOption = true
-            //};
-
-            //help.AddPreOptionsLine("<>");
-            //help.MaximumDisplayWidth = 60;
-            //help.AddPreOptionsLine("Usage: app -pSomeone");
-            //help.AddOptions(this);
-       
-            ////if (this.LastPostParsingState.Errors.Count > 0)
-            ////{
-            ////    var errors = help.RenderParsingErrorsText(this, 2);
-            ////    if (!string.IsNullOrEmpty(errors))
-            ////    {
-            ////        help.AddPreOptionsLine(string.Concat(Environment.NewLine, "ERROR(S):"));
-            ////        help.AddPreOptionsLine(errors);
-            ////    }
-            ////}
-            //return help;
         }
         
 

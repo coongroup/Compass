@@ -52,6 +52,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\CSMSL\CSMSL\CSMSL.csproj">
+      <Project>{3c8c9f05-9c19-4251-95fa-05d7edc8cae6}</Project>
+      <Name>CSMSL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Third Parties\commandline\src\libcmdline\CommandLine.csproj">
       <Project>{5dea2811-2ffa-4959-830b-cad3acacabeb}</Project>
       <Name>CommandLine</Name>

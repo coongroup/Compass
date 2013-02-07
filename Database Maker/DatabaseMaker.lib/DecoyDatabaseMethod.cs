@@ -1,6 +1,6 @@
 ﻿namespace Coon.Compass.DatabaseMaker
 {
-    public enum DecoyDatabaseMethod
+    public enum DecoyMethod
     {
         Reverse,
         Shuffle,

@@ -16,7 +16,7 @@ namespace Coon.Compass.DatabaseMaker
         }
 
         public DatabaseMaker(IEnumerable<string> InputFiles, DatabaseType OutputType,
-            DecoyType DecoyType, bool ExcludeNTerminalResidue, bool ExcludeNTerminalMethionine,
+            DecoyDatabaseMethod DecoyType, bool ExcludeNTerminalResidue, bool ExcludeNTerminalMethionine,
             bool BlastDatabase, bool DoNotMergeFiles, string formatdbFilepath, string OutputFastaFile, string DecoyPrefix)
         {
             Options = new DatabaseMakerOptions();
@@ -29,7 +29,6 @@ namespace Coon.Compass.DatabaseMaker
             Options.BlastDatabase = BlastDatabase;
             Options.DoNotMergeFiles = DoNotMergeFiles;
             Options.DecoyPrefix = DecoyPrefix;
-            Options.DecoyType = DecoyType;
         }
 
         public void CreateDatabase()

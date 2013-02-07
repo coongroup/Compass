@@ -32,8 +32,8 @@ namespace Coon.Compass.DatabaseMaker
         [Option('p', "prefix", MetaValue="STRING", Required = false, DefaultValue = "DECOY_", HelpText = "Decoy prefix to add to the front of the protein description")]
         public string DecoyPrefix { get; set; }
 
-        [Option('d', "decoy", MetaValue = "TYPE", Required = false, DefaultValue = DecoyType.Reverse, HelpText = "How to generate a decoy database (Options: reverse, shuffle, random)")]
-        public DecoyType DecoyType { get; set; }
+        [Option('d', "decoy", MetaValue = "TYPE", Required = false, DefaultValue = DecoyDatabaseMethod.Reverse, HelpText = "How to generate a decoy database (Options: reverse, shuffle, random)")]
+        public DecoyDatabaseMethod DecoyType { get; set; }
 
         [Option('t', "type", MetaValue = "TYPE", Required = false, DefaultValue = DatabaseType.Concatenated, HelpText = "Type of file to generate (concat, target, decoy)")]
         public DatabaseType OutputType { get; set; }

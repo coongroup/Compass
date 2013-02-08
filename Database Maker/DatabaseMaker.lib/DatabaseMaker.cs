@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using CSMSL.IO;
+using System.Text.RegularExpressions;
 
 namespace Coon.Compass.DatabaseMaker
 {
@@ -17,7 +18,7 @@ namespace Coon.Compass.DatabaseMaker
 
         public DatabaseMaker(IEnumerable<string> InputFiles, DatabaseType OutputType,
             DecoyDatabaseMethod DecoyType, bool ExcludeNTerminalResidue, bool ExcludeNTerminalMethionine,
-            bool BlastDatabase, bool DoNotMergeFiles, string formatdbFilepath, string OutputFastaFile, string DecoyPrefix)
+            bool BlastDatabase, bool DoNotMergeFiles, string formatdbFilepath, string OutputFastaFile, string DecoyPrefix, bool EnforceUniprot)
         {
             Options = new DatabaseMakerOptions();
             Options.InputFiles = new List<string>(InputFiles);
@@ -29,6 +30,7 @@ namespace Coon.Compass.DatabaseMaker
             Options.BlastDatabase = BlastDatabase;
             Options.DoNotMergeFiles = DoNotMergeFiles;
             Options.DecoyPrefix = DecoyPrefix;
+            Options.EnforceUniprot = EnforceUniprot;
         }
 
         public void CreateDatabase()
@@ -142,18 +144,39 @@ namespace Coon.Compass.DatabaseMaker
             {
                 foreach (Fasta fasta in reader.ReadNextFasta())
                 {
-                    if (Options.OutputType == DatabaseType.Target || Options.OutputType == DatabaseType.Concatenated)
-                    {
-                        Writer.Write(fasta);
+                        Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
+                        Match UniprotMatch = uniprotRegex.Match(fasta.Description);
+                        string HeaderFile = ("Invalidheaders.txt");
+                        string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
+
+                        if (Options.EnforceUniprot && !UniprotMatch.Success)
+                        {
+                            using (StreamWriter log = new StreamWriter(Path.Combine(headerFolder, HeaderFile),true))
+                            {
+                                log.WriteLine("Invalid Header:");
+                                log.WriteLine(fasta.Description);
+                                log.WriteLine("");
+                            }
+                        }
+
+                        if (UniprotMatch.Success)
+                        {
+                            if (Options.OutputType == DatabaseType.Target || Options.OutputType == DatabaseType.Concatenated)
+                            {
+                                Writer.Write(fasta);
+                            }
+                            if (Options.OutputType == DatabaseType.Decoy || Options.OutputType == DatabaseType.Concatenated)
+                            {
+                                Writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, Options.ExcludeNTerminalResidue, Options.ExcludeNTerminalMethionine));
+                            }
+
+                        }
+
                     }
-                    if (Options.OutputType == DatabaseType.Decoy || Options.OutputType == DatabaseType.Concatenated)
-                    {
-                        Writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, Options.ExcludeNTerminalResidue, Options.ExcludeNTerminalMethionine));
-                    }
+
                 }
             }
-        }
-
+        
 
         public static string MAKEBLASTDB_FILENAME = "makeblastdb.exe";
         public static string LOG_FILENAME = "blast_log.txt";

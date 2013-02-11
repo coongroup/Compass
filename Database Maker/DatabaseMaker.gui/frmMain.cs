@@ -135,47 +135,45 @@ namespace Coon.Compass.DatabaseMaker
         }
 
         private void btnOK_Click(object sender, EventArgs e)
-        {           
-            DatabaseType database_type;
+        {
+            DatabaseMakerOptions options = new DatabaseMakerOptions();            
+                      
             if(radDecoy.Checked)
             {
-                database_type = DatabaseType.Decoy;
+                options.OutputType = DatabaseType.Decoy;               
             }
             else if(radConcatenated.Checked)
             {
-                database_type = DatabaseType.Concatenated;
+                options.OutputType = DatabaseType.Concatenated;                
             }
             else
             {
-                database_type = DatabaseType.Target;
+                options.OutputType = DatabaseType.Target;               
             }
-            DecoyMethod decoy_database_method;
+          
             if(radShuffle.Checked)
             {
-                decoy_database_method = DecoyMethod.Shuffle;
+                options.DecoyType = DecoyDatabaseMethod.Shuffle;
             }
             else if(radRandom.Checked)
             {
-                decoy_database_method = DecoyMethod.Random;
+                options.DecoyType = DecoyDatabaseMethod.Random;              
             }
             else
             {
-                decoy_database_method = DecoyMethod.Reverse;
+                options.DecoyType = DecoyDatabaseMethod.Reverse;                
             }
-            bool exclude_n_terminus = chkExcludeNTerminus.Checked;
-            bool only_if_n_terminus_is_methionine = chkOnlyIfNTerminusIsMethionine.Checked;
-            bool blast_format_for_omssa = chkBlast.Checked;
-            bool merge = mergeoutputCB.Checked;
-            string formatdb_filepath = Path.Combine(Application.StartupPath, "makeblastdb.exe");
-            string output_folder = txtOutput.Text;
-            if(output_folder == string.Empty)
+            options.ExcludeNTerminalResidue = chkExcludeNTerminus.Checked;
+            options.ExcludeNTerminalMethionine = chkOnlyIfNTerminusIsMethionine.Checked;
+            options.BlastDatabase = chkBlast.Checked;
+            options.DoNotMergeFiles = !mergeoutputCB.Checked;
+            options.OutputFastaFile = txtOutput.Text;
+            if (options.OutputFastaFile == string.Empty)
             {
-                output_folder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                options.OutputFastaFile = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
 
-            DatabaseMaker database_maker = new DatabaseMaker(FastaFiles, database_type, (DecoyDatabaseMethod)decoy_database_method,
-                exclude_n_terminus, only_if_n_terminus_is_methionine,blast_format_for_omssa, merge,
-                formatdb_filepath, output_folder, "DECOY_");
+            DatabaseMaker database_maker = new DatabaseMaker(options);
 
             database_maker.CreateDatabase();
         }

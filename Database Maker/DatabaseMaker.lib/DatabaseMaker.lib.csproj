@@ -45,7 +45,6 @@
     <Compile Include="DatabaseMaker.cs" />
     <Compile Include="DatabaseMakerOptions.cs" />
     <Compile Include="DatabaseType.cs" />
-    <Compile Include="DecoyDatabaseMethod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

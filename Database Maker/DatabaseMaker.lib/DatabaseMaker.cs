@@ -16,23 +16,6 @@ namespace Coon.Compass.DatabaseMaker
             Options = options;
         }
 
-        public DatabaseMaker(IEnumerable<string> InputFiles, DatabaseType OutputType,
-            DecoyDatabaseMethod DecoyType, bool ExcludeNTerminalResidue, bool ExcludeNTerminalMethionine,
-            bool BlastDatabase, bool DoNotMergeFiles, string formatdbFilepath, string OutputFastaFile, string DecoyPrefix, bool EnforceUniprot)
-        {
-            Options = new DatabaseMakerOptions();
-            Options.InputFiles = new List<string>(InputFiles);
-            Options.OutputType = OutputType;
-            Options.DecoyType = DecoyType;
-            Options.OutputFastaFile = OutputFastaFile;
-            Options.ExcludeNTerminalMethionine = ExcludeNTerminalMethionine;
-            Options.ExcludeNTerminalResidue = ExcludeNTerminalResidue;
-            Options.BlastDatabase = BlastDatabase;
-            Options.DoNotMergeFiles = DoNotMergeFiles;
-            Options.DecoyPrefix = DecoyPrefix;
-            Options.EnforceUniprot = EnforceUniprot;
-        }
-
         public void CreateDatabase()
         {
             try

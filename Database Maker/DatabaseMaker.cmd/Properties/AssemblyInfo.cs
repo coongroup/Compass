@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DatabaseMaker.cmd")]
+[assembly: AssemblyTitle("DatabaseMaker")]
 [assembly: AssemblyDescription("Merges fasta files into a single fasta file. Supports generation of decoy databases.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Coon Research Group")]
-[assembly: AssemblyProduct("DatabaseMaker.cmd")]
+[assembly: AssemblyProduct("COMPASS")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -4,6 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using CSMSL.IO;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Forms;
+
+
 
 namespace Coon.Compass.DatabaseMaker
 {
@@ -16,10 +20,13 @@ namespace Coon.Compass.DatabaseMaker
             Options = options;
         }
 
+        public event EventHandler<EventArgs> OnInvalidHeader;
+
         public void CreateDatabase()
         {
             try
             {
+                string logFilename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile);
                 string outputFolder = Path.GetDirectoryName(Options.OutputFastaFile);                
                 if(!Directory.Exists(outputFolder))
                 {
@@ -28,12 +35,27 @@ namespace Coon.Compass.DatabaseMaker
 
                 if (Options.GenerateLogFile)
                 {
-                    GenerateLog(outputFolder);
+                   switch (Options.OutputType)
+                    {
+                        case DatabaseType.Target:
+                            logFilename += "_TARGET.log";
+                            break;
+                        case DatabaseType.Decoy:
+                            logFilename += "_DECOY.log";
+                            break;
+                        case DatabaseType.Concatenated:
+                        default:
+                            logFilename += "_CONCAT.log";
+                            break;
+                    }
+                    GenerateLog(outputFolder, logFilename);
                 }
-
-                string ext = Options.FileExtension; // ".fasta"
-                string output_filename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile); // options.OutputFile
-
+                
+               string ext = Path.GetExtension(Options.OutputFastaFile);
+                   if (string.IsNullOrEmpty(ext)){
+                       ext = ".fasta";
+                   }
+                   string output_filename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile);
                 if (Options.DoNotAppendDatabaseType == false)
                 {
                     switch (Options.OutputType)
@@ -54,6 +76,8 @@ namespace Coon.Compass.DatabaseMaker
                 else
                 {
                     output_filename = output_filename + ext;
+                    
+                  
                 }
                 string outputPath = Path.Combine(outputFolder, output_filename);
                 
@@ -129,8 +153,9 @@ namespace Coon.Compass.DatabaseMaker
                 {
                         Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
                         Match UniprotMatch = uniprotRegex.Match(fasta.Description);
-                        string HeaderFile = ("Invalidheaders.txt");
+                        string HeaderFile = ("InvalidUniprotheaders.txt");
                         string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
+                      
 
                         if (Options.EnforceUniprot && !UniprotMatch.Success)
                         {
@@ -139,6 +164,7 @@ namespace Coon.Compass.DatabaseMaker
                                 log.WriteLine("Invalid Header:");
                                 log.WriteLine(fasta.Description);
                                 log.WriteLine("");
+                                
                             }
                         }
 

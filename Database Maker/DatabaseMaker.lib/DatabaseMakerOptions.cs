@@ -20,13 +20,13 @@ namespace Coon.Compass.DatabaseMaker
         [Option("do-not-merge", DefaultValue = false, HelpText = "Do not merge files")]
         public bool DoNotMergeFiles { get; set; }
 
-        [Option('l', null, DefaultValue = true, HelpText = "Generate a .log file.")]
+        [Option('l', null, DefaultValue = null, HelpText = "Generate a .log file.")]
         public bool GenerateLogFile { get; set; }
 
         [Option('o', "output", MetaValue="FILE", Required = true, HelpText = "The base name of the FILE to write the fasta file to")]
         public string OutputFastaFile { get; set; }
 
-        [Option('u', "uniprot", DefaultValue = true, HelpText = "Use standard Uniprot heading in database")]
+        [Option('u', "uniprot", DefaultValue = null, HelpText = "Use standard Uniprot heading in database")]
         public bool EnforceUniprot { get; set; }
 
         [Option('p', "prefix", MetaValue="STRING", Required = false, DefaultValue = "DECOY_", HelpText = "Decoy prefix to add to the front of the protein description")]
@@ -41,10 +41,10 @@ namespace Coon.Compass.DatabaseMaker
         [Option('b', null, HelpText = "Make a BLAST database")]
         public bool BlastDatabase { get; set; }
 
-        [Option("exclude-if-meth", HelpText = "Exclude N-Terminal if Methionine (requires -x)")]
+        [Option('m',"exclude-if-meth", DefaultValue = false, HelpText = "Exclude N-Terminal if Methionine (requires -x)")]
         public bool ExcludeNTerminalMethionine { get; set; }
 
-        [Option('x', null, HelpText = "Exclude N-Terminal Amino Acid Residue (requires reversed or shuffled)")]
+        [Option('n', null, HelpText = "Exclude N-Terminal Amino Acid Residue (requires reversed or shuffled)")]
         public bool ExcludeNTerminalResidue { get; set; }
 
         [ValueList(typeof(List<string>), MaximumElements = -1)]

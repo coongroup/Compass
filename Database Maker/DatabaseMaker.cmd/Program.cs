@@ -28,18 +28,41 @@ namespace Coon.Compass.DatabaseMaker
             {
                 if (options.Verbose)
                 {
-                
-                  //string outputFolder = Path.GetDirectoryName(options.OutputFastaFile);
-                  //  if (string.IsNullOrEmpty(outputFolder))
-                  //  {
-                  //      outputFolder = Path.GetDirectoryName(options.InputFiles[0]);
-                  //  }
-                  //  string output_filename = Path.GetFileNameWithoutExtension(options.OutputFastaFile);
 
-                  //  string outputPath = Path.Combine(outputFolder, output_filename);
+                    //string outputFolder = Path.GetDirectoryName(options.OutputFastaFile);
+                    //  if (string.IsNullOrEmpty(outputFolder))
+                    //  {
+                    //      outputFolder = Path.GetDirectoryName(options.InputFiles[0]);
+                    //  }
+                    //  string output_filename = Path.GetFileNameWithoutExtension(options.OutputFastaFile);
+
+                    //  string outputPath = Path.Combine(outputFolder, output_filename);
 
                     //Console.WriteLine(outputFolder);
                     //Console.WriteLine(outputPath);
+                    //string inputCheck = options.InputFiles[0];
+                    
+                    foreach (string fasta in options.InputFiles)
+                    {
+                        if (!File.Exists(fasta))
+                        {
+                            Console.WriteLine("\nThe input file: \n" + fasta + " \ncould not be found.");
+                        }
+                    }
+
+                    foreach (string fasta in options.InputFiles)
+                    {
+                        if (!File.Exists(fasta))
+                        {
+                            Environment.Exit(0);
+                        }
+                    }
+
+
+                    if (string.IsNullOrEmpty(options.OutputFastaFile))
+                    {
+                        Console.WriteLine("Output fasta file needed.");
+                    }
 
                     Console.WriteLine("");
                     Console.WriteLine("Your input files are: ");
@@ -58,19 +81,19 @@ namespace Coon.Compass.DatabaseMaker
                     ////Console.WriteLine(outputPath);
                     //Console.WriteLine("");
 
-            
 
                 }
+
                 //else
                 //{
                 //    Console.WriteLine("working ...");
                 //}
 
                 else
-                     {
+                {
                     Console.WriteLine(options.GetUsage());
-                     return;
-                    }
+                    return;
+                }
                 if (options.ExcludeNTerminalResidue)
                 {
                     Console.WriteLine("");
@@ -94,6 +117,7 @@ namespace Coon.Compass.DatabaseMaker
 
 
                     var databaseMaker = new DatabaseMaker(options);
+                   
                     databaseMaker.CreateDatabase();
                     Console.WriteLine("Success!");
                     Environment.Exit(0);

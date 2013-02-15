@@ -271,6 +271,21 @@ namespace Coon.Compass.DatabaseMaker
             process.Start();
             process.WaitForExit();
         }
+        public void DisplayVerboseOptions(bool verboseOptions, DatabaseMakerOptions Options)
+        {
+            Console.WriteLine("Input File(s): {0}", string.Join("\n", Options.InputFiles));
+            Console.WriteLine("\nOutput File: {0}", Options.OutputFastaFile);
+            Console.WriteLine("\nDatabase Maker PARAMETERS");
+            Console.WriteLine("\nDatabase Type: {0}", Options.OutputType);
+            if (Options.OutputType != DatabaseType.Target)
+            {
+                Console.WriteLine("\nDecoy Database Method: {0}", Options.DecoyType);
+                Console.WriteLine("\nExclude N-Terminus: " + Options.ExcludeNTerminalResidue);
+                Console.WriteLine("\nOnly If N-Terminus Is Methionine: " + Options.ExcludeNTerminalMethionine);
+            }
+            Console.WriteLine("\nMerging Fasta Files: ", Options.DoNotMergeFiles);
+            Console.WriteLine("\nStandard Uniprot Headers: " + Options.EnforceUniprot);
+        }
 
     }
 }

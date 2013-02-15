@@ -28,18 +28,12 @@ namespace Coon.Compass.DatabaseMaker
             {
                 if (options.Verbose)
                 {
-                
-                  //string outputFolder = Path.GetDirectoryName(options.OutputFastaFile);
-                  //  if (string.IsNullOrEmpty(outputFolder))
-                  //  {
-                  //      outputFolder = Path.GetDirectoryName(options.InputFiles[0]);
-                  //  }
-                  //  string output_filename = Path.GetFileNameWithoutExtension(options.OutputFastaFile);
 
-                  //  string outputPath = Path.Combine(outputFolder, output_filename);
-
-                    //Console.WriteLine(outputFolder);
-                    //Console.WriteLine(outputPath);
+         
+                    if (string.IsNullOrEmpty(options.OutputFastaFile))
+                    {
+                        Console.WriteLine("Output fasta file needed.");
+                    }
 
                     Console.WriteLine("");
                     Console.WriteLine("Your input files are: ");
@@ -54,23 +48,20 @@ namespace Coon.Compass.DatabaseMaker
                     Console.WriteLine("Decoy prefix: ");
                     Console.WriteLine(options.DecoyPrefix);
                     Console.WriteLine("");
-                    //Console.WriteLine("Output file path: ");
-                    ////Console.WriteLine(outputPath);
-                    //Console.WriteLine("");
-
-            
 
                 }
-                //else
-                //{
-                //    Console.WriteLine("working ...");
-                //}
 
                 else
-                     {
+                {
                     Console.WriteLine(options.GetUsage());
-                     return;
-                    }
+                    return;
+                }
+                
+                if (options.ExcludeNTerminalMethionine)
+                {
+                    options.ExcludeNTerminalResidue = true;
+                }
+                
                 if (options.ExcludeNTerminalResidue)
                 {
                     Console.WriteLine("");
@@ -90,16 +81,49 @@ namespace Coon.Compass.DatabaseMaker
                 if (options.EnforceUniprot)
                 {
                     Console.WriteLine("");
-                    Console.WriteLine("Standard Uniprot headers will be used");
+                    Console.WriteLine("Standard Uniprot headers will be used");                   
+                }
 
 
-                    var databaseMaker = new DatabaseMaker(options);
+               var databaseMaker = new DatabaseMaker(options);
+
+                databaseMaker.OnInvalidHeader += databaseMaker_OnInvalidHeader;
+
+                try
+                {
                     databaseMaker.CreateDatabase();
                     Console.WriteLine("Success!");
+                }
+                catch (ArgumentNullException e2)
+                {
+                    Console.WriteLine("\nError: No input files specified");
+                }
+
+                catch (ArgumentException e3)
+                {
+                    Console.WriteLine("\nError: " + e3.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error: " + e.Message);
+                }
+                finally
+                {
+                    Console.WriteLine("Press enter to exit.");
+                    Console.ReadKey();
                     Environment.Exit(0);
                 }
             }
         }
+
+        static void databaseMaker_OnInvalidHeader(object sender, FastaEvent e)
+        {
+            Fasta fasta = e.Fasta;
+            Console.WriteLine("Invalid Header!");
+            Console.WriteLine(fasta.Description);
+        }
+
+        
     
     }
 }

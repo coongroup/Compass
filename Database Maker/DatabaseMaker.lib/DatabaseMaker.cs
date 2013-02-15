@@ -4,6 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using CSMSL.IO;
 using System.Text.RegularExpressions;
+using System.Windows;
+
+
 
 namespace Coon.Compass.DatabaseMaker
 {
@@ -16,29 +19,67 @@ namespace Coon.Compass.DatabaseMaker
             Options = options;
         }
 
+        // Create an event that can be handled by other code
+        // It takes as an argument <FastaEvent> or any other class
+        // that inherits from EventArgs.
+
+        public event EventHandler<FastaEvent> OnInvalidHeader;
+
+        // This private method is called when an event should be 
+        // thrown. It first does context-switching, i.e. setting
+        // a public variable (OnInvalidHeader) to a local variable
+        // to prevent race conditions. Then it checks to see if 
+        // there are any event handlers registered with it (the null
+        // check). If no one is listening to this event, it does nothing.
+        // If there are one or more listeners to this event, it "raises"
+        // the event and those are handled by their respective methods.
+
+        private void InvalidHeader(Fasta fasta)
+        {
+            var handler = OnInvalidHeader;
+            if (handler != null)
+            {
+                handler(this, new FastaEvent(fasta));
+            }
+            // BAD below
+            //if (OnInvalidHeader != null)
+            //{
+            //    OnInvalidHeader(this, new FastaEvent(fasta));
+            //}
+        }
+
         public void CreateDatabase()
         {
             try
             {
-                string outputFolder = Path.GetDirectoryName(Options.OutputFastaFile);                
-                if(!Directory.Exists(outputFolder))
+                // Validate Options are kosher
+                                
+                if (Options.InputFiles.Count == 0)
                 {
-                    outputFolder = Directory.GetCurrentDirectory();
+                    throw new ArgumentNullException("Input Files");
                 }
 
-                if (Options.GenerateLogFile)
+                string ext = Path.GetExtension(Options.OutputFastaFile);
+                if (string.IsNullOrEmpty(ext))
                 {
-                    GenerateLog(outputFolder);
+                    ext = ".fasta";
                 }
+                string output_filename = Path.GetFullPath(Options.OutputFastaFile);
 
-                string ext = Options.FileExtension; // ".fasta"
-                string output_filename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile); // options.OutputFile
-
-                if (Options.DoNotAppendDatabaseType == false)
+                if (Options.DoNotAppendDatabaseType)
+                {
+                    output_filename = output_filename + ext;
+                    if (Options.InputFiles.Contains(output_filename))
+                    {
+                        throw new ArgumentException("Output file path cannot be the same as an input file.");
+                    }
+                }                
+                else
                 {
                     switch (Options.OutputType)
                     {
                         case DatabaseType.Target:
+                            //output_filename = Path.Combine(output_filename, "_TARGET", ext);
                             output_filename += "_TARGET" + ext;
                             break;
                         case DatabaseType.Decoy:
@@ -51,44 +92,63 @@ namespace Coon.Compass.DatabaseMaker
                     }
                 }
 
+                string logFilename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile);
+                string outputFolder = Path.GetDirectoryName(Options.OutputFastaFile);                
+                if(!Directory.Exists(outputFolder))
+                {
+                    outputFolder = Directory.GetCurrentDirectory();
+                }
+
+                if (Options.GenerateLogFile)
+                {
+                   switch (Options.OutputType)
+                    {
+                        case DatabaseType.Target:
+                            logFilename += "_TARGET.log";
+                            break;
+                        case DatabaseType.Decoy:
+                            logFilename += "_DECOY.log";
+                            break;
+                        case DatabaseType.Concatenated:
+                        default:
+                            logFilename += "_CONCAT.log";
+                            break;
+                    }
+                    GenerateLog(outputFolder, logFilename);
+                }
+                
+                string outputPath = Path.Combine(outputFolder, output_filename);
+
+                if (Options.DoNotMergeFiles)
+                {
+                    foreach (string fastaFile in Options.InputFiles)
+                    {
+                        using (FastaWriter writer = new FastaWriter(outputPath))
+                        {
+                            WriteFasta(fastaFile, writer);
+                        }
+                    }
+                }
                 else
                 {
-                    output_filename = output_filename + ext;
+                    using (FastaWriter writer = new FastaWriter(outputPath))
+                    {
+                        foreach (string fastaFile in Options.InputFiles)
+                        {
+                            WriteFasta(fastaFile, writer);
+                        }
+                    }                   
                 }
-                string outputPath = Path.Combine(outputFolder, output_filename);
-                
-                if (Options.DoNotMergeFiles == false)
-                  {
-                     using (FastaWriter writer = new FastaWriter(outputPath))
-                       {
-                          foreach (string fastaFile in Options.InputFiles)
-                            {
-                               WriteFasta(fastaFile, writer);
-                            }
-                        }
-                   }
-                else
-                  {
-                     foreach (string fastaFile in Options.InputFiles)
-                       {
-                          using (FastaWriter writer = new FastaWriter(outputPath))
-                            {
-                               WriteFasta(fastaFile, writer);
-                            }
-                        }
-                   }
                 
                 if (Options.BlastDatabase)
                 {
                     MakeBlastDatabase(outputFolder, output_filename, Path.GetFileNameWithoutExtension(output_filename));
                 }
-                // //Give feedback to user.
-                //MessageBox.Show("Database saved to " + outputFolder);
             }          
             
             catch (DirectoryNotFoundException)
             {
-                //MessageBox.Show("Output Folder Path does not exist.");
+    
             }
         }
     
@@ -100,65 +160,94 @@ namespace Coon.Compass.DatabaseMaker
         private void GenerateLog(string outputDirectory, string logFileName = "DatabaseMaker.log")
         {
             using (StreamWriter log = new StreamWriter(Path.Combine(outputDirectory, logFileName)))
-            {                
+            {
                 log.WriteLine("Database Maker PARAMETERS");
                 log.WriteLine("Database Type: {0}", Options.OutputType);
                 if (Options.OutputType != DatabaseType.Target)
                 {
                     log.WriteLine("Decoy Database Method: {0}", Options.DecoyType);
-                    log.WriteLine("Exclude N-Terminus: {0}", Options.ExcludeNTerminalResidue);
-                    if (Options.ExcludeNTerminalResidue)
-                    {
-                        log.WriteLine("Only If N-Terminus Is Methionine: {0}",Options.ExcludeNTerminalMethionine);
-                    }
+                    log.WriteLine("Exclude N-Terminus: " + Options.ExcludeNTerminalResidue);
+                    log.WriteLine("Only If N-Terminus Is Methionine: " + Options.ExcludeNTerminalMethionine);
                 }
                 log.WriteLine();
                 log.WriteLine(Options.DoNotMergeFiles ? "Fasta Files:" : "Merging Fasta Files:");
                 foreach (string fastafile in Options.InputFiles)
                 {
                     log.WriteLine(fastafile);
-                }                
+                }
             }
         }
 
         public void WriteFasta(string fasta_file, FastaWriter Writer)
         {
+            //bool excludeMethionine = false;
+            
+            //if (Options.ExcludeNTerminalMethionine)
+            //{
+            //    excludeMethionine = true;
+            //}
+
+            bool MakeDecoy = false;
+            
+            if (Options.OutputType == DatabaseType.Target || Options.OutputType == DatabaseType.Concatenated)
+            {
+                MakeDecoy = false;
+            }
+            else if (Options.OutputType == DatabaseType.Decoy || Options.OutputType == DatabaseType.Concatenated)
+            {
+                MakeDecoy = true;
+            }
+
             using (FastaReader reader = new FastaReader(fasta_file))
             {
+                int mismatch = 0;
                 foreach (Fasta fasta in reader.ReadNextFasta())
                 {
-                        Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
-                        Match UniprotMatch = uniprotRegex.Match(fasta.Description);
-                        string HeaderFile = ("Invalidheaders.txt");
-                        string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
+                   
+                    Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
+                    Match UniprotMatch = uniprotRegex.Match(fasta.Description);
+                    string HeaderFile = "InvalidUniprotheaders.txt";
+                    string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
 
-                        if (Options.EnforceUniprot && !UniprotMatch.Success)
+                    if (Options.EnforceUniprot && !UniprotMatch.Success)
+                    {
+
+                        using (StreamWriter log = new StreamWriter(Path.Combine(headerFolder, HeaderFile), true))
                         {
-                            using (StreamWriter log = new StreamWriter(Path.Combine(headerFolder, HeaderFile),true))
-                            {
-                                log.WriteLine("Invalid Header:");
-                                log.WriteLine(fasta.Description);
-                                log.WriteLine("");
-                            }
+                            log.WriteLine("Invalid Header:");
+                            log.WriteLine(fasta.Description);
+                            log.WriteLine("At line: " + mismatch);
+                            log.WriteLine();
+                            InvalidHeader(fasta);
                         }
-
-                        if (UniprotMatch.Success)
-                        {
-                            if (Options.OutputType == DatabaseType.Target || Options.OutputType == DatabaseType.Concatenated)
-                            {
-                                Writer.Write(fasta);
-                            }
-                            if (Options.OutputType == DatabaseType.Decoy || Options.OutputType == DatabaseType.Concatenated)
-                            {
-                                Writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, Options.ExcludeNTerminalResidue, Options.ExcludeNTerminalMethionine));
-                            }
-
-                        }
-
                     }
 
+                    if (UniprotMatch.Success)
+                    {
+                        
+                        bool excludeMethionine = false;
+                        if (Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue)
+                        {
+                            excludeMethionine = true;
+                        }
+
+                        if (MakeDecoy)
+                        {
+                            Writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, (excludeMethionine || Options.ExcludeNTerminalResidue), Options.ExcludeNTerminalMethionine));
+                           
+                        }
+                        
+                        else
+                        {
+                            Writer.Write(fasta);
+                        }
+
+                    } mismatch = reader.LineNumber;
+
                 }
+
             }
+        }
         
 
         public static string MAKEBLASTDB_FILENAME = "makeblastdb.exe";

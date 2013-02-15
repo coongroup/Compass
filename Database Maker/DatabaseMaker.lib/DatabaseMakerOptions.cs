@@ -11,8 +11,8 @@ namespace Coon.Compass.DatabaseMaker
 {
     public class DatabaseMakerOptions
     {
-        [Option('e', "extension", MetaValue = "STRING", Required = false, DefaultValue = ".fasta", HelpText = "Output file extension")]
-        public string FileExtension { get; set; }
+        //[Option('e', "extension", MetaValue = "STRING", Required = false, DefaultValue = ".fasta", HelpText = "Output file extension")]
+        //public string FileExtension { get; set; }
 
         [Option("do-not-append", DefaultValue = false, HelpText = "Appends the output file name with the database type (CONCAT_, TARGET_, DECOY_)")]
         public bool DoNotAppendDatabaseType { get; set; }
@@ -41,7 +41,7 @@ namespace Coon.Compass.DatabaseMaker
         [Option('b', null, HelpText = "Make a BLAST database")]
         public bool BlastDatabase { get; set; }
 
-        [Option('m',"exclude-if-meth", DefaultValue = false, HelpText = "Exclude N-Terminal if Methionine (requires -x)")]
+        [Option('m',"exclude-if-meth", DefaultValue = false, HelpText = "Exclude N-Terminal if Methionine")]
         public bool ExcludeNTerminalMethionine { get; set; }
 
         [Option('n', null, HelpText = "Exclude N-Terminal Amino Acid Residue (requires reversed or shuffled)")]
@@ -65,6 +65,6 @@ namespace Coon.Compass.DatabaseMaker
             return text;
         }
         
-
+        
     }
 }

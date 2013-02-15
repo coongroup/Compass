@@ -46,6 +46,7 @@
     <Compile Include="DatabaseMaker.cs" />
     <Compile Include="DatabaseMakerOptions.cs" />
     <Compile Include="DatabaseType.cs" />
+    <Compile Include="FastaEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

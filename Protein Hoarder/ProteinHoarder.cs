@@ -133,7 +133,7 @@ namespace Protein_Hoarder
             foreach (CsvFile csvfile in csvFiles)
             {
                 // Keep a list of all the proteases used
-                Proteases.Add(ProteaseDictionary.Instance[csvfile.Protease]);
+                Proteases.Add(CSMSL.Proteomics.Protease.GetProtease(csvfile.Protease));
 
                 // Counter for the number of PSMs loaded in this csvfile
                 int csvPsmCount = 0;

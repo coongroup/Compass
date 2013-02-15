@@ -74,7 +74,7 @@ namespace Protein_Hoarder
             expCol.AutoComplete = true;
             csvDGV.Columns.Add(expCol);
 
-            List<Protease> proteases = ProteaseDictionary.Instance.ToList();
+            List<Protease> proteases = CSMSL.Proteomics.Protease.GetAllProteases().ToList();
 
             DataGridViewComboBoxColumn proteaseCol = new DataGridViewComboBoxColumn();
             proteaseCol.HeaderText = "Protease";

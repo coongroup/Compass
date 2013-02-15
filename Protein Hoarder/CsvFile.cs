@@ -70,7 +70,7 @@ namespace Protein_Hoarder
         public CsvFile(string fileName)
         {
             FilePath = fileName;
-            Protease = ProteaseDictionary.Instance["Trypsin"].Name;
+            Protease = CSMSL.Proteomics.Protease.Trypsin.Name;
         }
 
         public override string ToString()

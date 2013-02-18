@@ -45,6 +45,7 @@ namespace Coon.Compass.DatabaseMaker
                 }
                 finally
                 {
+                    Console.ReadKey();
                     Environment.Exit(0);
                 }
             }

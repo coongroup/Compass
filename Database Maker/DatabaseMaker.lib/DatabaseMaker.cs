@@ -19,8 +19,6 @@ namespace Coon.Compass.DatabaseMaker
             Options = options;
         }
 
-     
-
         // Create an event that can be handled by other code
         // It takes as an argument <FastaEvent> or any other class
         // that inherits from EventArgs.
@@ -160,15 +158,19 @@ namespace Coon.Compass.DatabaseMaker
         {
             using (StreamWriter log = new StreamWriter(Path.Combine(outputDirectory, logFileName)))
             {
-                log.WriteLine("Database Maker PARAMETERS");
-                log.WriteLine("Database Type: {0}", Options.OutputType);
+                log.WriteLine("Input File(s): {0}", string.Join("\n", Options.InputFiles));
+                log.WriteLine("\nOutput File: {0}", Options.OutputFastaFile);
+                log.WriteLine("\nDatabase Maker PARAMETERS");
+                log.WriteLine("\nDatabase Type: {0}", Options.OutputType);
                 if (Options.OutputType != DatabaseType.Target)
                 {
-                    log.WriteLine("Decoy Database Method: {0}", Options.DecoyType);
-                    log.WriteLine("Exclude N-Terminus: " + Options.ExcludeNTerminalResidue);
-                    log.WriteLine("Only If N-Terminus Is Methionine: " + Options.ExcludeNTerminalMethionine);
+                    log.WriteLine("\nDecoy Database Method: {0}", Options.DecoyType);
+                    log.WriteLine("\nExclude N-Terminus: {0}", Options.ExcludeNTerminalResidue);
+                    log.WriteLine("\nOnly If N-Terminus Is Methionine: {0}", Options.ExcludeNTerminalMethionine);
                 }
-                log.WriteLine("Merge Fasta Files: {0}", Options.DoNotMergeFiles);
+                log.WriteLine("\nMerging Fasta Files: {0}", Options.DoNotMergeFiles);
+                log.WriteLine("\nEnforce Standard Uniprot Headers: {0}", Options.EnforceUniprot);
+                log.WriteLine("\nCreate a BLAST Database: {0}", Options.BlastDatabase);
                 foreach (string fastafile in Options.InputFiles)
                 {
                     log.WriteLine(fastafile);
@@ -215,7 +217,6 @@ namespace Coon.Compass.DatabaseMaker
 
                     if (UniprotMatch.Success)
                     {
-                        
                         bool excludeMethionine = false;
                         if (Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue)
                         {
@@ -269,11 +270,12 @@ namespace Coon.Compass.DatabaseMaker
             if (Options.OutputType != DatabaseType.Target)
             {
                 Console.WriteLine("\nDecoy Database Method: {0}", Options.DecoyType);
-                Console.WriteLine("\nExclude N-Terminus: " + Options.ExcludeNTerminalResidue);
-                Console.WriteLine("\nOnly If N-Terminus Is Methionine: " + Options.ExcludeNTerminalMethionine);
+                Console.WriteLine("\nExclude N-Terminus: {0}", Options.ExcludeNTerminalResidue);
+                Console.WriteLine("\nOnly If N-Terminus Is Methionine: {0}", Options.ExcludeNTerminalMethionine);
             }
-            Console.WriteLine("\nMerging Fasta Files: " + Options.DoNotMergeFiles);
-            Console.WriteLine("\nEnforce Standard Uniprot Headers: " + Options.EnforceUniprot);
+            Console.WriteLine("\nMerging Fasta Files: {0}", Options.DoNotMergeFiles);
+            Console.WriteLine("\nEnforce Standard Uniprot Headers: {0}", Options.EnforceUniprot);
+            Console.WriteLine("\nCreate a BLAST Database: {0}", Options.BlastDatabase);
         }
 
     }

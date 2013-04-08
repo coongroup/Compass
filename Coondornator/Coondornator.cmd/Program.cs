@@ -11,6 +11,7 @@ namespace Compass.Coondornator
         static void Main(string[] args)
         {
             CondorSubmitFile submitFile = new CondorSubmitFile();
+            Console.WriteLine(submitFile.SubmitFileHeader("hi nick", "hi nick"));
             submitFile.Requirements.Add("Derek Rocks");
             submitFile.Requirements.Add("Biking is fun");
 

@@ -47,6 +47,9 @@ namespace DtaGenerator
             this.chkOmssaTxtOutput = new System.Windows.Forms.CheckBox();
             this.chkGroupByActivationEnergyTime = new System.Windows.Forms.CheckBox();
             this.grpPeakFilteringOptions = new System.Windows.Forms.GroupBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.grpIsobaricLabelCleaning = new System.Windows.Forms.GroupBox();
             this.chkCleanItraq8Plex = new System.Windows.Forms.CheckBox();
@@ -61,17 +64,14 @@ namespace DtaGenerator
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
-            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
             this.pnlMain.SuspendLayout();
             this.grpOutputOptions.SuspendLayout();
             this.grpPeakFilteringOptions.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.grpIsobaricLabelCleaning.SuspendLayout();
             this.grpAssumedPrecursorChargeStateRange.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumAssumedPrecursorChargeState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMinimumAssumedPrecursorChargeState)).BeginInit();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // prgProgress
@@ -259,6 +259,37 @@ namespace DtaGenerator
             this.grpPeakFilteringOptions.TabStop = false;
             this.grpPeakFilteringOptions.Text = "Peak Filtering Options";
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.checkedListBox2);
+            this.groupBox1.Controls.Add(this.checkedListBox1);
+            this.groupBox1.Location = new System.Drawing.Point(202, 53);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(230, 102);
+            this.groupBox1.TabIndex = 119;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Neutral Loss Cleaning";
+            // 
+            // checkedListBox2
+            // 
+            this.checkedListBox2.CheckOnClick = true;
+            this.checkedListBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.checkedListBox2.FormattingEnabled = true;
+            this.checkedListBox2.Location = new System.Drawing.Point(3, 16);
+            this.checkedListBox2.Name = "checkedListBox2";
+            this.checkedListBox2.Size = new System.Drawing.Size(224, 83);
+            this.checkedListBox2.TabIndex = 95;
+            // 
+            // checkedListBox1
+            // 
+            this.checkedListBox1.FormattingEnabled = true;
+            this.checkedListBox1.Location = new System.Drawing.Point(239, 16);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(120, 94);
+            this.checkedListBox1.TabIndex = 94;
+            // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
@@ -429,39 +460,8 @@ namespace DtaGenerator
             // 
             // ofdRawFiles
             // 
-            this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
+            this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw|MzML File (.mzML, .xml)|*.mzml;*.xml";
             this.ofdRawFiles.Multiselect = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.checkedListBox2);
-            this.groupBox1.Controls.Add(this.checkedListBox1);
-            this.groupBox1.Location = new System.Drawing.Point(202, 53);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 102);
-            this.groupBox1.TabIndex = 119;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Neutral Loss Cleaning";
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(239, 16);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(120, 94);
-            this.checkedListBox1.TabIndex = 94;
-            // 
-            // checkedListBox2
-            // 
-            this.checkedListBox2.CheckOnClick = true;
-            this.checkedListBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkedListBox2.FormattingEnabled = true;
-            this.checkedListBox2.Location = new System.Drawing.Point(3, 16);
-            this.checkedListBox2.Name = "checkedListBox2";
-            this.checkedListBox2.Size = new System.Drawing.Size(224, 83);
-            this.checkedListBox2.TabIndex = 95;
             // 
             // frmMain
             // 
@@ -486,13 +486,13 @@ namespace DtaGenerator
             this.grpOutputOptions.PerformLayout();
             this.grpPeakFilteringOptions.ResumeLayout(false);
             this.grpPeakFilteringOptions.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
             this.grpIsobaricLabelCleaning.ResumeLayout(false);
             this.grpIsobaricLabelCleaning.PerformLayout();
             this.grpAssumedPrecursorChargeStateRange.ResumeLayout(false);
             this.grpAssumedPrecursorChargeStateRange.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumAssumedPrecursorChargeState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMinimumAssumedPrecursorChargeState)).EndInit();
-            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

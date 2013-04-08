@@ -1,24 +1,57 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTA Generator", "DTA Generator.csproj", "{B91DDD59-F211-4815-992C-4CFEC51D36EE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{70B29D8E-8257-4E40-A141-3816FBCD9125}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSMSL", "..\..\CSMSL\CSMSL\CSMSL.csproj", "{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Debug|x86.Build.0 = Debug|Any CPU
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|Mixed Platforms.Build.0 = Release|x86
+		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|x64.ActiveCfg = Release|Any CPU
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|x86.ActiveCfg = Release|x86
 		{B91DDD59-F211-4815-992C-4CFEC51D36EE}.Release|x86.Build.0 = Release|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|x64.ActiveCfg = Debug|x64
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|x64.Build.0 = Debug|x64
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|x86.ActiveCfg = Debug|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Debug|x86.Build.0 = Debug|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|Any CPU.ActiveCfg = Release|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|Mixed Platforms.Build.0 = Release|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|x64.ActiveCfg = Release|x64
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|x64.Build.0 = Release|x64
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|x86.ActiveCfg = Release|x86
+		{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -50,9 +50,11 @@ namespace Coon.Compass.DatabaseMaker
         [ValueList(typeof(List<string>), MaximumElements = -1)]
         public IList<string> InputFiles { get; set; }
 
-        [Option('v', null, DefaultValue = true, HelpText = "Print details during execution.")]
+        [Option('v', null, DefaultValue = false, HelpText = "Print details during execution.")]
         public bool Verbose { get; set; }
-               
+                
+        public bool help { get; set; }
+
         [ParserState]
         public IParserState LastParserState { get; set; }
 

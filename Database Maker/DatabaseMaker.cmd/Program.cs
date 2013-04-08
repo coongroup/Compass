@@ -12,30 +12,23 @@ namespace Coon.Compass.DatabaseMaker
     {
         static void Main(string[] args)
         {
-            var options = new DatabaseMakerOptions();   
+            var options = new DatabaseMakerOptions();
 
-            var parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));
-            if (!parser.ParseArguments(args, options))
-                Environment.Exit(1);
+            var parser = new CommandLineParser(new CommandLineParserSettings(Console.Error));            
+            if (parser.ParseArguments(args, options))              
             {
-               var databaseMaker = new DatabaseMaker(options);
-               if (options.Verbose)
-               {
-                   databaseMaker.DisplayVerboseOptions(options.Verbose,options);
-               }
-
-               else
-               {
-                   Console.WriteLine(options.GetUsage());
-                   return;
-               }
+                var databaseMaker = new DatabaseMaker(options);
                 
+                if (options.Verbose)
+                {
+                    databaseMaker.DisplayVerboseOptions(options.Verbose, options);
+                }
+
                 databaseMaker.OnInvalidHeader += databaseMaker_OnInvalidHeader;
 
                 try
                 {
                     databaseMaker.CreateDatabase();
-                    Console.WriteLine("Success!");
                 }
                 catch (ArgumentNullException e2)
                 {
@@ -52,11 +45,11 @@ namespace Coon.Compass.DatabaseMaker
                 }
                 finally
                 {
-                    Console.WriteLine("Press enter to exit.");
                     Console.ReadKey();
                     Environment.Exit(0);
                 }
             }
+            Environment.Exit(0);
         }
 
         static void databaseMaker_OnInvalidHeader(object sender, FastaEvent e)
@@ -65,8 +58,5 @@ namespace Coon.Compass.DatabaseMaker
             Console.WriteLine("\nInvalid Header!");
             Console.WriteLine(fasta.Description);
         }
-
-        
-    
     }
 }

@@ -53,8 +53,8 @@ namespace Coon.Compass.DatabaseMaker
             try
             {
                 // Validate Options are kosher
-                                
-                if (Options.InputFiles.Count == 0)
+
+                if (Options.InputFiles == null ||Options.InputFiles.Count == 0)
                 {
                     throw new ArgumentNullException("Input Files");
                 }
@@ -73,13 +73,12 @@ namespace Coon.Compass.DatabaseMaker
                     {
                         throw new ArgumentException("Output file path cannot be the same as an input file.");
                     }
-                }                
+                }
                 else
                 {
                     switch (Options.OutputType)
                     {
                         case DatabaseType.Target:
-                            //output_filename = Path.Combine(output_filename, "_TARGET", ext);
                             output_filename += "_TARGET" + ext;
                             break;
                         case DatabaseType.Decoy:
@@ -93,15 +92,15 @@ namespace Coon.Compass.DatabaseMaker
                 }
 
                 string logFilename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile);
-                string outputFolder = Path.GetDirectoryName(Options.OutputFastaFile);                
-                if(!Directory.Exists(outputFolder))
+                string outputFolder = Path.GetDirectoryName(Options.OutputFastaFile);
+                if (!Directory.Exists(outputFolder))
                 {
                     outputFolder = Directory.GetCurrentDirectory();
                 }
 
                 if (Options.GenerateLogFile)
                 {
-                   switch (Options.OutputType)
+                    switch (Options.OutputType)
                     {
                         case DatabaseType.Target:
                             logFilename += "_TARGET.log";
@@ -116,7 +115,7 @@ namespace Coon.Compass.DatabaseMaker
                     }
                     GenerateLog(outputFolder, logFilename);
                 }
-                
+
                 string outputPath = Path.Combine(outputFolder, output_filename);
 
                 if (Options.DoNotMergeFiles)
@@ -137,22 +136,20 @@ namespace Coon.Compass.DatabaseMaker
                         {
                             WriteFasta(fastaFile, writer);
                         }
-                    }                   
+                    }
                 }
-                
+
                 if (Options.BlastDatabase)
                 {
                     MakeBlastDatabase(outputFolder, output_filename, Path.GetFileNameWithoutExtension(output_filename));
                 }
-            }          
-            
+            }
+
             catch (DirectoryNotFoundException)
             {
-    
             }
         }
     
-
         /// <summary>
         /// Generates a log file detailing the parameters used
         /// </summary>
@@ -161,16 +158,19 @@ namespace Coon.Compass.DatabaseMaker
         {
             using (StreamWriter log = new StreamWriter(Path.Combine(outputDirectory, logFileName)))
             {
-                log.WriteLine("Database Maker PARAMETERS");
-                log.WriteLine("Database Type: {0}", Options.OutputType);
+                log.WriteLine("Input File(s): {0}", string.Join("\n", Options.InputFiles));
+                log.WriteLine("\nOutput File: {0}", Options.OutputFastaFile);
+                log.WriteLine("\nDatabase Maker PARAMETERS");
+                log.WriteLine("\nDatabase Type: {0}", Options.OutputType);
                 if (Options.OutputType != DatabaseType.Target)
                 {
-                    log.WriteLine("Decoy Database Method: {0}", Options.DecoyType);
-                    log.WriteLine("Exclude N-Terminus: " + Options.ExcludeNTerminalResidue);
-                    log.WriteLine("Only If N-Terminus Is Methionine: " + Options.ExcludeNTerminalMethionine);
+                    log.WriteLine("\nDecoy Database Method: {0}", Options.DecoyType);
+                    log.WriteLine("\nExclude N-Terminus: {0}", Options.ExcludeNTerminalResidue);
+                    log.WriteLine("\nOnly If N-Terminus Is Methionine: {0}", Options.ExcludeNTerminalMethionine);
                 }
-                log.WriteLine();
-                log.WriteLine(Options.DoNotMergeFiles ? "Fasta Files:" : "Merging Fasta Files:");
+                log.WriteLine("\nMerging Fasta Files: {0}", Options.DoNotMergeFiles);
+                log.WriteLine("\nEnforce Standard Uniprot Headers: {0}", Options.EnforceUniprot);
+                log.WriteLine("\nCreate a BLAST Database: {0}", Options.BlastDatabase);
                 foreach (string fastafile in Options.InputFiles)
                 {
                     log.WriteLine(fastafile);
@@ -180,13 +180,6 @@ namespace Coon.Compass.DatabaseMaker
 
         public void WriteFasta(string fasta_file, FastaWriter Writer)
         {
-            //bool excludeMethionine = false;
-            
-            //if (Options.ExcludeNTerminalMethionine)
-            //{
-            //    excludeMethionine = true;
-            //}
-
             bool MakeDecoy = false;
             
             if (Options.OutputType == DatabaseType.Target || Options.OutputType == DatabaseType.Concatenated)
@@ -203,7 +196,6 @@ namespace Coon.Compass.DatabaseMaker
                 int mismatch = 0;
                 foreach (Fasta fasta in reader.ReadNextFasta())
                 {
-                   
                     Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
                     Match UniprotMatch = uniprotRegex.Match(fasta.Description);
                     string HeaderFile = "InvalidUniprotheaders.txt";
@@ -211,12 +203,13 @@ namespace Coon.Compass.DatabaseMaker
 
                     if (Options.EnforceUniprot && !UniprotMatch.Success)
                     {
-
                         using (StreamWriter log = new StreamWriter(Path.Combine(headerFolder, HeaderFile), true))
                         {
                             log.WriteLine("Invalid Header:");
+                            log.WriteLine();
                             log.WriteLine(fasta.Description);
-                            log.WriteLine("At line: " + mismatch);
+                            log.WriteLine();
+                            log.WriteLine("At line " + mismatch + ", in file '" + fasta_file + "'");
                             log.WriteLine();
                             InvalidHeader(fasta);
                         }
@@ -224,7 +217,6 @@ namespace Coon.Compass.DatabaseMaker
 
                     if (UniprotMatch.Success)
                     {
-                        
                         bool excludeMethionine = false;
                         if (Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue)
                         {
@@ -234,7 +226,6 @@ namespace Coon.Compass.DatabaseMaker
                         if (MakeDecoy)
                         {
                             Writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, (excludeMethionine || Options.ExcludeNTerminalResidue), Options.ExcludeNTerminalMethionine));
-                           
                         }
                         
                         else
@@ -245,10 +236,9 @@ namespace Coon.Compass.DatabaseMaker
                     } mismatch = reader.LineNumber;
 
                 }
-
+                
             }
         }
-        
 
         public static string MAKEBLASTDB_FILENAME = "makeblastdb.exe";
         public static string LOG_FILENAME = "blast_log.txt";
@@ -280,11 +270,12 @@ namespace Coon.Compass.DatabaseMaker
             if (Options.OutputType != DatabaseType.Target)
             {
                 Console.WriteLine("\nDecoy Database Method: {0}", Options.DecoyType);
-                Console.WriteLine("\nExclude N-Terminus: " + Options.ExcludeNTerminalResidue);
-                Console.WriteLine("\nOnly If N-Terminus Is Methionine: " + Options.ExcludeNTerminalMethionine);
+                Console.WriteLine("\nExclude N-Terminus: {0}", Options.ExcludeNTerminalResidue);
+                Console.WriteLine("\nOnly If N-Terminus Is Methionine: {0}", Options.ExcludeNTerminalMethionine);
             }
-            Console.WriteLine("\nMerging Fasta Files: ", Options.DoNotMergeFiles);
-            Console.WriteLine("\nStandard Uniprot Headers: " + Options.EnforceUniprot);
+            Console.WriteLine("\nMerging Fasta Files: {0}", Options.DoNotMergeFiles);
+            Console.WriteLine("\nEnforce Standard Uniprot Headers: {0}", Options.EnforceUniprot);
+            Console.WriteLine("\nCreate a BLAST Database: {0}", Options.BlastDatabase);
         }
 
     }

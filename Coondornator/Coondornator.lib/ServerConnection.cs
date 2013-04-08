@@ -3,26 +3,45 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tamir.SharpSsh;
+using Renci.SshNet;
+using Renci.SshNet.Sftp;
+using System.IO;
 
 namespace Compass.Coondornator
 {
     public class ServerConnection : IDisposable
     {
-        private Scp _scp;
+        private SftpClient _sftp;
         private string _userName;
         private bool _disposed;
 
         public ServerConnection(string hostURL, string username, string password)
         {
-            _scp = new Scp(hostURL, username, password);            
+            _sftp = new SftpClient(hostURL, username, password);
+            _sftp.Connect();
             _disposed = false;
             _userName = username;
         }
 
+        public IEnumerable<string> GetBlastDatabases()
+        {
+            return from db in ListDirectory(Coondornator.CondorDatabaseDirectory)
+                   where Path.GetExtension(db).Equals(".pin")
+                   select Path.GetFileNameWithoutExtension(db);             
+        }
+
+        public IEnumerable<string> ListDirectory(string remoteDirectory)
+        {  
+            return from file in _sftp.ListDirectory(remoteDirectory)
+                   select file.FullName;          
+        }               
+
         public void PutFile(File file, string remoteDirectory)
         {
-            _scp.Put(file.FilePath, CondorFolder + remoteDirectory);
+            using (Stream stream = System.IO.File.OpenRead(file.FilePath))
+            {
+                _sftp.UploadFile(stream, remoteDirectory);
+            }           
         }
 
         private string CondorFolder
@@ -43,10 +62,13 @@ namespace Compass.Coondornator
             {
                 if (disposing)
                 {
-                    if (_scp != null)                    
-                        _scp.Close();   
+                    if (_sftp != null)
+                    {
+                        _sftp.Disconnect();
+                        _sftp.Dispose();
+                    }                      
                 }
-                _scp = null;
+                _sftp = null;
                 _disposed = true;
             }
         }

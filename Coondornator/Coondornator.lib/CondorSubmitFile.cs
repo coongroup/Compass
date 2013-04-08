@@ -16,7 +16,9 @@ namespace Compass.Coondornator
             : base(Path.GetTempFileName())
         {
             Requirements = new List<string>();
-           // Arguments.Add("-nt 1");
+            Arguments = new List<string>();
+            Arguments.Add("-nt 1");
+
         }
 
         public void Add(File file, string outputfileName, string databaseName, string argumentLine)

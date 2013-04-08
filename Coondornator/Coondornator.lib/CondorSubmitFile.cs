@@ -16,6 +16,7 @@ namespace Compass.Coondornator
             : base(Path.GetTempFileName())
         {
             Requirements = new List<string>();
+            Arguments = new List<string>();
             Arguments.Add("-nt 1");
         }
 

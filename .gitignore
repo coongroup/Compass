@@ -44,6 +44,6 @@ Thumbs.db
 
 # Nuget Packages #
 ##################
-
+!.nuget/NuGet.exe
 packages/*
 !packages/repositories.config

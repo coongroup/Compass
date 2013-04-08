@@ -23,15 +23,18 @@ namespace Compass.Coondornator
             _userName = username;
         }
 
-        public IEnumerable<string> ListDirectory(string remoteDirectory)
+        public IEnumerable<string> GetBlastDatabases()
         {
-            foreach (SftpFile file in _sftp.ListDirectory(remoteDirectory))
-            {
-                yield return file.FullName;
-            }
-            yield break;
+            return from db in ListDirectory(Coondornator.CondorDatabaseDirectory)
+                   where Path.GetExtension(db).Equals(".pin")
+                   select Path.GetFileNameWithoutExtension(db);             
         }
-               
+
+        public IEnumerable<string> ListDirectory(string remoteDirectory)
+        {  
+            return from file in _sftp.ListDirectory(remoteDirectory)
+                   select file.FullName;          
+        }               
 
         public void PutFile(File file, string remoteDirectory)
         {

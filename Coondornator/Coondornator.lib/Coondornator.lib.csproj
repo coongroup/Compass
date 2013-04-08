@@ -45,6 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CondorSubmitFile.cs" />
+    <Compile Include="Coondornator.cs" />
+    <Compile Include="DatabaseFile.cs" />
     <Compile Include="DtaFile.cs" />
     <Compile Include="File.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

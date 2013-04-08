@@ -42,3 +42,8 @@ Thumbs.db
 [bB]in/
 [oO]bj/
 
+# Nuget Packages #
+##################
+
+packages/*
+!packages/repositories.config

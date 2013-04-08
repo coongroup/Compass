@@ -93,7 +93,7 @@ namespace DtaGenerator
                     List<MSPeak> peaks = GetMassSpectrum(scanNum);
                     baseRaw.RTFromScanNum(scanNum, ref rt);                
                     Spectrum spectrum = new Spectrum(this, scanNum, msn, rt, peaks);
-                    spectrum.ParentSpectrum = GetSpectrum(last_surveyscan); 
+                    //spectrum.ParentSpectrum = GetSpectrum(last_surveyscan); 
                     baseRaw.GetPrecursorMassForScanNum(scanNum, msn, ref precursor_mz);
                     spectrum.PrecursorMZ = precursor_mz;
                     spectrum.Charge = GetChargeState(scanNum);

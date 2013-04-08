@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using CSMSL.Util.Statistics;
+using CSMSL.Analysis.Identification;
 
 namespace Protein_Hoarder
 {

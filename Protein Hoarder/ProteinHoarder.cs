@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using CSMSL.IO;
 using CSMSL.Proteomics;
-using CSMSL.Util.Statistics;
+using CSMSL.Analysis.Identification;
 using LumenWorks.Framework.IO.Csv;
 
 namespace Protein_Hoarder

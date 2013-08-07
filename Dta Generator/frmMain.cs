@@ -45,7 +45,7 @@ namespace DtaGenerator
 
             foreach(string filepath in filepaths)
             {
-                if(Path.GetExtension(filepath).Equals(".raw", StringComparison.InvariantCultureIgnoreCase) &&
+                if(Path.GetExtension(filepath).Equals(".mzML", StringComparison.InvariantCultureIgnoreCase) &&
                     !lstRawFiles.Items.Contains(filepath))
                 {
                     lstRawFiles.Items.Add(filepath);

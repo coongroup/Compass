@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using CSMSL.Analysis.Identification;
 
@@ -13,21 +15,14 @@ namespace Protein_Hoarder
         {
             get
             {
-                if (RepresentativeProtein == null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return RepresentativeProtein.Length;
-                }
+                return RepresentativeProtein == null ? 0 : RepresentativeProtein.Length;
             }
         }
 
         public HashSet<string> GetUniprotIds()
         {
             HashSet<string> ids = new HashSet<string>();
-            foreach (Protein protein in proteins)
+            foreach (Protein protein in _proteins)
             {
                 if (!string.IsNullOrWhiteSpace(protein.UniprotID))
                     ids.Add(protein.UniprotID);
@@ -38,7 +33,7 @@ namespace Protein_Hoarder
         public HashSet<string> GetGeneNames()
         {
             HashSet<string> ids = new HashSet<string>();
-            foreach (Protein protein in proteins)
+            foreach (Protein protein in _proteins)
             {
                 if (!string.IsNullOrWhiteSpace(protein.GeneName))
                     ids.Add(protein.GeneName);
@@ -64,57 +59,57 @@ namespace Protein_Hoarder
         {
             get
             {
-                return proteins.Count;
+                return _proteins.Count;
             }
         }
 
-        private double pScore = double.NaN;
+        private double _pScore = double.NaN;
 
         public double PScore
         {
             get
             {
                 // Force a p-score update if one is not given already
-                if (double.IsNaN(pScore))
+                if (double.IsNaN(_pScore))
                 {
                     CalculatePScore(ProteinHoarder.PScoreCalculationMethod, ProteinHoarder.UseConservativePScore);
                 }
-                return pScore;
+                return _pScore;
             }
         }
 
-        public int uniquePeptides = -1;
+        private int _uniquePeptides = -1;
 
         public int UniquePeptides
         {
             get
             {
-                if (uniquePeptides < 0)
+                if (_uniquePeptides < 0)
                 {
-                    uniquePeptides = NumberofUniquePeptides();
+                    _uniquePeptides = NumberofUniquePeptides();
                 }
-                return uniquePeptides;
+                return _uniquePeptides;
             }
         }
 
         public Dictionary<ExperimentGroup, int> PsmsPerGroup;
         public Dictionary<ExperimentGroup, HashSet<Peptide>> UniquePeptidesPerGroup;
 
-        private List<Protein> proteins;
+        private readonly List<Protein> _proteins;
 
-        private HashSet<Peptide> peptides;
+        private HashSet<Peptide> _peptides;
 
         public HashSet<Peptide> Peptides
         {
             get
             {
-                return peptides;
+                return _peptides;
             }
             set
             {
-                peptides = value;
-                pScore = double.NaN;
-                uniquePeptides = -1;
+                _peptides = value;
+                _pScore = double.NaN;
+                _uniquePeptides = -1;
             }
         }
 
@@ -122,7 +117,7 @@ namespace Protein_Hoarder
         {
             get
             {
-                return proteins[index];
+                return _proteins[index];
             }
         }
 
@@ -131,7 +126,7 @@ namespace Protein_Hoarder
             Name = "PG" + GroupNumber;
             GroupNumber++;
             Quantitation = new Dictionary<char, Quantitation>();
-            proteins = new List<Protein>(5);
+            _proteins = new List<Protein>(5);
             Add(protein);
             Peptides = peptides;
             foreach (Peptide pep in peptides)
@@ -146,7 +141,7 @@ namespace Protein_Hoarder
         public void Add(Protein prot)
         {
             // A protein group is a decoy group if any of its proteins are decoy
-            if (prot.IsDecoy) decoy = true;
+            if (prot.IsDecoy) _decoy = true;
 
             //
             if (prot.Length >= LongestProteinLen)
@@ -155,17 +150,17 @@ namespace Protein_Hoarder
             }
 
             // Add the protein to the internal list
-            proteins.Add(prot);
+            _proteins.Add(prot);
         }
 
         public void UpdatePValue(PScoreCalculateionMethod method, bool useConservativeScore)
         {
-            CalculatePScore(method, useConservativeScore);
+            _pScore = CalculatePScore(method, useConservativeScore);
         }
 
         private double CalculatePScore(PScoreCalculateionMethod method, bool useConservativeScore)
         {
-            pScore = 1;
+            double score = 1;
             foreach (Peptide pep in Peptides)
             {
                 switch (method)
@@ -175,11 +170,11 @@ namespace Protein_Hoarder
                     case PScoreCalculateionMethod.UseAllPeptides:
                         if (useConservativeScore)
                         {
-                            pScore *= pep.PSMs.LowestPvalue;
+                            score *= pep.PSMs.LowestPvalue;
                         }
                         else
                         {
-                            pScore *= pep.PSMs.CumulativePValue;
+                            score *= pep.PSMs.CumulativePValue;
                         }
                         break;
 
@@ -191,7 +186,7 @@ namespace Protein_Hoarder
                         break;
                 }
             }
-            return pScore;
+            return score;
         }
 
         public override string ToString()
@@ -201,12 +196,7 @@ namespace Protein_Hoarder
 
         private int NumberofUniquePeptides()
         {
-            int count = 0;
-            foreach (Peptide pep in Peptides)
-            {
-                count += pep.PSMs.Count;
-            }
-            return count;
+            return Peptides.Sum(pep => pep.PSMs.Count);
         }
 
         public static string HeaderLine(OutputFileType type)
@@ -248,19 +238,19 @@ namespace Protein_Hoarder
             //sb.Append(',');
             if (exp != null)
             {
-                int psms = 0;
-                HashSet<Peptide> uniquepeps = new HashSet<Peptide>();
+                int psms;
+                HashSet<Peptide> uniquepeps;
                 UniquePeptidesPerGroup.TryGetValue(exp, out uniquepeps);
                 PsmsPerGroup.TryGetValue(exp, out psms);
                 sb.Append(psms);
                 sb.Append(',');
-                sb.Append(uniquepeps.Count);
+                if (uniquepeps != null) sb.Append(uniquepeps.Count);
                 sb.Append(',');
             }
-            sb.Append(PScore.ToString());
-            if (exp.UseQuant)
+            sb.Append(PScore.ToString(CultureInfo.InvariantCulture));
+            if (exp != null && exp.UseQuant)
             {
-                Quantitation quant = null;
+                Quantitation quant;
                 if (Quantitation.TryGetValue(exp.ExperimentalID, out quant))
                 {
                     sb.Append(',');
@@ -332,7 +322,7 @@ namespace Protein_Hoarder
                     sb.Append(',');
                     sb.Append(Peptides.Count);
                     sb.Append(',');
-                    sb.AppendLine(PScore.ToString());
+                    sb.AppendLine(PScore.ToString(CultureInfo.InvariantCulture));
                     sb.Append(',');
                     break;
 
@@ -354,8 +344,6 @@ namespace Protein_Hoarder
                     sb.Append(GetProteinStrings());
                     sb.Append(GetPeptideString());
                     break;
-                default:
-                    break;
             }
             return sb.ToString();
         }
@@ -363,28 +351,13 @@ namespace Protein_Hoarder
         private string GetPeptideString()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (Peptide pep in Peptides)
-            {
-                string defline = pep.ProteinGroups[0].Description;
-                //foreach (OmssaLine psm in pep.PSMs)
-                //{
-                //    psm.Defline = defline;
-                //    sb.Append(",,");
-                //    sb.Append(psm.ToString());
-                //    sb.Append(',');
-                //    sb.Append(pep.ProteinGroups.Count);
-                //    sb.Append(',');
-                //    sb.AppendLine(pep.ProteinGroups.Count.ToString());
-                //    psm.Defline = string.Empty;
-                //}
-            }
             return sb.ToString();
         }
 
         private string GetProteinStrings()
         {
             StringBuilder sb = new StringBuilder();
-            foreach (Protein prot in proteins)
+            foreach (Protein prot in _proteins)
             {
                 sb.Append(',');
                 sb.Append("\"" + prot.Description + "\"");
@@ -405,12 +378,12 @@ namespace Protein_Hoarder
 
         public IEnumerator<Protein> GetEnumerator()
         {
-            return proteins.GetEnumerator();
+            return _proteins.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return proteins.GetEnumerator();
+            return _proteins.GetEnumerator();
         }
 
         public override int GetHashCode()
@@ -418,21 +391,17 @@ namespace Protein_Hoarder
             int hCode = 1;
             for (int i = 0; i < Count; i++)
             {
-                hCode ^= proteins[i].GetHashCode();
+                hCode ^= _proteins[i].GetHashCode();
             }
             return hCode;
         }
 
         public bool Equals(ProteinGroup other)
         {
-            if (Object.ReferenceEquals(other, null)) return false;
-            if (Object.ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(other, null)) return false;
+            if (ReferenceEquals(this, other)) return true;
             if (Count != other.Count) return false;
-            foreach (Protein prot in proteins)
-            {
-                if (!other.proteins.Contains(prot)) return false;
-            }
-            return true;
+            return _proteins.All(prot => other._proteins.Contains(prot));
         }
 
         public int Compare(ProteinGroup pg1, ProteinGroup pg2)
@@ -458,11 +427,8 @@ namespace Protein_Hoarder
                 // If both x and y are null they are equal, otherwise y is greater
                 return (pg2 == null) ? 0 : -direction;
             }
-            else
-            {
-                // If y is null x is greater, otherwise compare their pscores
-                return (pg2 == null) ? direction : direction * pg1.PScore.CompareTo(pg2.PScore);
-            }
+            // If y is null x is greater, otherwise compare their pscores
+            return (pg2 == null) ? direction : direction * pg1.PScore.CompareTo(pg2.PScore);
         }
 
         public int CompareTo(ProteinGroup other)
@@ -470,14 +436,14 @@ namespace Protein_Hoarder
             return Compare(this, other);
         }
 
-        private bool decoy = false;
+        private bool _decoy;
 
         public bool IsDecoy
         {
-            get { return decoy; }
+            get { return _decoy; }
         }
 
-        public double FDRScoreMetric
+        public double FdrScoreMetric
         {
             get { return PScore; }
         }

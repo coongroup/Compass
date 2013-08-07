@@ -36,40 +36,44 @@
             this.inputGB = new System.Windows.Forms.GroupBox();
             this.csvclearB = new System.Windows.Forms.Button();
             this.csvsB = new System.Windows.Forms.Button();
+            this.maxMissedCleavagedUD = new System.Windows.Forms.NumericUpDown();
             this.csvDGV = new System.Windows.Forms.DataGridView();
             this.label5 = new System.Windows.Forms.Label();
             this.databaseB = new System.Windows.Forms.Button();
             this.databaseTB = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.optionsGB = new System.Windows.Forms.GroupBox();
+            this.includeUnfliterCB = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.proteinscoringCB = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.minpepspergroupUD = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
+            this.fdrUD = new System.Windows.Forms.NumericUpDown();
+            this.conservativeCB = new System.Windows.Forms.CheckBox();
             this.outputGB = new System.Windows.Forms.GroupBox();
             this.outputdirectoryB = new System.Windows.Forms.Button();
             this.outputTB = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.quantGB = new System.Windows.Forms.GroupBox();
+            this.ignorePepMissingCB = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.quantigorneinterferenceCB = new System.Windows.Forms.CheckBox();
             this.quantintferenceUD = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
             this.ignoreModsCLB = new System.Windows.Forms.CheckedListBox();
             this.enableQuantCB = new System.Windows.Forms.CheckBox();
-            this.maxMissedCleavagedUD = new System.Windows.Forms.NumericUpDown();
-            this.includeUnfliterCB = new System.Windows.Forms.CheckBox();
-            this.proteinscoringCB = new System.Windows.Forms.ComboBox();
-            this.minpepspergroupUD = new System.Windows.Forms.NumericUpDown();
-            this.fdrUD = new System.Windows.Forms.NumericUpDown();
-            this.conservativeCB = new System.Windows.Forms.CheckBox();
             this.csvD = new System.Windows.Forms.OpenFileDialog();
             this.databaseD = new System.Windows.Forms.OpenFileDialog();
             this.outputD = new System.Windows.Forms.FolderBrowserDialog();
-            this.label7 = new System.Windows.Forms.Label();
-            this.ignorePepMissingCB = new System.Windows.Forms.CheckBox();
+            this.semiCB = new System.Windows.Forms.CheckBox();
             this.logGB.SuspendLayout();
             this.inputGB.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.csvDGV)).BeginInit();
             this.optionsGB.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minpepspergroupUD)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fdrUD)).BeginInit();
             this.outputGB.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -77,9 +81,6 @@
             this.splitContainer1.SuspendLayout();
             this.quantGB.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.quantintferenceUD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minpepspergroupUD)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fdrUD)).BeginInit();
             this.SuspendLayout();
             // 
             // logGB
@@ -169,6 +170,26 @@
             this.csvsB.UseVisualStyleBackColor = true;
             this.csvsB.Click += new System.EventHandler(this.csvsB_Click);
             // 
+            // maxMissedCleavagedUD
+            // 
+            this.maxMissedCleavagedUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.maxMissedCleavagedUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxMissedCleavages", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.maxMissedCleavagedUD.Location = new System.Drawing.Point(148, 174);
+            this.maxMissedCleavagedUD.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.maxMissedCleavagedUD.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.maxMissedCleavagedUD.Name = "maxMissedCleavagedUD";
+            this.maxMissedCleavagedUD.Size = new System.Drawing.Size(46, 20);
+            this.maxMissedCleavagedUD.TabIndex = 9;
+            this.maxMissedCleavagedUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxMissedCleavages;
+            // 
             // csvDGV
             // 
             this.csvDGV.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -223,6 +244,7 @@
             // optionsGB
             // 
             this.optionsGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.optionsGB.Controls.Add(this.semiCB);
             this.optionsGB.Controls.Add(this.includeUnfliterCB);
             this.optionsGB.Controls.Add(this.label4);
             this.optionsGB.Controls.Add(this.proteinscoringCB);
@@ -238,6 +260,18 @@
             this.optionsGB.TabStop = false;
             this.optionsGB.Text = "Options";
             // 
+            // includeUnfliterCB
+            // 
+            this.includeUnfliterCB.AutoSize = true;
+            this.includeUnfliterCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.includeUnfilterResults;
+            this.includeUnfliterCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "includeUnfilterResults", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.includeUnfliterCB.Location = new System.Drawing.Point(26, 114);
+            this.includeUnfliterCB.Name = "includeUnfliterCB";
+            this.includeUnfliterCB.Size = new System.Drawing.Size(219, 17);
+            this.includeUnfliterCB.TabIndex = 5;
+            this.includeUnfliterCB.Text = "Write Unfiltered Protein Groups to Output";
+            this.includeUnfliterCB.UseVisualStyleBackColor = true;
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -246,6 +280,16 @@
             this.label4.Size = new System.Drawing.Size(118, 13);
             this.label4.TabIndex = 11;
             this.label4.Text = "Protein Scoring Method";
+            // 
+            // proteinscoringCB
+            // 
+            this.proteinscoringCB.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.proteinscoringCB.DataBindings.Add(new System.Windows.Forms.Binding("Name", global::Protein_Hoarder.Properties.Settings.Default, "ProteinScoringValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.proteinscoringCB.FormattingEnabled = true;
+            this.proteinscoringCB.Location = new System.Drawing.Point(130, 18);
+            this.proteinscoringCB.Name = global::Protein_Hoarder.Properties.Settings.Default.ProteinScoringValue;
+            this.proteinscoringCB.Size = new System.Drawing.Size(140, 21);
+            this.proteinscoringCB.TabIndex = 10;
             // 
             // label3
             // 
@@ -256,6 +300,25 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "Minimum Peptides per Protein";
             // 
+            // minpepspergroupUD
+            // 
+            this.minpepspergroupUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "minPeptidesPerProteinGroup", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.minpepspergroupUD.Location = new System.Drawing.Point(224, 67);
+            this.minpepspergroupUD.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.minpepspergroupUD.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.minpepspergroupUD.Name = "minpepspergroupUD";
+            this.minpepspergroupUD.Size = new System.Drawing.Size(46, 20);
+            this.minpepspergroupUD.TabIndex = 6;
+            this.minpepspergroupUD.Value = global::Protein_Hoarder.Properties.Settings.Default.minPeptidesPerProteinGroup;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -264,6 +327,29 @@
             this.label2.Size = new System.Drawing.Size(93, 13);
             this.label2.TabIndex = 5;
             this.label2.Text = "Maximum FDR (%)";
+            // 
+            // fdrUD
+            // 
+            this.fdrUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxFDR", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.fdrUD.DecimalPlaces = 2;
+            this.fdrUD.Location = new System.Drawing.Point(224, 93);
+            this.fdrUD.Name = "fdrUD";
+            this.fdrUD.Size = new System.Drawing.Size(46, 20);
+            this.fdrUD.TabIndex = 5;
+            this.fdrUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxFDR;
+            // 
+            // conservativeCB
+            // 
+            this.conservativeCB.AutoSize = true;
+            this.conservativeCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.conservativePScore;
+            this.conservativeCB.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.conservativeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "conservativePScore", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.conservativeCB.Location = new System.Drawing.Point(26, 45);
+            this.conservativeCB.Name = "conservativeCB";
+            this.conservativeCB.Size = new System.Drawing.Size(229, 17);
+            this.conservativeCB.TabIndex = 5;
+            this.conservativeCB.Text = "Conservative Protein P-Value (Use Lowest)";
+            this.conservativeCB.UseVisualStyleBackColor = true;
             // 
             // outputGB
             // 
@@ -341,6 +427,28 @@
             this.quantGB.TabStop = false;
             this.quantGB.Text = "Protein Quantitation";
             // 
+            // ignorePepMissingCB
+            // 
+            this.ignorePepMissingCB.AutoSize = true;
+            this.ignorePepMissingCB.Enabled = false;
+            this.ignorePepMissingCB.Location = new System.Drawing.Point(25, 153);
+            this.ignorePepMissingCB.Name = "ignorePepMissingCB";
+            this.ignorePepMissingCB.Size = new System.Drawing.Size(186, 17);
+            this.ignorePepMissingCB.TabIndex = 12;
+            this.ignorePepMissingCB.Text = "Ignore Peptides with Missing Data";
+            this.ignorePepMissingCB.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(309, 15);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(237, 26);
+            this.label7.TabIndex = 5;
+            this.label7.Text = "Quantitation only uses unshared peptides\r\n(peptides that map uniquely to one prot" +
+    "ein group)";
+            // 
             // quantigorneinterferenceCB
             // 
             this.quantigorneinterferenceCB.AutoSize = true;
@@ -408,90 +516,6 @@
             this.enableQuantCB.UseVisualStyleBackColor = true;
             this.enableQuantCB.CheckedChanged += new System.EventHandler(this.enableQuantCB_CheckedChanged);
             // 
-            // maxMissedCleavagedUD
-            // 
-            this.maxMissedCleavagedUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.maxMissedCleavagedUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxMissedCleavages", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.maxMissedCleavagedUD.Location = new System.Drawing.Point(148, 174);
-            this.maxMissedCleavagedUD.Maximum = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.maxMissedCleavagedUD.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.maxMissedCleavagedUD.Name = "maxMissedCleavagedUD";
-            this.maxMissedCleavagedUD.Size = new System.Drawing.Size(46, 20);
-            this.maxMissedCleavagedUD.TabIndex = 9;
-            this.maxMissedCleavagedUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxMissedCleavages;
-            // 
-            // includeUnfliterCB
-            // 
-            this.includeUnfliterCB.AutoSize = true;
-            this.includeUnfliterCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.includeUnfilterResults;
-            this.includeUnfliterCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "includeUnfilterResults", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.includeUnfliterCB.Location = new System.Drawing.Point(26, 114);
-            this.includeUnfliterCB.Name = "includeUnfliterCB";
-            this.includeUnfliterCB.Size = new System.Drawing.Size(219, 17);
-            this.includeUnfliterCB.TabIndex = 5;
-            this.includeUnfliterCB.Text = "Write Unfiltered Protein Groups to Output";
-            this.includeUnfliterCB.UseVisualStyleBackColor = true;
-            // 
-            // proteinscoringCB
-            // 
-            this.proteinscoringCB.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.proteinscoringCB.DataBindings.Add(new System.Windows.Forms.Binding("Name", global::Protein_Hoarder.Properties.Settings.Default, "ProteinScoringValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.proteinscoringCB.FormattingEnabled = true;
-            this.proteinscoringCB.Location = new System.Drawing.Point(130, 18);
-            this.proteinscoringCB.Name = global::Protein_Hoarder.Properties.Settings.Default.ProteinScoringValue;
-            this.proteinscoringCB.Size = new System.Drawing.Size(140, 21);
-            this.proteinscoringCB.TabIndex = 10;
-            // 
-            // minpepspergroupUD
-            // 
-            this.minpepspergroupUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "minPeptidesPerProteinGroup", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.minpepspergroupUD.Location = new System.Drawing.Point(224, 67);
-            this.minpepspergroupUD.Maximum = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.minpepspergroupUD.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.minpepspergroupUD.Name = "minpepspergroupUD";
-            this.minpepspergroupUD.Size = new System.Drawing.Size(46, 20);
-            this.minpepspergroupUD.TabIndex = 6;
-            this.minpepspergroupUD.Value = global::Protein_Hoarder.Properties.Settings.Default.minPeptidesPerProteinGroup;
-            // 
-            // fdrUD
-            // 
-            this.fdrUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxFDR", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.fdrUD.DecimalPlaces = 2;
-            this.fdrUD.Location = new System.Drawing.Point(224, 93);
-            this.fdrUD.Name = "fdrUD";
-            this.fdrUD.Size = new System.Drawing.Size(46, 20);
-            this.fdrUD.TabIndex = 5;
-            this.fdrUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxFDR;
-            // 
-            // conservativeCB
-            // 
-            this.conservativeCB.AutoSize = true;
-            this.conservativeCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.conservativePScore;
-            this.conservativeCB.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.conservativeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "conservativePScore", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.conservativeCB.Location = new System.Drawing.Point(26, 45);
-            this.conservativeCB.Name = "conservativeCB";
-            this.conservativeCB.Size = new System.Drawing.Size(229, 17);
-            this.conservativeCB.TabIndex = 5;
-            this.conservativeCB.Text = "Conservative Protein P-Value (Use Lowest)";
-            this.conservativeCB.UseVisualStyleBackColor = true;
-            // 
             // csvD
             // 
             this.csvD.Filter = "Omssa CSV|*.csv";
@@ -510,26 +534,15 @@
             this.outputD.Description = "Select the Output Directory";
             this.outputD.SelectedPath = global::Protein_Hoarder.Properties.Settings.Default.outputDirectory;
             // 
-            // label7
+            // semiCB
             // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(309, 15);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(237, 26);
-            this.label7.TabIndex = 5;
-            this.label7.Text = "Quantitation only uses unshared peptides\r\n(peptides that map uniquely to one prot" +
-    "ein group)";
-            // 
-            // ignorePepMissingCB
-            // 
-            this.ignorePepMissingCB.AutoSize = true;
-            this.ignorePepMissingCB.Location = new System.Drawing.Point(25, 153);
-            this.ignorePepMissingCB.Name = "ignorePepMissingCB";
-            this.ignorePepMissingCB.Size = new System.Drawing.Size(186, 17);
-            this.ignorePepMissingCB.TabIndex = 12;
-            this.ignorePepMissingCB.Text = "Ignore Peptides with Missing Data";
-            this.ignorePepMissingCB.UseVisualStyleBackColor = true;
+            this.semiCB.AutoSize = true;
+            this.semiCB.Location = new System.Drawing.Point(8, 137);
+            this.semiCB.Name = "semiCB";
+            this.semiCB.Size = new System.Drawing.Size(135, 17);
+            this.semiCB.TabIndex = 13;
+            this.semiCB.Text = "Perform Semi-Digestion";
+            this.semiCB.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -548,9 +561,12 @@
             this.logGB.ResumeLayout(false);
             this.inputGB.ResumeLayout(false);
             this.inputGB.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.csvDGV)).EndInit();
             this.optionsGB.ResumeLayout(false);
             this.optionsGB.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.minpepspergroupUD)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fdrUD)).EndInit();
             this.outputGB.ResumeLayout(false);
             this.outputGB.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -560,9 +576,6 @@
             this.quantGB.ResumeLayout(false);
             this.quantGB.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.quantintferenceUD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.minpepspergroupUD)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.fdrUD)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -606,6 +619,7 @@
         private System.Windows.Forms.CheckBox includeUnfliterCB;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox ignorePepMissingCB;
+        private System.Windows.Forms.CheckBox semiCB;
     }
 }
 

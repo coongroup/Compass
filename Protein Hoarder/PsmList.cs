@@ -4,9 +4,9 @@ namespace Protein_Hoarder
 {
     public class PsmList : IEnumerable<PSM>
     {
-        private List<PSM> psms { get; set; }
+        private List<PSM> Psms { get; set; }
 
-        public int Count { get { return psms.Count; } }
+        public int Count { get { return Psms.Count; } }
 
         public double LowestPvalue { get; private set; }
 
@@ -16,13 +16,13 @@ namespace Protein_Hoarder
         {
             get
             {
-                return psms[index];
+                return Psms[index];
             }
         }
 
         public PsmList()
         {
-            psms = new List<PSM>();
+            Psms = new List<PSM>();
             LowestPvalue = double.MaxValue;
             CumulativePValue = 1;
         }
@@ -35,7 +35,7 @@ namespace Protein_Hoarder
 
         public void Add(PSM psm)
         {
-            psms.Add(psm);
+            Psms.Add(psm);
             if (psm.PValue < LowestPvalue)
             {
                 LowestPvalue = psm.PValue;
@@ -45,17 +45,17 @@ namespace Protein_Hoarder
 
         public override string ToString()
         {
-            return "Count = " + Count.ToString();
+            return "Count = " + Count;
         }
 
         public IEnumerator<PSM> GetEnumerator()
         {
-            return psms.GetEnumerator();
+            return Psms.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return psms.GetEnumerator();
+            return Psms.GetEnumerator();
         }
     }
 }

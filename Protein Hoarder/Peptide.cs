@@ -59,14 +59,7 @@ namespace Protein_Hoarder
         {
             get
             {
-                if (ProteinGroups != null)
-                {
-                    return ProteinGroups.Count;
-                }
-                else
-                {
-                    return 0;
-                }
+                return ProteinGroups != null ? ProteinGroups.Count : 0;
             }
         }
 
@@ -87,11 +80,10 @@ namespace Protein_Hoarder
 
         public void MarkAsMapped()
         {
-            if (!mapped)
-            {
-                MappedCount++;
-                mapped = true;
-            }
+            if (mapped) 
+                return;
+            MappedCount++;
+            mapped = true;
         }
 
         public override string ToString()

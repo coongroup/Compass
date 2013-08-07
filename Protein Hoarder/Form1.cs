@@ -117,6 +117,7 @@ namespace Protein_Hoarder
             bool filterinterference = quantigorneinterferenceCB.Checked;
             bool includeUnfiltereedResults = includeUnfliterCB.Checked;
             bool ignorePeptidesWithMissingData = ignorePepMissingCB.Checked;
+            bool semiDigestion = semiCB.Checked;
             double interferencecutoff = (double)quantintferenceUD.Value;
             
             HashSet<Modification> modstoignore = new HashSet<Modification>();
@@ -130,7 +131,7 @@ namespace Protein_Hoarder
                 }
             }           
             logTB.Clear();
-            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, filterinterference, interferencecutoff, includeUnfiltereedResults, ignorePeptidesWithMissingData);
+            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, filterinterference, interferencecutoff, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion);
             Hoarder.UpdateLog += new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
             Hoarder.UpdateProgress += new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
             MainThread = new Thread(Hoarder.Herd);
@@ -385,6 +386,7 @@ namespace Protein_Hoarder
             ignoreModsCLB.Enabled = enableQuantCB.Checked;
             quantigorneinterferenceCB.Enabled = enableQuantCB.Checked;
             quantintferenceUD.Enabled = enableQuantCB.Checked;
+            ignorePepMissingCB.Enabled = enableQuantCB.Checked;
         }
     }
 }

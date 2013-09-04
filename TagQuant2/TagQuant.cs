@@ -26,6 +26,7 @@ namespace TagQuant
         public List<string> InputFiles;
         public Dictionary<string, ThermoRawFile> RawFiles;
         private StreamWriter logWriter;
+        public Dictionary<TagSetType, IsobaricTagPurityCorrection> PurityMatrices;
 
         private const double Carbon1213Difference = Constants.Carbon13 - Constants.Carbon;
 
@@ -70,19 +71,83 @@ namespace TagQuant
         private void BuildPurityMatrixes(IEnumerable<TagInformation> inputTags)
         {
             List<TagInformation> tags = inputTags.ToList();
-
-         
-            double[,] data = new double[10,4];
-            for (int i = 0; i < tags.Count; i++)
+            PurityMatrices = new Dictionary<TagSetType, IsobaricTagPurityCorrection>();
+            foreach (TagSetType tagSet in Enum.GetValues(typeof(TagSetType)))
             {
-                var tag = tags[i];
-                data[i, 0] = tag.M2;
-                data[i, 1] = tag.M1;
-                data[i, 2] = tag.P1;
-                data[i, 3] = tag.P2;
-            }            
-            IsobaricTagPurityCorrection correction_set1 = IsobaricTagPurityCorrection.Create(data);
-            double det = correction_set1.Determinant();
+                List<TagInformation> usedTags = tags.Where(t => t.TagSet == tagSet).ToList();
+                if (usedTags.Count > 0)
+                {
+                    double[,] data = new double[usedTags.Count, 4];
+                    for (int i = 0; i < usedTags.Count; i++)
+                    {
+                        var tag = tags[i];
+                        if (tag.IsUsed)
+                        {
+                            data[i, 0] = tag.M2;
+                            data[i, 1] = tag.M1;
+                            data[i, 2] = tag.P1;
+                            data[i, 3] = tag.P2;
+                        }
+                        else
+                        {
+                            for (int j = 0; j < 4; j++) data[i, j] = 0;
+                        }
+                    }
+                    IsobaricTagPurityCorrection correction = IsobaricTagPurityCorrection.Create(data);
+                    PurityMatrices.Add(tagSet, correction);
+                }
+            }
+                      
+            //List<TagInformation> TMTC_Tags = tags.Where(t => t.TagSet == TagSetEnum.TMTC).ToList();
+            //if (TMTC_Tags.Count > 0)
+            //{
+            //    double[,] data = new double[TMTC_Tags.Count, 4];
+            //    for (int i = 0; i < TMTC_Tags.Count; i++)
+            //    {                    
+            //        var tag = tags[i];
+            //        if (tag.IsUsed)
+            //        {
+            //            data[i, 0] = tag.M2;
+            //            data[i, 1] = tag.M1;
+            //            data[i, 2] = tag.P1;
+            //            data[i, 3] = tag.P2;
+            //        }
+            //        else
+            //        {
+            //            for (int j = 0; j < 4; j++) data[i, j] = 0;
+            //        }
+            //    }
+            //    IsobaricTagPurityCorrection correction_TMTC = IsobaricTagPurityCorrection.Create(data);
+            //    PurityMatrices.Add(TagSetEnum.TMTC, correction_TMTC);   
+            //}
+
+            //List<TagInformation> TMTN_Tags = tags.Where(t => t.TagSet == TagSetEnum.TMTN).ToList();
+            //if (TMTN_Tags.Count > 0)
+            //{
+            //    double[,] data = new double[TMTN_Tags.Count, 4];
+            //    for (int i = 0; i < TMTN_Tags.Count; i++)
+            //    {
+            //        var tag = tags[i];
+            //        if (tag.IsUsed)
+            //        {
+            //            data[i, 0] = tag.M2;
+            //            data[i, 1] = tag.M1;
+            //            data[i, 2] = tag.P1;
+            //            data[i, 3] = tag.P2;
+            //        }
+            //        else
+            //        {
+            //            for (int j = 0; j < 4; j++) data[i, j] = 0;
+            //        }
+            //    }
+            //    IsobaricTagPurityCorrection correction_TMTN = IsobaricTagPurityCorrection.Create(data);
+            //    PurityMatrices.Add(TagSetEnum.TMTN, correction_TMTN);                
+            //}
+
+                
+          
+            
+            
 
         }
 
@@ -300,15 +365,29 @@ namespace TagQuant
 
         private void PurityCorrect(IEnumerable<QuantPeak> quantPeaks)
         {
+            foreach (TagSetType tagSet in Enum.GetValues(typeof(TagSetType)))
+            {
+               List<QuantPeak> tagSetPeaks = quantPeaks.Where(t => t.Tag.TagSet == tagSet).ToList();
+               double [] rawData = new double[tagSetPeaks.Count];
+               for (int i = 0; i < tagSetPeaks.Count; i++)
+               {
+                   rawData[i] = tagSetPeaks[i].DeNormalizedIntensity;
+               }
+               double[] correctedData = PurityMatrices[tagSet].ApplyPurityCorrection(rawData);
+               for (int i = 0; i < correctedData.Length; i++)
+               {
+                   tagSetPeaks[i].PurityCorrectedIntensity = correctedData[i];
+               }
+
+            }
+
             foreach (QuantPeak quantPeak in quantPeaks)
             {
-                //TODO
-                quantPeak.PurityCorrectedIntensity = quantPeak.DeNormalizedIntensity;
-
-                if(!quantPeak.IsNoisedCapped)
+                if (!quantPeak.IsNoisedCapped)
+                {
                     quantPeak.Tag.TotalSignal += quantPeak.PurityCorrectedIntensity;
+                }
             }
         }
-
     }
 }

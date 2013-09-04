@@ -29,7 +29,7 @@ namespace TagQuant
            
 
             allTags = new BindingList<TagInformation>();
-            allTags.Add(new TagInformation(524, "TMT 126N","",524.5,324.25));
+            allTags.Add(new TagInformation(524, "TMT 126N","",524.5,324.25, TagSetType.TMTN));
             dataGridView2.DataSource = allTags;
         }
 
@@ -730,16 +730,16 @@ namespace TagQuant
 
             var tagsToUse = new List<TagInformation>
             {
-                new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
-                new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279),
-                new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279),
-                new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279),
-                new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279),
-                new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279),
-                new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279),
-                new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279),
-                new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415),
-                new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384)
+                new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279, TagSetType.TMTC),
+                new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279, TagSetType.TMTN),
+                new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279, TagSetType.TMTC),
+                new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279, TagSetType.TMTN),
+                new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279, TagSetType.TMTC),
+                new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279, TagSetType.TMTN),
+                new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279, TagSetType.TMTC),
+                new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279, TagSetType.TMTN),
+                new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415, TagSetType.TMTC),
+                new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384, TagSetType.TMTC)
             };
 
             bool DontQuantifyETD = ComboBoxETDoptions.Text == "Don't Quantify";
@@ -1581,16 +1581,16 @@ namespace TagQuant
             {
                 var tags = new List<TagInformation>
                 {
-                    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
-                    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279),
-                    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279),
-                    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279),
-                    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279),
-                    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279),
-                    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279),
-                    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279),
-                    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415),
-                    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384)
+                    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279, TagSetType.TMTC),
+                    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279, TagSetType.TMTN),
+                    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279, TagSetType.TMTC),
+                    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279, TagSetType.TMTN),
+                    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279, TagSetType.TMTC),
+                    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279, TagSetType.TMTN),
+                    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279, TagSetType.TMTC),
+                    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279, TagSetType.TMTN),
+                    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415, TagSetType.TMTC),
+                    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384, TagSetType.TMTC)
                 };
 
                 foreach (TagInformation tag in tags)

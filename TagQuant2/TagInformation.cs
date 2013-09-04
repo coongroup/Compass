@@ -8,7 +8,9 @@ namespace TagQuant
     {
         private static int TagNumber = 0;
 
-        enum TagSets { } 
+        enum TagSets {C, N};
+        HashSet<double> N_TagMzs = new HashSet<double>() {127.1253, 128.1287, 129.1320, 130.1354};
+        
 
         public int UniqueTagNumber;
         public string TagName { get; private set; }
@@ -20,7 +22,7 @@ namespace TagQuant
         public double M1 { get; set; }
         public double P1 { get; set; }
         public double P2 { get; set; }
-        
+        public TagSetType TagSet { get; set; }
 
         public double TotalSignal { get; set; }
         public double NormalizedTotalSignal { get; set; }
@@ -68,7 +70,7 @@ namespace TagQuant
             if (NominalMass == 135) { this.MassCAD = 130.1354; this.MassEtd = 0; }
         }
 
-        public TagInformation(int nominalMass, string tagName, string sampleSampleName, double cadMass, double etdMass)
+        public TagInformation(int nominalMass, string tagName, string sampleSampleName, double cadMass, double etdMass, TagSetType tagSet)
         {
             NominalMass = nominalMass;
             TagName = tagName;
@@ -77,6 +79,7 @@ namespace TagQuant
                 SampleName = tagName;
             MassCAD = cadMass;
             MassEtd = etdMass;
+            TagSet = tagSet;
         }
 
         private void SetProperty<T>(ref T field, T value, [CallerMemberName] string name = "")

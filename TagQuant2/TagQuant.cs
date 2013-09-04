@@ -63,6 +63,7 @@ namespace TagQuant
 
             WriteOutputFiles(quantFiles);
 
+
             logWriter.Close();
         }
 
@@ -70,40 +71,33 @@ namespace TagQuant
         {
             List<TagInformation> tags = inputTags.ToList();
 
-            int i = 0;
-            while (i < tags.Count)
+         
+            double[,] data = new double[10,4];
+            for (int i = 0; i < tags.Count; i++)
             {
                 var tag = tags[i];
-                for (int j = -2; j <= 2; j++)
-                {
-                    double testMz = tag.MassCAD + j*Carbon1213Difference;
-                    int k = 0;
-                    while (k < tags.Count)
-                    {
-                        if (k != i)
-                        {
-                            
-                        }
-                        k ++;
-                    }
-                }
-                i++;
+                data[i, 0] = tag.M2;
+                data[i, 1] = tag.M1;
+                data[i, 2] = tag.P1;
+                data[i, 3] = tag.P2;
             }
 
+            IsobaricTagPurityCorrection correction_set1 = IsobaricTagPurityCorrection.Create(data);
+            double det = correction_set1.Determinant();
         }
 
         private void Normalize(IEnumerable<QuantFile> quantFiles)
         {
             double maxSignal = (from TagInformation tag in UsedTags.Values select tag.TotalSignal).Concat(new double[] {0}).Max();
             
-            Log("Max signal: "+maxSignal);
             Log("Tag\tSample\tTotal Signal\tNormalizedSignal");
 
             foreach (TagInformation tag in UsedTags.Values)
             {
+                // Divide by max so that everything is less than or equal to 1
                 tag.NormalizedTotalSignal = tag.TotalSignal/maxSignal;
-                Log(string.Format("{0}\t{1}\t{2}\t{3}", tag.TagName, tag.SampleName, tag.TotalSignal,
-                    tag.NormalizedTotalSignal));
+
+                Log(string.Format("{0}\t{1}\t{2}\t{3}", tag.TagName, tag.SampleName, tag.TotalSignal, tag.NormalizedTotalSignal));
             }
             
 
@@ -113,6 +107,7 @@ namespace TagQuant
                 {
                     foreach (QuantPeak qpeak in psm.QuantPeaks.Values)
                     {
+                        // Divide by the tags Normalized value again to normalize all channels to 1
                         qpeak.PurityCorrectedNormalizedIntensity = qpeak.PurityCorrectedIntensity/
                                                                    qpeak.Tag.NormalizedTotalSignal;
                     }

@@ -90,6 +90,8 @@ namespace TagQuant
                 i++;
             }
 
+
+
         }
 
         private void Normalize(IEnumerable<QuantFile> quantFiles)

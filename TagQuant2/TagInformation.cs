@@ -8,6 +8,8 @@ namespace TagQuant
     {
         private static int TagNumber = 0;
 
+        enum TagSets { } 
+
         public int UniqueTagNumber;
         public string TagName { get; private set; }
         public string SampleName { get; set; }
@@ -18,6 +20,7 @@ namespace TagQuant
         public double M1 { get; set; }
         public double P1 { get; set; }
         public double P2 { get; set; }
+        
 
         public double TotalSignal { get; set; }
         public double NormalizedTotalSignal { get; set; }

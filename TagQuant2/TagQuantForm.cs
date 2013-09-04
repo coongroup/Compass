@@ -97,6 +97,7 @@ namespace TagQuant
 
             radioButton2.Checked = true;
             //allTags = new BindingList<TagInformation>(tmtTags);
+
             dataGridView2.DataSource = allTags;
         }
 
@@ -805,6 +806,7 @@ namespace TagQuant
             double FTerror = (double)numericUpDown2.Value;
             double error;
 
+<<<<<<< HEAD
             //var tagsToUse = new List<TagInformation>
             //{
             //    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
@@ -821,6 +823,21 @@ namespace TagQuant
 
             var tagsToUse = allTags.Where(t => t.IsUsed).ToList();
             
+=======
+            var tagsToUse = new List<TagInformation>
+            {
+                new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279, TagSetType.TMTC),
+                new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279, TagSetType.TMTN),
+                new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279, TagSetType.TMTC),
+                new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279, TagSetType.TMTN),
+                new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279, TagSetType.TMTC),
+                new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279, TagSetType.TMTN),
+                new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279, TagSetType.TMTC),
+                new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279, TagSetType.TMTN),
+                new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415, TagSetType.TMTC),
+                new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384, TagSetType.TMTC)
+            };
+>>>>>>> 72f7199d2ebcbcc288e0b4df60fd356a56c46a62
 
             bool DontQuantifyETD = ComboBoxETDoptions.Text == "Don't Quantify";
             bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
@@ -1661,16 +1678,16 @@ namespace TagQuant
             {
                 var tags = new List<TagInformation>
                 {
-                    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
-                    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279),
-                    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279),
-                    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279),
-                    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279),
-                    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279),
-                    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279),
-                    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279),
-                    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415),
-                    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384)
+                    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279, TagSetType.TMTC),
+                    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279, TagSetType.TMTN),
+                    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279, TagSetType.TMTC),
+                    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279, TagSetType.TMTN),
+                    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279, TagSetType.TMTC),
+                    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279, TagSetType.TMTN),
+                    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279, TagSetType.TMTC),
+                    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279, TagSetType.TMTN),
+                    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415, TagSetType.TMTC),
+                    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384, TagSetType.TMTC)
                 };
 
                 foreach (TagInformation tag in tags)

@@ -65,15 +65,19 @@ namespace TagQuant
             if (NominalMass == 135) { this.MassCAD = 130.1354; this.MassEtd = 0; }
         }
 
-        public TagInformation(int nominalMass, string tagName, string sampleSampleName, double cadMass, double etdMass)
+        public TagInformation(int nominalMass, string tagName, string sampleSampleName, double cadMass, double etdMass, double m2 = 0, double m1 = 0, double p1 = 0, double p2 = 0)
         {
             NominalMass = nominalMass;
             TagName = tagName;
             SampleName = sampleSampleName;
-            if (string.IsNullOrEmpty(SampleName))
-                SampleName = tagName;
+            //if (string.IsNullOrEmpty(SampleName))
+            //    SampleName = tagName;
             MassCAD = cadMass;
             MassEtd = etdMass;
+            M2 = m2;
+            M1 = m1;
+            P1 = p1;
+            P2 = p2;
         }
 
         private void SetProperty<T>(ref T field, T value, [CallerMemberName] string name = "")

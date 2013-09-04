@@ -18,18 +18,85 @@ namespace TagQuant
 {
     public partial class TagQuantForm : Form
     {
-     
         BindingList<TagInformation> allTags  = new BindingList<TagInformation>(); 
+        List<TagInformation> tmtTags = new List<TagInformation>
+        {
+            new TagInformation(126, "TMT 126", "", 126.1277261, 114.1279,0,0,7,0),
+            new TagInformation(127, "TMT 127N", "", 127.124761, 114.1279,0,2.1,6.5,0),
+            new TagInformation(127, "TMT 127C", "", 127.1310809, 114.1279,0,0.4,6.3,0),
+            new TagInformation(128, "TMT 128N", "", 128.1281158, 114.1279,0,0.6,4.7,0),
+            new TagInformation(128, "TMT 128C", "", 128.1344357, 114.1279,0,1.1,5.1,0),
+            new TagInformation(129, "TMT 129N", "", 129.1314706, 114.1279,0,1.6,4.7,0.1),
+            new TagInformation(129, "TMT 129C", "", 129.1377905, 114.1279,0.2,0.1,0,0),
+            new TagInformation(130, "TMT 130N", "", 130.1348254, 114.1279,0,1.3,2.4,3.2),
+            new TagInformation(130, "TMT 130C", "", 130.1411453, 118.1415,0.1,2.9,2.9,0),
+            new TagInformation(131, "TMT 131", "", 131.1381802, 119.1384,0.2,3.3,3,0)
+        };
+
+        List<TagInformation> itraqTags = new List<TagInformation>
+        {
+            new TagInformation(113, "iTRAQ 113", "", 113.107325, 114.1279,0,0,7,0),
+            new TagInformation(114, "iTRAQ 114", "", 114.11068, 114.1279,0,0,7,0),
+            new TagInformation(115, "iTRAQ 115", "", 115.107715, 114.1279,0,0,7,0),
+            new TagInformation(116, "iTRAQ 116", "", 116.111069, 114.1279,0,0,7,0),
+            new TagInformation(117, "iTRAQ 117", "", 117.114424, 114.1279,0,0,7,0),
+            new TagInformation(118, "iTRAQ 118", "", 118.111459, 114.1279,0,0,7,0),
+            new TagInformation(119, "iTRAQ 119", "", 119.114814, 114.1279,0,0,7,0),
+            new TagInformation(121, "iTRAQ 121", "", 121.121524, 114.1279,0,0,7,0)
+        };
 
         public TagQuantForm()
         {
             InitializeComponent();
 
-            //dataGridView2.AutoGenerateColumns = false;
-           
+            dataGridView2.AutoGenerateColumns = false;
+            dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
-            allTags = new BindingList<TagInformation>();
-            allTags.Add(new TagInformation(524, "TMT 126N","",524.5,324.25));
+            DataGridViewCheckBoxColumn useColumn = new DataGridViewCheckBoxColumn();
+            useColumn.DataPropertyName = "IsUsed";
+            useColumn.HeaderText = "Use?";
+            useColumn.Frozen = true;
+            dataGridView2.Columns.Add(useColumn);
+
+            DataGridViewTextBoxColumn nameColumn = new DataGridViewTextBoxColumn();
+            nameColumn.DataPropertyName = "TagName";
+            nameColumn.HeaderText = "Tag";
+            nameColumn.Frozen = true;
+            nameColumn.ReadOnly = true;
+            dataGridView2.Columns.Add(nameColumn);
+
+            DataGridViewTextBoxColumn sampleColumn = new DataGridViewTextBoxColumn();
+            sampleColumn.DataPropertyName = "SampleName";
+            sampleColumn.HeaderText = "Sample Name";
+            dataGridView2.Columns.Add(sampleColumn);
+
+            DataGridViewTextBoxColumn mzColumn = new DataGridViewTextBoxColumn();
+            mzColumn.DataPropertyName = "MassCAD";
+            mzColumn.HeaderText = "m/z (CAD)";
+            dataGridView2.Columns.Add(mzColumn);
+
+            DataGridViewTextBoxColumn m2Column = new DataGridViewTextBoxColumn();
+            m2Column.DataPropertyName = "M2";
+            m2Column.HeaderText = "-2";
+            dataGridView2.Columns.Add(m2Column);
+
+            DataGridViewTextBoxColumn m1Column = new DataGridViewTextBoxColumn();
+            m1Column.DataPropertyName = "M1";
+            m1Column.HeaderText = "-1";
+            dataGridView2.Columns.Add(m1Column);
+
+            DataGridViewTextBoxColumn p1Column = new DataGridViewTextBoxColumn();
+            p1Column.DataPropertyName = "P1";
+            p1Column.HeaderText = "+1";
+            dataGridView2.Columns.Add(p1Column);
+
+            DataGridViewTextBoxColumn p2Column = new DataGridViewTextBoxColumn();
+            p2Column.DataPropertyName = "M1";
+            p2Column.HeaderText = "+2";
+            dataGridView2.Columns.Add(p2Column);
+
+            radioButton2.Checked = true;
+            //allTags = new BindingList<TagInformation>(tmtTags);
             dataGridView2.DataSource = allTags;
         }
 
@@ -143,7 +210,7 @@ namespace TagQuant
                 label10.Enabled = true;
                 label9.Enabled = true;
 
-                label16.Enabled = false;
+                //label16.Enabled = false;
                 dataGridView1.Enabled = false;
             }
             else
@@ -157,7 +224,7 @@ namespace TagQuant
                 label10.Enabled = false;
                 label9.Enabled = false;
 
-                label16.Enabled = true;
+                //label16.Enabled = true;
                 dataGridView1.Enabled = true;
             }
         }
@@ -577,6 +644,16 @@ namespace TagQuant
         {
             if (radioBox_TMT10.Checked)
             {
+                allTags.Clear();
+                foreach (TagInformation tag in tmtTags)
+                {
+                    allTags.Add(tag);
+                    tag.IsUsed = true;
+                }
+            }
+
+            if (radioBox_TMT10.Checked)
+            {
                 checkBox126.Checked = true;
                 checkBox127.Checked = true;
                 checkBox127_N.Checked = true;
@@ -728,19 +805,22 @@ namespace TagQuant
             double FTerror = (double)numericUpDown2.Value;
             double error;
 
-            var tagsToUse = new List<TagInformation>
-            {
-                new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
-                new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279),
-                new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279),
-                new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279),
-                new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279),
-                new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279),
-                new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279),
-                new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279),
-                new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415),
-                new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384)
-            };
+            //var tagsToUse = new List<TagInformation>
+            //{
+            //    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
+            //    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279),
+            //    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279),
+            //    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279),
+            //    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279),
+            //    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279),
+            //    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279),
+            //    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279),
+            //    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415),
+            //    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384)
+            //};
+
+            var tagsToUse = allTags.Where(t => t.IsUsed).ToList();
+            
 
             bool DontQuantifyETD = ComboBoxETDoptions.Text == "Don't Quantify";
             bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
@@ -2808,6 +2888,37 @@ namespace TagQuant
         private void label5_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void dataGridView2_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            var dgv = (DataGridView) sender;
+            if (dgv.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn)
+            {
+                
+            }
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!radioButton2.Checked) 
+                return;
+            allTags.Clear();
+            foreach (TagInformation tag in tmtTags)
+            {
+                allTags.Add(tag);
+            }
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!radioButton1.Checked)
+                return;
+            allTags.Clear();
+            foreach (TagInformation tag in itraqTags)
+            {
+                allTags.Add(tag);
+            }
         }
 
     }

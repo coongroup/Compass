@@ -63,15 +63,13 @@ namespace TagQuant
 
             WriteOutputFiles(quantFiles);
 
-
             logWriter.Close();
         }
 
         private void BuildPurityMatrixes(IEnumerable<TagInformation> inputTags)
         {
             List<TagInformation> tags = inputTags.ToList();
-
-         
+            
             double[,] data = new double[10,4];
             for (int i = 0; i < tags.Count; i++)
             {
@@ -88,7 +86,7 @@ namespace TagQuant
 
         private void Normalize(IEnumerable<QuantFile> quantFiles)
         {
-            double maxSignal = (from TagInformation tag in UsedTags.Values select tag.TotalSignal).Concat(new double[] {0}).Max();
+            double maxSignal = (from TagInformation tag in UsedTags.Values where tag.IsUsed select tag.TotalSignal).Concat(new double[] {0}).Max();
             
             Log("Tag\tSample\tTotal Signal\tNormalizedSignal");
 
@@ -97,7 +95,8 @@ namespace TagQuant
                 // Divide by max so that everything is less than or equal to 1
                 tag.NormalizedTotalSignal = tag.TotalSignal/maxSignal;
 
-                Log(string.Format("{0}\t{1}\t{2}\t{3}", tag.TagName, tag.SampleName, tag.TotalSignal, tag.NormalizedTotalSignal));
+                Log(string.Format("{0}\t{1}\t{2}\t{3}", tag.TagName, tag.SampleName, tag.TotalSignal,
+                    tag.NormalizedTotalSignal));
             }
             
 
@@ -263,11 +262,16 @@ namespace TagQuant
                         double noise = 0;
                         if (NoisebandCap)
                         {
+                            // Noise is pretty constant over a small region, find the noise of the center of all isobaric tags
                             MassRange range = new MassRange(UsedTags.Keys[0], UsedTags.Keys[UsedTags.Count - 1]);
                             ThermoLabeledPeak peak = massSpectrum.GetClosestPeak(range) as ThermoLabeledPeak;
-                            if (peak != null )
+                            if (peak != null)
                             {
                                 noise = peak.Noise;
+                            }
+                            else
+                            {
+                                throw new ArgumentException("Low resolution data has no noise associated with it");
                             }
                         }
 
@@ -295,6 +299,12 @@ namespace TagQuant
                     }
                 }
                 yield return quantFile;
+            }
+            
+            // Dispose of all raw files
+            foreach (ThermoRawFile rawFile in RawFiles.Values)
+            {
+                rawFile.Dispose();
             }
         }
 

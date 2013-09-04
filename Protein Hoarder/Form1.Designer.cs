@@ -1,4 +1,4 @@
-﻿namespace Protein_Hoarder
+﻿namespace Compass.ProteinHoarder
 {
     partial class Form1
     {
@@ -43,6 +43,7 @@
             this.databaseTB = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.optionsGB = new System.Windows.Forms.GroupBox();
+            this.semiCB = new System.Windows.Forms.CheckBox();
             this.includeUnfliterCB = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.proteinscoringCB = new System.Windows.Forms.ComboBox();
@@ -66,7 +67,6 @@
             this.csvD = new System.Windows.Forms.OpenFileDialog();
             this.databaseD = new System.Windows.Forms.OpenFileDialog();
             this.outputD = new System.Windows.Forms.FolderBrowserDialog();
-            this.semiCB = new System.Windows.Forms.CheckBox();
             this.logGB.SuspendLayout();
             this.inputGB.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).BeginInit();
@@ -173,7 +173,7 @@
             // maxMissedCleavagedUD
             // 
             this.maxMissedCleavagedUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.maxMissedCleavagedUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxMissedCleavages", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.maxMissedCleavagedUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Compass.ProteinHoarder.Properties.Settings.Default, "maxMissedCleavages", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.maxMissedCleavagedUD.Location = new System.Drawing.Point(148, 174);
             this.maxMissedCleavagedUD.Maximum = new decimal(new int[] {
             1000000,
@@ -188,7 +188,7 @@
             this.maxMissedCleavagedUD.Name = "maxMissedCleavagedUD";
             this.maxMissedCleavagedUD.Size = new System.Drawing.Size(46, 20);
             this.maxMissedCleavagedUD.TabIndex = 9;
-            this.maxMissedCleavagedUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxMissedCleavages;
+            this.maxMissedCleavagedUD.Value = global::Compass.ProteinHoarder.Properties.Settings.Default.maxMissedCleavages;
             // 
             // csvDGV
             // 
@@ -260,11 +260,23 @@
             this.optionsGB.TabStop = false;
             this.optionsGB.Text = "Options";
             // 
+            // semiCB
+            // 
+            this.semiCB.AutoSize = true;
+            this.semiCB.Checked = global::Compass.ProteinHoarder.Properties.Settings.Default.semiDigestion;
+            this.semiCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Compass.ProteinHoarder.Properties.Settings.Default, "semiDigestion", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.semiCB.Location = new System.Drawing.Point(8, 137);
+            this.semiCB.Name = "semiCB";
+            this.semiCB.Size = new System.Drawing.Size(135, 17);
+            this.semiCB.TabIndex = 13;
+            this.semiCB.Text = "Perform Semi-Digestion";
+            this.semiCB.UseVisualStyleBackColor = true;
+            // 
             // includeUnfliterCB
             // 
             this.includeUnfliterCB.AutoSize = true;
-            this.includeUnfliterCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.includeUnfilterResults;
-            this.includeUnfliterCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "includeUnfilterResults", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.includeUnfliterCB.Checked = global::Compass.ProteinHoarder.Properties.Settings.Default.includeUnfilterResults;
+            this.includeUnfliterCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Compass.ProteinHoarder.Properties.Settings.Default, "includeUnfilterResults", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.includeUnfliterCB.Location = new System.Drawing.Point(26, 114);
             this.includeUnfliterCB.Name = "includeUnfliterCB";
             this.includeUnfliterCB.Size = new System.Drawing.Size(219, 17);
@@ -284,10 +296,10 @@
             // proteinscoringCB
             // 
             this.proteinscoringCB.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.proteinscoringCB.DataBindings.Add(new System.Windows.Forms.Binding("Name", global::Protein_Hoarder.Properties.Settings.Default, "ProteinScoringValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.proteinscoringCB.DataBindings.Add(new System.Windows.Forms.Binding("Name", global::Compass.ProteinHoarder.Properties.Settings.Default, "ProteinScoringValue", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.proteinscoringCB.FormattingEnabled = true;
             this.proteinscoringCB.Location = new System.Drawing.Point(130, 18);
-            this.proteinscoringCB.Name = global::Protein_Hoarder.Properties.Settings.Default.ProteinScoringValue;
+            this.proteinscoringCB.Name = global::Compass.ProteinHoarder.Properties.Settings.Default.ProteinScoringValue;
             this.proteinscoringCB.Size = new System.Drawing.Size(140, 21);
             this.proteinscoringCB.TabIndex = 10;
             // 
@@ -302,7 +314,7 @@
             // 
             // minpepspergroupUD
             // 
-            this.minpepspergroupUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "minPeptidesPerProteinGroup", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.minpepspergroupUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Compass.ProteinHoarder.Properties.Settings.Default, "minPeptidesPerProteinGroup", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.minpepspergroupUD.Location = new System.Drawing.Point(224, 67);
             this.minpepspergroupUD.Maximum = new decimal(new int[] {
             1000000,
@@ -317,7 +329,7 @@
             this.minpepspergroupUD.Name = "minpepspergroupUD";
             this.minpepspergroupUD.Size = new System.Drawing.Size(46, 20);
             this.minpepspergroupUD.TabIndex = 6;
-            this.minpepspergroupUD.Value = global::Protein_Hoarder.Properties.Settings.Default.minPeptidesPerProteinGroup;
+            this.minpepspergroupUD.Value = global::Compass.ProteinHoarder.Properties.Settings.Default.minPeptidesPerProteinGroup;
             // 
             // label2
             // 
@@ -330,20 +342,20 @@
             // 
             // fdrUD
             // 
-            this.fdrUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Protein_Hoarder.Properties.Settings.Default, "maxFDR", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.fdrUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Compass.ProteinHoarder.Properties.Settings.Default, "maxFDR", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.fdrUD.DecimalPlaces = 2;
             this.fdrUD.Location = new System.Drawing.Point(224, 93);
             this.fdrUD.Name = "fdrUD";
             this.fdrUD.Size = new System.Drawing.Size(46, 20);
             this.fdrUD.TabIndex = 5;
-            this.fdrUD.Value = global::Protein_Hoarder.Properties.Settings.Default.maxFDR;
+            this.fdrUD.Value = global::Compass.ProteinHoarder.Properties.Settings.Default.maxFDR;
             // 
             // conservativeCB
             // 
             this.conservativeCB.AutoSize = true;
-            this.conservativeCB.Checked = global::Protein_Hoarder.Properties.Settings.Default.conservativePScore;
+            this.conservativeCB.Checked = global::Compass.ProteinHoarder.Properties.Settings.Default.conservativePScore;
             this.conservativeCB.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.conservativeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Protein_Hoarder.Properties.Settings.Default, "conservativePScore", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.conservativeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Compass.ProteinHoarder.Properties.Settings.Default, "conservativePScore", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.conservativeCB.Location = new System.Drawing.Point(26, 45);
             this.conservativeCB.Name = "conservativeCB";
             this.conservativeCB.Size = new System.Drawing.Size(229, 17);
@@ -519,30 +531,20 @@
             // csvD
             // 
             this.csvD.Filter = "Omssa CSV|*.csv";
-            this.csvD.InitialDirectory = global::Protein_Hoarder.Properties.Settings.Default.csvDirectory;
+            this.csvD.InitialDirectory = global::Compass.ProteinHoarder.Properties.Settings.Default.csvDirectory;
             this.csvD.Multiselect = true;
             this.csvD.Title = "Select csvs to herd";
             // 
             // databaseD
             // 
             this.databaseD.Filter = "FASTA|*.fa*|All Files|*.*";
-            this.databaseD.InitialDirectory = global::Protein_Hoarder.Properties.Settings.Default.databaseDirectory;
+            this.databaseD.InitialDirectory = global::Compass.ProteinHoarder.Properties.Settings.Default.databaseDirectory;
             this.databaseD.Title = "Select the protein database used to search the data with";
             // 
             // outputD
             // 
             this.outputD.Description = "Select the Output Directory";
-            this.outputD.SelectedPath = global::Protein_Hoarder.Properties.Settings.Default.outputDirectory;
-            // 
-            // semiCB
-            // 
-            this.semiCB.AutoSize = true;
-            this.semiCB.Location = new System.Drawing.Point(8, 137);
-            this.semiCB.Name = "semiCB";
-            this.semiCB.Size = new System.Drawing.Size(135, 17);
-            this.semiCB.TabIndex = 13;
-            this.semiCB.Text = "Perform Semi-Digestion";
-            this.semiCB.UseVisualStyleBackColor = true;
+            this.outputD.SelectedPath = global::Compass.ProteinHoarder.Properties.Settings.Default.outputDirectory;
             // 
             // Form1
             // 

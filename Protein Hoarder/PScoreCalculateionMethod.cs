@@ -1,4 +1,4 @@
-﻿namespace Protein_Hoarder
+﻿namespace Compass.ProteinHoarder
 {
     public enum PScoreCalculateionMethod
     {

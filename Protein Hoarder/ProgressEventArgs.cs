@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public class ProgressEventArgs : EventArgs
     {

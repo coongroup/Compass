@@ -1,14 +1,14 @@
-﻿using System;
+﻿using CSMSL.Analysis.Identification;
+using CSMSL.IO;
+using CSMSL.Proteomics;
+using LumenWorks.Framework.IO.Csv;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using CSMSL.IO;
-using CSMSL.Proteomics;
-using CSMSL.Analysis.Identification;
-using LumenWorks.Framework.IO.Csv;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public class ProteinHoarder
     {
@@ -32,7 +32,7 @@ namespace Protein_Hoarder
         public HashSet<Modification> ModificationsToIgnore;
 
         /// <summary>
-        /// Represents all the unique peptide sequences mapped to all occurances (PSMs) of that sequence.
+        /// Represents all the unique peptide sequences isMapped to all occurances (PSMs) of that sequence.
         /// </summary>
         internal static Dictionary<string, Peptide> Peptides;
 
@@ -92,7 +92,7 @@ namespace Protein_Hoarder
                 // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
                 List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases, SemiDigestion);              
 
-                // 3) Construct the protein groups from the mapped proteins
+                // 3) Construct the protein groups from the isMapped proteins
                 GroupProteins(proteins);
 
                 // 4) Write out the data
@@ -153,7 +153,7 @@ namespace Protein_Hoarder
 
                         // Add to the list of the all the unique peptides
                         Peptide realPep;
-                        if (peptides.TryGetValue(leuSeq, out realPep))  // Faster than containskey since you only try to hash once
+                        if (peptides.TryGetValue(leuSeq, out realPep))  // Faster than contains key since you only try to hash once
                         {
                             realPep.PSMs.Add(psm);
                         }
@@ -197,7 +197,7 @@ namespace Protein_Hoarder
         /// <param name="uniquePeptides">The unique peptides that were read in from the csv files</param>
         /// <param name="proteases"></param>
         /// <param name="semiDigestion">Perform a Semi Digestion</param>
-        /// <returns>True if all the unique peptides get mapped to at least one protein, false otherwise</returns>
+        /// <returns>True if all the unique peptides get isMapped to at least one protein, false otherwise</returns>
         private List<Protein> GetMappedProteinsFromFasta(string fastaFile, Dictionary<string, Peptide> uniquePeptides, IEnumerable<Protease> proteases, bool semiDigestion = false)
         {
             string fastaFileniceName = Path.GetFileName(fastaFile);
@@ -266,7 +266,7 @@ namespace Protein_Hoarder
                         // Add the peptide to the protein
                         prot.AddPeptide(pep);
 
-                        // Mark that this peptide was successfully mapped, this is for error checking purposes
+                        // Mark that this peptide was successfully isMapped, this is for error checking purposes
                         pep.MarkAsMapped();
                     }
 
@@ -282,7 +282,7 @@ namespace Protein_Hoarder
             // Check to see if every peptide is matched, if not try using a brute force search method instead
             if (uniquePeptides.Count > Peptide.MappedCount)
             {
-                List<Peptide> unMapedPeptides = uniquePeptides.Values.Where(p => !p.mapped).ToList();
+                List<Peptide> unMapedPeptides = uniquePeptides.Values.Where(p => !p.IsMapped).ToList();
 
                 Log("[WARNING] Couldn't find every peptide using digestion method (wrong enzyme perhaps?), trying brute force search instead on the remaining {0} peptides...", unMapedPeptides.Count);
                 //ProgressUpdate(0);
@@ -323,7 +323,7 @@ namespace Protein_Hoarder
                                 prot.AddPeptide(pep2);
                             }
 
-                            // Mark that this peptide was successfully mapped, this is for error checking purposes
+                            // Mark that this peptide was successfully isMapped, this is for error checking purposes
                             pep2.MarkAsMapped();
                         }
 
@@ -337,15 +337,15 @@ namespace Protein_Hoarder
                 }
             
                 // Still missing peptides?
-                if (unMapedPeptides.Any(p => !p.mapped))
+                if (unMapedPeptides.Any(p => !p.IsMapped))
                 {
                     int count = 0;
                     foreach (Peptide pep2 in unMapedPeptides)
                     {
-                        if (pep2.mapped)
+                        if (pep2.IsMapped)
                             continue;
                         count++;
-                        Log("[ERROR]\tPeptide {0} was not mapped", pep2);
+                        Log("[ERROR]\tPeptide {0} was not isMapped", pep2);
                     }
                     throw new ArgumentException(
                         string.Format(
@@ -354,12 +354,12 @@ namespace Protein_Hoarder
                 }
 
             }
-            Log("Every unique peptide was successfully mapped to at least one protein");
-            Log("{0:N0} of {1:N0} ({2:F2}%) target proteins were mapped at least once", forwardProteinsMapped, forwardProteins, 100.0 * (double)forwardProteinsMapped / (double)forwardProteins);
-            Log("{0:N0} of {1:N0} ({2:F2}%) decoy proteins were mapped at least once", decoyProteinsMapped, decoyProteins, 100.0 * (double)decoyProteinsMapped / (double)decoyProteins);
+            Log("Every unique peptide was successfully isMapped to at least one protein");
+            Log("{0:N0} of {1:N0} ({2:F2}%) target proteins were isMapped at least once", forwardProteinsMapped, forwardProteins, 100.0 * (double)forwardProteinsMapped / (double)forwardProteins);
+            Log("{0:N0} of {1:N0} ({2:F2}%) decoy proteins were isMapped at least once", decoyProteinsMapped, decoyProteins, 100.0 * (double)decoyProteinsMapped / (double)decoyProteins);
             ProgressUpdate(0.0); // force the progress bar to go into marquee mode      
                
-            // Return a list of all the proteins that were mapped at least once
+            // Return a list of all the proteins that were isMapped at least once
             return proteins.Values.ToList();
         }
 
@@ -602,7 +602,7 @@ namespace Protein_Hoarder
         /// Maps the peptide to all the protein groups that it is apart of
         /// </summary>
         /// <param name="proteinGroups">a list of Protein Groups to map too</param>
-        /// <returns>a Dictionary of peptides mapped to a List of Protein Groups</returns>
+        /// <returns>a Dictionary of peptides isMapped to a List of Protein Groups</returns>
         private void MappedPeptidesToProteinGroups(List<ProteinGroup> proteinGroups)
         {
             // Clear all the mappings first
@@ -953,7 +953,7 @@ namespace Protein_Hoarder
                             }
                             else
                             {
-                                throw new Exception("Read in a PSM that isn't mapped! Did an input CSV's contents change?");
+                                throw new Exception("Read in a PSM that isn't isMapped! Did an input CSV's contents change?");
                             }
                         }                    
                     }

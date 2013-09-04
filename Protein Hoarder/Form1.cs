@@ -1,15 +1,15 @@
-﻿using System;
+﻿using CSMSL.Proteomics;
+using LumenWorks.Framework.IO.Csv;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using System.Linq;
-using CSMSL.Proteomics;
-using LumenWorks.Framework.IO.Csv;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public partial class Form1 : Form
     {

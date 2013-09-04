@@ -1,31 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public class Peptide : IEquatable<Peptide>
     {
         public static int MappedCount = 0;
 
         public ProteinGroup BestPG = null;
-        internal bool mapped = false;
+        internal bool IsMapped = false;
 
-        private int hCode;
-
-        private string _leucineSequence;
+        private readonly int _hCode;
 
         public Peptide(string sequence)
         {
             LeucineSequence = sequence;
+            _hCode = sequence.GetHashCode();
             PSMs = new PsmList();
         }
-
-        public Peptide(string sequence, PSM psm)
-        {
-            LeucineSequence = sequence;
-            PSMs = new PsmList(psm);
-        }
-
+    
         public bool IsShared
         {
             get
@@ -38,22 +31,11 @@ namespace Protein_Hoarder
         {
             get
             {
-                return _leucineSequence.Length;
+                return LeucineSequence.Length;
             }
         }
 
-        public string LeucineSequence
-        {
-            get
-            {
-                return _leucineSequence;
-            }
-            private set
-            {
-                _leucineSequence = value;
-                hCode = _leucineSequence.GetHashCode();
-            }
-        }
+        public string LeucineSequence { get; private set; }
 
         public int NumberOfSharingProteinGroups
         {
@@ -69,21 +51,20 @@ namespace Protein_Hoarder
 
         public bool Equals(Peptide other)
         {
-            if (ReferenceEquals(this, other)) return true;
-            return LeucineSequence.Equals(other.LeucineSequence);
+            return ReferenceEquals(this, other) || LeucineSequence.Equals(other.LeucineSequence);
         }
 
         public override int GetHashCode()
         {
-            return hCode;// LeucineSequence.GetHashCode();
+            return _hCode;
         }
 
         public void MarkAsMapped()
         {
-            if (mapped) 
+            if (IsMapped) 
                 return;
             MappedCount++;
-            mapped = true;
+            IsMapped = true;
         }
 
         public override string ToString()

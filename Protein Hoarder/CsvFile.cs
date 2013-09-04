@@ -1,9 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
-using CSMSL.Proteomics;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public class CsvFile : INotifyPropertyChanged, IEquatable<CsvFile>
     {

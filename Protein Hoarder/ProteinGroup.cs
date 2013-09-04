@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CSMSL.Analysis.Identification;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using CSMSL.Analysis.Identification;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public class ProteinGroup : IEnumerable<Protein>, IEquatable<ProteinGroup>, IComparer<ProteinGroup>, IComparable<ProteinGroup>, IFalseDiscovery<double>
     {

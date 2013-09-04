@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Protein_Hoarder
+namespace Compass.ProteinHoarder
 {
     public class Protein : IEquatable<Protein>
     {

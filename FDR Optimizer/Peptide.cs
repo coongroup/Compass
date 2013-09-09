@@ -39,7 +39,7 @@ namespace FdrOptimizer
 
             // Get Mass using CSMSL Peptide
             CSMSL.Proteomics.Peptide peptide = new CSMSL.Proteomics.Peptide(sequence);
-            double mass = peptide.Mass.Monoisotopic;
+            double mass = peptide.MonoisotopicMass;
 
             //foreach(char c in sequence.ToUpper())
             //{

@@ -1,14 +1,14 @@
-﻿using CSMSL.Analysis.Identification;
-using CSMSL.IO;
-using CSMSL.Proteomics;
-using LumenWorks.Framework.IO.Csv;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CSMSL.Analysis.Identification;
+using CSMSL.IO;
+using CSMSL.Proteomics;
+using LumenWorks.Framework.IO.Csv;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class ProteinHoarder
     {
@@ -90,22 +90,23 @@ namespace Compass.ProteinHoarder
                 Peptides = GetAllUniquePeptides(CsvFiles);
 
                 // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
-                List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases, SemiDigestion);              
+                List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases, SemiDigestion);
 
                 // 3) Construct the protein groups from the isMapped proteins
-                GroupProteins(proteins);
+                List<ProteinGroup> groups = GroupProteins(proteins);
 
                 // 4) Write out the data
                 Dictionary<char, ExperimentGroup> expgroups = GroupExperiments(CsvFiles, UseQuant);
+
 
                 WritePeptides(expgroups, OutputDirectory);
 
                 WriteGroups(expgroups, OutputDirectory);
             }
-            catch (Exception e)
-            {
-                Log("[ERROR]\t{0}", e.Message);
-            }
+            //catch (Exception e)
+            //{
+            //    Log("[ERROR]\t{0}", e.Message);
+            //}
             finally
             {               
                 CleanUp();
@@ -650,26 +651,17 @@ namespace Compass.ProteinHoarder
 
                         if (!useQuant) continue;
 
-                        exp.TQStart = -1;
-                        exp.TQStop = -1;
+                        int headerCount = headers.Length;
 
-                        foreach (string header in headers)
+                        exp.TQStart = -1;
+                        exp.TQStop = headerCount - 2;
+                        for (int i = 0; i < headerCount; i++)
                         {
-                            if (header.StartsWith("TQ_126_"))
-                            {
-                                exp.TQStart = reader.GetFieldIndex(header);
-                                break;
-                            }
-                            if (header.StartsWith("TQ_113_"))
-                            {
-                                exp.TQStart = reader.GetFieldIndex(header);
-                                break;
-                            }
-                            if (header.StartsWith("TQ_114_"))
-                            {
-                                exp.TQStart = reader.GetFieldIndex(header);
-                                break;
-                            }
+                            string header = headers[i];
+                            if (!header.Contains("NL)")) 
+                                continue;
+                            exp.TQStart = i;
+                            break;
                         }
 
                         if (exp.TQStart < 0)
@@ -679,15 +671,10 @@ namespace Compass.ProteinHoarder
                             break;
                         }
                         exp.UseQuant = true;
-
-                        int totalheaders = headers.Length - 1;
-                        exp.TQStop = totalheaders;
-
-                        //exp.TQStop = exp.TQStart + 4 * (int)exp.QuantType + 1;
-
+                      
                         // Get the experimental Quant headers
                         StringBuilder sb = new StringBuilder();
-                        for (int i = exp.TQStart; i < exp.TQStop; i++)
+                        for (int i = exp.TQStart; i <= exp.TQStop; i++)
                         {
                             sb.Append(headers[i]);
                             sb.Append(',');
@@ -854,28 +841,17 @@ namespace Compass.ProteinHoarder
                                             }
                                         }
                                     }
-                                    
-                                    if (FilterQuantInterference)
-                                    {
-                                        double interference = 0;
-                                        if (double.TryParse(reader["Interference"], out interference))
-                                        {
-                                            if (interference >= QuantInterferenceCutoff)
-                                            {
-                                                usePeptideInQuant = false;
-                                            }
-                                        }
-                                    }
+                                  
 
                                     if (usePeptideInQuant)
                                     {
                                         Quantitation quant = null;
-                                        double[] quantData = new double[4 * (int)exp.QuantPlex + 1];
+                                        double[] quantData = new double[4 * (int)exp.QuantPlex];
                                         bool keepPeptide = true;
                                         
                                         // Read in all the quant data from the csvfile
                                         int j = 0;
-                                        for (int i = exp.TQStart; i < exp.TQStop; i++)
+                                        for (int i = exp.TQStart; i <= exp.TQStop; i++)
                                         {
                                             double value = 0;
                                             if (double.TryParse(reader[i], out value))
@@ -893,6 +869,7 @@ namespace Compass.ProteinHoarder
                                             }
                                             j++;
                                         }
+
                                         if (keepPeptide)
                                         {
                                             // append/add the quant data to the best and only protein group

@@ -1,6 +1,4 @@
-﻿using CSMSL.Proteomics;
-using LumenWorks.Framework.IO.Csv;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -8,8 +6,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using CSMSL.Proteomics;
+using LumenWorks.Framework.IO.Csv;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public partial class Form1 : Form
     {
@@ -114,11 +114,11 @@ namespace Compass.ProteinHoarder
             double maxFDR = (double)fdrUD.Value;
             bool useConservative = conservativeCB.Checked;
             bool useQuant = enableQuantCB.Checked;
-            bool filterinterference = quantigorneinterferenceCB.Checked;
+            //bool filterinterference = quantigorneinterferenceCB.Checked;
             bool includeUnfiltereedResults = includeUnfliterCB.Checked;
             bool ignorePeptidesWithMissingData = ignorePepMissingCB.Checked;
             bool semiDigestion = semiCB.Checked;
-            double interferencecutoff = (double)quantintferenceUD.Value;
+            //double interferencecutoff = (double)quantintferenceUD.Value;
             
             HashSet<Modification> modstoignore = new HashSet<Modification>();
             if (useQuant)
@@ -131,7 +131,7 @@ namespace Compass.ProteinHoarder
                 }
             }           
             logTB.Clear();
-            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, filterinterference, interferencecutoff, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion);
+            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion);
             Hoarder.UpdateLog += new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
             Hoarder.UpdateProgress += new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
             MainThread = new Thread(Hoarder.Herd);
@@ -384,8 +384,8 @@ namespace Compass.ProteinHoarder
         private void enableQuantCB_CheckedChanged(object sender, EventArgs e)
         {
             ignoreModsCLB.Enabled = enableQuantCB.Checked;
-            quantigorneinterferenceCB.Enabled = enableQuantCB.Checked;
-            quantintferenceUD.Enabled = enableQuantCB.Checked;
+           // quantigorneinterferenceCB.Enabled = enableQuantCB.Checked;
+            //quantintferenceUD.Enabled = enableQuantCB.Checked;
             ignorePepMissingCB.Enabled = enableQuantCB.Checked;
         }
     }

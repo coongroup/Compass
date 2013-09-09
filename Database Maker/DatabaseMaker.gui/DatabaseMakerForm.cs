@@ -7,9 +7,9 @@ using CSMSL.IO;
 
 namespace Coon.Compass.DatabaseMaker
 {
-    public partial class frmMain : Form
+    public partial class DatabaseMakerForm : Form
     {
-        public frmMain()
+        public DatabaseMakerForm()
         {
             InitializeComponent();
             fastaLB.DataSource = FastaFiles;
@@ -174,15 +174,9 @@ namespace Coon.Compass.DatabaseMaker
             }
 
             DatabaseMaker database_maker = new DatabaseMaker(options);
-            database_maker.OnInvalidHeader += database_maker_OnInvalidHeader;
             database_maker.CreateDatabase();
         }
-
-        void database_maker_OnInvalidHeader(object sender, FastaEvent e)
-        {
-            Fasta fasta = e.Fasta;          
-        }
-
+     
         /**
          * Callback to 'Clear' Button
          **/

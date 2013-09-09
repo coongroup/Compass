@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Coon;
-using Coon.Spectra;
-using CoonThermo.IO;
+using CSMSL;
+using CSMSL.IO;
+using CSMSL.Proteomics;
+using CSMSL.Spectral;
 
-namespace Lotor
+namespace Coon.Compass.Lotor
 {
     public class PSM
     {
@@ -18,26 +18,30 @@ namespace Lotor
         public double[,] LocalizationResult;
 
 
-        public Spectrum Spectrum
+        public MassSpectrum Spectrum
         {
-            get { return RawFileScan.Spectrum; }
+            get { return DataScan.MassSpectrum; }
         }
 
-        private ThermoRawFileScan rawFileScan = null;
-        public ThermoRawFileScan RawFileScan
+        private MsnDataScan _dataScan = null;
+        public MsnDataScan DataScan
         {
             get
             {
-                if (rawFileScan == null)
+                if (_dataScan == null)
                 {
-                    rawFileScan = RawFile[ScanNumber];
-                    IsolationMZ = rawFileScan.IsolationRange.MeanValue;
+                    _dataScan = DataFile[ScanNumber] as MsnDataScan;
+                    if (_dataScan == null)
+                    {
+                        throw new ArgumentException("Not an MS/MS spectrum!");
+                    }
+                    IsolationMZ = _dataScan.IsolationRange.Mean;
                 }
-                return rawFileScan;
+                return _dataScan;
             }
             set
             {
-                rawFileScan = value;
+                _dataScan = value;
             }
         }
              
@@ -55,13 +59,13 @@ namespace Lotor
                 return StartResidue == 1;
             }
         }
-           
-        public ThermoRawFile RawFile;
 
-        public PSM(int scannumber, ThermoRawFile rawFile) 
+        public MSDataFile DataFile { get; set; }
+
+        public PSM(int scannumber, MSDataFile dataFile) 
         {
             ScanNumber = scannumber;
-            RawFile = rawFile;
+            DataFile = dataFile;
         }
 
         public int Isoforms
@@ -87,7 +91,7 @@ namespace Lotor
             {
                 case 0: // no isoforms, no ascore
                     return 0;
-                case 1: // one isoform, localized, no ascore calcualte
+                case 1: // one isoform, localized, no ascore calculated
                     return double.MaxValue;
                 case 2: // two isoforms, skip finding best isoforms, make sure value is positive
                     return 0;
@@ -96,7 +100,7 @@ namespace Lotor
             }
         }
 
-        public double[,] Calc(FragmentType type, double pvalue) 
+        public double[,] Calc(FragmentTypes type, double pvalue) 
         {
             LocalizationResult = Calc(type, pvalue, this.PeptideIsoforms.ToArray());
             return LocalizationResult;
@@ -104,13 +108,13 @@ namespace Lotor
 
         public void DeleteScan()
         {
-            if (rawFileScan != null)
+            if (_dataScan != null)
             {
-                rawFileScan = null;
+                _dataScan = null;
             }
         }
 
-        private double[,] Calc(FragmentType type, double pvalue, params PeptideIsoform[] isoforms)
+        private double[,] Calc(FragmentTypes type, double pvalue, params PeptideIsoform[] isoforms)
         {
             int count = isoforms.Count();
             double[,] res = new double[count, count];  
@@ -128,14 +132,14 @@ namespace Lotor
                     int j_count = 0;
                     int num_sdfs = 0;
 
-                    foreach (string sdf in isoforms[i].CalculateSDFs(isoforms[j], type))
+                    foreach (Fragment sdf in isoforms[i].GetSiteDeterminingFragments(isoforms[j], type))
                     {                        
                         if (isoforms[i].SpectralMatch.Contains(sdf)) i_count++; 
                         if (isoforms[j].SpectralMatch.Contains(sdf)) j_count++;                         
                         num_sdfs++;
                     }
                     
-                    double ascore = Coon.Statistics.Statistics.AScore(i_count, j_count, pvalue, num_sdfs);
+                    double ascore = CSMSL.Util.Combinatorics.AScore(i_count, j_count, pvalue, num_sdfs);
                     
                     // Symmerty Rules
                     res[i, j] = ascore;
@@ -150,7 +154,7 @@ namespace Lotor
             return 0;
         }
 
-        public void MatchIsofroms(FragmentType type, Tolerance tolerance)
+        public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance)
         {
             foreach (PeptideIsoform isoform in PeptideIsoforms)
             {

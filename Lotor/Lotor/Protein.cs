@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using Coon;
+using CSMSL.Chemistry;
 
-namespace Lotor
+namespace Coon.Compass.Lotor
 {
     public class Protein
     {
@@ -21,7 +19,7 @@ namespace Lotor
             Hits = new Dictionary<string, List<LocalizedHit>>();
         }
 
-        public void AddHit(LocalizedHit hit, List<string> localazingPTMs) 
+        public void AddHit(LocalizedHit hit, List<IMass> localazingPTMs) 
         {
             string localizedString = GetLocalizedString(hit, localazingPTMs);
             List<LocalizedHit> hits = null;
@@ -84,16 +82,21 @@ namespace Lotor
             return sb.ToString();
         }
 
-        private static string GetLocalizedString(LocalizedHit hit, List<string> localizingPTMs)
+        private static string GetLocalizedString(LocalizedHit hit, List<IMass> localizingPTMs)
         {
             StringBuilder sb = new StringBuilder();
-            foreach (int resNumber in hit.LocalizedIsoform.GetModifiedSites(localizingPTMs))
-            {                
-                int fullResidueNumber = hit.PSM.StartResidue + resNumber - 1;
-                char res = hit.LocalizedIsoform[resNumber-1].OneLetterAbbreviation;
-                sb.Append(res);
-                sb.Append(fullResidueNumber);
-                sb.Append("|");
+            IMass[] mods = hit.LocalizedIsoform.GetModifications();
+            for(int resNumber = 0; resNumber < mods.Length; resNumber++)
+            {
+                IMass mod = mods[resNumber];
+                if (mod != null && localizingPTMs.Contains(mod))
+                {
+                    int fullResidueNumber = hit.PSM.StartResidue + resNumber + 1;
+                    char res = hit.LocalizedIsoform.Sequence[resNumber + 1];
+                    sb.Append(res);
+                    sb.Append(fullResidueNumber);
+                    sb.Append("|");
+                }
             }
             if (sb.Length > 0)
             {

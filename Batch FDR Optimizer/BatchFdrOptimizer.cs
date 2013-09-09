@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using Coon;
-using Coon.IO;
 
 namespace BatchFdrOptimizer
 {
@@ -169,11 +167,9 @@ namespace BatchFdrOptimizer
                 Dictionary<string, List<string>> raw_csv_filepaths = new Dictionary<string, List<string>>();
                 long total_bytes = 0;
                 foreach(string csv_filepath in csvFilepaths)
-                {                  
-                    using (OmssaReader<DefaultOmssaLine> reader = new OmssaReader<DefaultOmssaLine>(csv_filepath))
-                    {
-                         total_bytes += reader.TotalBytes;
-                    }
+                {
+                    FileInfo f = new FileInfo(csv_filepath);
+                    total_bytes += f.Length;
                     
                     string truncated_filename = Path.GetFileNameWithoutExtension(csv_filepath);
                     string[] raw_filepaths = null;

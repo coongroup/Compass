@@ -1,6 +1,6 @@
-﻿namespace Lotor
+﻿namespace Coon.Compass.Lotor
 {
-    partial class mainForm
+    partial class lotorForm
     {
         /// <summary>
         /// Required designer variable.

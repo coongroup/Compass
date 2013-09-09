@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lotor
+namespace Coon.Compass.Lotor
 {
     public class ProgressEventArgs : EventArgs
     {

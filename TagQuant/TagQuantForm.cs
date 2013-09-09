@@ -1,18 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Text.RegularExpressions;
-using System.ComponentModel;
+﻿using System.Reflection;
 using CSMSL;
-using CSMSL.Analysis.Quantitation;
-using CSMSL.IO;
-using CSMSL.IO.Thermo;
-using CSMSL.Spectral;
 using LumenWorks.Framework.IO.Csv;
-using MathNet.Numerics.LinearAlgebra.Double;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace TagQuant
 {
@@ -46,19 +41,23 @@ namespace TagQuant
             new TagInformation(121, "iTRAQ 121", "", 121.121524, 114.1279,TagSetType.iTRAQ,0,0,7,0)
         };
 
-        List<TagInformation> userTags = new List<TagInformation>(); 
-
+        List<TagInformation> userTags = new List<TagInformation>();
+        
         public TagQuantForm()
         {
             InitializeComponent();
+            this.Text = "Tag Quant v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             dataGridView2.AutoGenerateColumns = false;
             dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
             DataGridViewCheckBoxColumn useColumn = new DataGridViewCheckBoxColumn();
             useColumn.DataPropertyName = "IsUsed";
-            useColumn.HeaderText = "Use?";
+            useColumn.HeaderText = "Use";
             useColumn.Frozen = true;
+            useColumn.ContextMenuStrip = new ContextMenuStrip();
+            useColumn.ContextMenuStrip.Items.Add("Select All").Click += CheckBoxColumnSelectAll;
+            useColumn.ContextMenuStrip.Items.Add("Deselect All").Click += CheckBoxColumnDeselectAll;
             dataGridView2.Columns.Add(useColumn);
 
             DataGridViewTextBoxColumn nameColumn = new DataGridViewTextBoxColumn();
@@ -102,6 +101,22 @@ namespace TagQuant
             //allTags = new BindingList<TagInformation>(tmtTags);
 
             dataGridView2.DataSource = allTags;
+        }
+
+        private void CheckBoxColumnDeselectAll(object sender, EventArgs e)
+        {
+            foreach (TagInformation tags in allTags)
+            {
+                tags.IsUsed = false;
+            }
+        }
+
+        private void CheckBoxColumnSelectAll(object sender, EventArgs e)
+        {
+            foreach (TagInformation tags in allTags)
+            {
+                tags.IsUsed = true;
+            }
         }
 
         private void SaveTags()
@@ -289,35 +304,37 @@ namespace TagQuant
         // Run TagQuant Program
         private void Quantify_Click(object sender, EventArgs e)
         {
-            double ITerror = (double)numericUpDown1.Value;
-            double FTerror = (double)numericUpDown2.Value;
-            double error;
-            
-            //var tagsToUse = new List<TagInformation>
-            //{
-            //    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279),
-            //    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279),
-            //    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279),
-            //    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279),
-            //    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279),
-            //    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279),
-            //    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279),
-            //    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279),
-            //    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415),
-            //    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384)
-            //};
+            if (listBox1.Items.Count == 0)
+            {
+                MessageBox.Show("No files are selected for analysis");
+                return;
+            }
 
             var tagsToUse = allTags.Where(t => t.IsUsed).ToList();
 
-           
+            if (tagsToUse.Count == 0)
+            {
+                MessageBox.Show("At least one tag must be selected for analysis");
+                return;
+            }
 
+            toolStripStatusLabel1.Text = "Running...";
+            Quantify.Enabled = false;
 
+            double ITerror = (double)numericUpDown1.Value;
+            double FTerror = (double)numericUpDown2.Value;
+            
             bool DontQuantifyETD = ComboBoxETDoptions.Text == "Don't Quantify";
             bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
 
             TagQuant tagQuant = new TagQuant(textOutputFolder.Text, textRawFolder.Text, listBox1.Items.OfType<string>(), tagsToUse, MassTolerance.FromDA(ITerror), MassTolerance.FromDA(FTerror), 0, noisebandCap);
-            tagQuant.Run();
-            return;
+            tagQuant.ProgressChanged += tagQuant_ProgressChanged;
+            tagQuant.OnFinished += tagQuant_OnFinished;
+            Thread thread = new Thread(tagQuant.Run);
+            thread.IsBackground = true;
+            thread.Start();
+           
+
             /*
             panel1.Enabled = false;
             toolStripStatusLabel1.Text = "Running";
@@ -427,358 +444,7 @@ namespace TagQuant
 
             SortedList<double, TagInformation> SamplesAndTags = new SortedList<double, TagInformation>();
 
-            /*
-            if(radioBox_iTRAQ4.Checked)
-            {
-                for(int i = 114; i <= 117; i++)
-                {
-                    Application.DoEvents();
-                    if(i == 114)
-                    {
-                        sample = textBox114.Text;
-                        if(sample.Length == 0) { sample = "unused114"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 115)
-                    {
-                        sample = textBox115.Text;
-                        if(sample.Length == 0) { sample = "unused115"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 116)
-                    {
-                        sample = textBox116.Text;
-                        if(sample.Length == 0) { sample = "unused116"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 117)
-                    {
-                        sample = textBox117.Text;
-                        if(sample.Length == 0) { sample = "unused117"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    TagInformation TagInfo = new TagInformation(i, sample);
-                    TotalTagSignal.Add(i, new Dictionary<FragmentationMethod, Double>());
-                    TotalTagSignal[i].Add(FragmentationMethod.CAD, 0);
-                    TotalTagSignal[i].Add(FragmentationMethod.ETD, 0);
-                    Samples.Add(i, TagInfo);
-                    log.WriteLine(i + "  " + sample);
-                }
-            }
-
-            if(radioBox_iTRAQ8.Checked)
-            {
-                for(int i = 113; i <= 121; i++)
-                {
-                    if(i == 120)
-                    {
-                        i++;
-                    }
-                    Application.DoEvents();
-                    if(i == 113)
-                    {
-                        sample = textBox113.Text;
-                        if(sample.Length == 0) { sample = "unused113"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 114)
-                    {
-                        sample = textBox114.Text;
-                        if(sample.Length == 0) { sample = "unused114"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 115)
-                    {
-                        sample = textBox115.Text;
-                        if(sample.Length == 0) { sample = "unused115"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 116)
-                    {
-                        sample = textBox116.Text;
-                        if(sample.Length == 0) { sample = "unused116"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 117)
-                    {
-                        sample = textBox117.Text;
-                        if(sample.Length == 0) { sample = "unused117"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 118)
-                    {
-                        sample = textBox118.Text;
-                        if(sample.Length == 0) { sample = "unused118"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 119)
-                    {
-                        sample = textBox119.Text;
-                        if(sample.Length == 0) { sample = "unused119"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if(i == 121)
-                    {
-                        sample = textBox121.Text;
-                        if(sample.Length == 0) { sample = "unused121"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    TagInformation TagInfo = new TagInformation(i, sample);
-                    TotalTagSignal.Add(i, new Dictionary<FragmentationMethod, Double>());
-                    TotalTagSignal[i].Add(FragmentationMethod.CAD, 0);
-                    TotalTagSignal[i].Add(FragmentationMethod.ETD, 0);
-                    Samples.Add(i, TagInfo);
-                    log.WriteLine(i + "  " + sample);
-                }
-            }
-
-            if(radioBox_TMT6.Checked)
-            {
-                for(int i = 126; i <= 131; i++)
-                {
-                    Application.DoEvents();
-                    if(i == 126)
-                    {
-                        sample = textBox126.Text;
-                        if(sample.Length == 0) { sample = "unused126"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    if(i == 127)
-                    {
-                        sample = textBox127.Text;
-                        if(sample.Length == 0) { sample = "unused127"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    if(i == 128)
-                    {
-                        sample = textBox128.Text;
-                        if(sample.Length == 0) { sample = "unused128"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    if(i == 129)
-                    {
-                        sample = textBox129.Text;
-                        if(sample.Length == 0) { sample = "unused129"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    if(i == 130)
-                    {
-                        sample = textBox130.Text;
-                        if(sample.Length == 0) { sample = "unused130"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    if(i == 131)
-                    {
-                        sample = textBox131.Text;
-                        if(sample.Length == 0) { sample = "unused131"; }
-                        if(!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    TagInformation TagInfo = new TagInformation(i, sample);
-                    TotalTagSignal.Add(i, new Dictionary<FragmentationMethod, Double>());
-                    TotalTagSignal[i].Add(FragmentationMethod.CAD, 0);
-                    TotalTagSignal[i].Add(FragmentationMethod.ETD, 0);
-                    Samples.Add(i, TagInfo);
-                    log.WriteLine(i + "  " + sample);
-                }
-            }
-
-            if (radioBox_TMT8.Checked)
-            {
-                for (int i = 126; i <= 133; i++)
-                {
-                    Application.DoEvents();
-                    if (i == 126)
-                    {
-                        sample = textBox126.Text;
-                        if (sample.Length == 0) { sample = "unused126"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if (i == 132)
-                    {
-                            sample = textBox127_N.Text;
-                            if (sample.Length == 0) { sample = "unused127*"; }
-                            if (!SamplesAndTags.ContainsKey(sample))
-                            {
-                                SamplesAndTags.Add(sample, i);
-                            }
-                    }
-                    if (i == 127)
-                    {
-                        sample = textBox127.Text;
-                        if (sample.Length == 0) { sample = "unused127"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if (i == 128)
-                    {
-                        sample = textBox128.Text;
-                        if (sample.Length == 0) { sample = "unused128"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-
-                    if (i == 129)
-                    {
-                        sample = textBox129.Text;
-                        if (sample.Length == 0) { sample = "unused129"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if (i == 133)
-                    {
-                        sample = textBox129_N.Text;
-                        if (sample.Length == 0) { sample = "unused129*"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if (i == 130)
-                    {
-                        sample = textBox130.Text;
-                        if (sample.Length == 0) { sample = "unused130"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    if (i == 131)
-                    {
-                        sample = textBox131.Text;
-                        if (sample.Length == 0) { sample = "unused131"; }
-                        if (!SamplesAndTags.ContainsKey(sample))
-                        {
-                            SamplesAndTags.Add(sample, i);
-                        }
-                    }
-                    
-                    
-
-                    TagInformation TagInfo = new TagInformation(i, sample);
-                    TotalTagSignal.Add(i, new Dictionary<FragmentationMethod, Double>());
-                    TotalTagSignal[i].Add(FragmentationMethod.CAD, 0);
-                    TotalTagSignal[i].Add(FragmentationMethod.ETD, 0);
-
-                    Samples.Add(i, TagInfo);
-                    log.WriteLine(i + "  " + sample);
-                }
-            }
-            
-
-            if (radioBox_TMT10.Checked)
-            {
-                var tags = new List<TagInformation>
-                {
-                    new TagInformation(126, "126", textBox126.Text, 126.1283, 114.1279, TagSetType.TMTC),
-                    new TagInformation(127, "127N", textBox127_N.Text, 127.1253, 114.1279, TagSetType.TMTN),
-                    new TagInformation(127, "127C", textBox127.Text, 127.1316, 114.1279, TagSetType.TMTC),
-                    new TagInformation(128, "128N", textBox128_N.Text, 128.1287, 114.1279, TagSetType.TMTN),
-                    new TagInformation(128, "128C", textBox128.Text, 128.1350, 114.1279, TagSetType.TMTC),
-                    new TagInformation(129, "129N", textBox129_N.Text, 129.1320, 114.1279, TagSetType.TMTN),
-                    new TagInformation(129, "129C", textBox129.Text, 129.1383, 114.1279, TagSetType.TMTC),
-                    new TagInformation(130, "130N", textBox130_N.Text, 130.1354, 114.1279, TagSetType.TMTN),
-                    new TagInformation(130, "130C", textBox130.Text, 130.1417, 118.1415, TagSetType.TMTC),
-                    new TagInformation(131, "131", textBox130.Text, 131.1387, 119.1384, TagSetType.TMTC)
-                };
-
-                foreach (TagInformation tag in tags)
-                {
-                    SamplesAndTags.Add(tag.MassCAD, tag);
-                    TotalTagSignal.Add(tag.TagName, new Dictionary<FragmentationMethod, Double>());
-                    TotalTagSignal[tag.TagName].Add(FragmentationMethod.CAD, 0);
-                    TotalTagSignal[tag.TagName].Add(FragmentationMethod.ETD, 0);
-                }
-            }
-
-            log.WriteLine();
-
-            // Print out purity correction factors (unless TMT 2-plex checked)
-            if(!radioBox_TMT2.Checked)
-            {
-                log.WriteLine("Purity Correction Factors");
-                for(int r = 0; r < dataGridView1.Rows.Count; r++)
-                {
-                    for(int c = 0; c < dataGridView1.Columns.Count; c++)
-                    {
-                        log.Write((string)dataGridView1.Rows[r].Cells[c].Value + '\t');
-                    }
-                    log.WriteLine();
-                }
-                log.WriteLine();
-            }
-
-            log.WriteLine("CAD Coefficient Matrix Determinant = " + CADCoefficientMatrixDeterminant);
-            log.WriteLine("TMT10 CAD Coefficient Matrix Determinant = " + TMT10_CADCoefficientMatrixDeterminant);
-            log.WriteLine();
+           
 
             log.WriteLine("Input Files for Quantitation");
             
@@ -1932,8 +1598,42 @@ namespace TagQuant
             panel1.Enabled = true;
             toolStripStatusLabel1.Text = "done";
             */
-        }  
-        
+        }
+
+        private void tagQuant_OnFinished(object sender, EventArgs e)
+        {
+            MethodInvoker method = delegate
+            {
+                Quantify.Enabled = true;
+                //toolStripProgressBar1.Style = ProgressBarStyle.Blocks;
+                //toolStripProgressBar1.Value = 100;
+                toolStripStatusLabel1.Text = "Complete";
+            };
+
+            if (InvokeRequired)
+                BeginInvoke(method);
+            else
+                method.Invoke();
+        }
+
+        private void tagQuant_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            UpdateProgress(e.ProgressPercentage);
+        }
+
+        private void UpdateProgress(int p)
+        {
+            MethodInvoker method = delegate
+            {
+                toolStripProgressBar1.Value = p;
+            };
+
+            if (InvokeRequired)
+                BeginInvoke(method);
+            else
+                method.Invoke();
+        }
+
         private static int sortByAscendingIntensity(KeyValuePair<double, double> left, KeyValuePair<double, double> right)
         {
             return left.Key.CompareTo(right.Key);
@@ -2031,6 +1731,14 @@ namespace TagQuant
         private void button1_Click(object sender, EventArgs e)
         {
             OpenSavedTags();
+        }
+
+        private void dataGridView2_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dataGridView2.IsCurrentCellDirty)
+            {
+                dataGridView2.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
         }
 
     }

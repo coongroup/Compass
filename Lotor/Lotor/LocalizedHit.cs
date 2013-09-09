@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Lotor
+﻿namespace Coon.Compass.Lotor
 {
     public class LocalizedHit
     {
@@ -17,14 +12,7 @@ namespace Lotor
         {
             get
             {
-                if (LocalizedIsoform[LocalizedIsoform.Length - 1].FixedModification != null)
-                {
-                    return LocalizedIsoform[LocalizedIsoform.Length - 1].FixedModification.Name.Contains("AcetylK");
-                }
-                else
-                {
-                    return false;
-                }
+                return LocalizedIsoform.CTerminusModification != null;
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class Peptide : IEquatable<Peptide>
     {

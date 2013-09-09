@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class Modification : INotifyPropertyChanged, IEquatable<Modification>
     {

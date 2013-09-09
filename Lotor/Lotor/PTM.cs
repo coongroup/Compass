@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using Coon;
+using CSMSL.Chemistry;
+using CSMSL.Proteomics;
 
-namespace Lotor
+namespace Coon.Compass.Lotor
 {
-    public class PTM : Modification, IEquatable<PTM>, INotifyPropertyChanged
+    public class PTM : IMass, IEquatable<PTM>, INotifyPropertyChanged
     {
         public bool IsFixed { get; set; }
-
-        public double Mass { get { return base.Mass.MonoisotopicMass; } }
-
+       
         public bool quanitfy = false;
         public bool Quantify
         {
@@ -27,48 +23,55 @@ namespace Lotor
             }
         }
 
-        private bool isProteinCTerm = false;
+        public ModificationSites ModificationSites { get; set; }
+        
         public bool IsProteinCTerm
         {
             get
             {
-                return isProteinCTerm;
+                return (ModificationSites & ModificationSites.ProtC) == ModificationSites.ProtC;
             }
             set
             {
-                isProteinCTerm = value;
-                ToggleModificationSite(ModificationSite.ProtC, value);
+                if (value)
+                    ModificationSites |= ModificationSites.ProtC;
+                else
+                    ModificationSites ^= ModificationSites.ProtC;
                 OnPropertyChanged("ModifiableSites");
             }
         }
 
-        private bool isProteinNTerm = false;
         public bool IsProteinNTerm
         {
             get
             {
-                return isProteinNTerm;
+                return (ModificationSites & ModificationSites.NProt) == ModificationSites.NProt;
             }
             set
             {
-                isProteinNTerm = value;
-                ToggleModificationSite(ModificationSite.Nprot, value);
+                if (value)
+                    ModificationSites |= ModificationSites.NProt;
+                else
+                    ModificationSites ^= ModificationSites.NProt;
                 OnPropertyChanged("ModifiableSites");
             }
-        } 
-
-        public PTM(string name, Mass mass, ModificationSite modSites, bool isFixed = true)
-            : base(name, mass, modSites)
-        {
-            IsFixed = isFixed;
         }
 
-        public PTM(Modification mod, bool isFixed = true)
-            : base(mod.Name, mod.Mass, mod.ModifiableSites)
+        public string Name { get; set; }
+
+        public double MonoisotopicMass
         {
-            IsFixed = isFixed;
+            get; private set;
         }
 
+        public PTM(string name, double monoMass, ModificationSites modSites, bool isFixed = true)
+        {
+            ModificationSites = modSites;
+            Name = name;
+            MonoisotopicMass = monoMass;
+            IsFixed = isFixed;
+        }
+     
         public override int GetHashCode()
         {
             return this.Name.GetHashCode() + IsFixed.GetHashCode();
@@ -76,7 +79,12 @@ namespace Lotor
 
         public bool Equals(PTM other)
         {
-            return this.Name.Equals(other.Name) && IsFixed == other.IsFixed;
+            return Name.Equals(other.Name) && IsFixed == other.IsFixed;
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -88,5 +96,7 @@ namespace Lotor
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-    }
+    
+
+}
 }

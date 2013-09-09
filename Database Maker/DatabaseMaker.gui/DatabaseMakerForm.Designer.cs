@@ -1,6 +1,6 @@
 ﻿namespace Coon.Compass.DatabaseMaker
 {
-    partial class frmMain
+    partial class DatabaseMakerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DatabaseMakerForm));
             this.fastaD = new System.Windows.Forms.OpenFileDialog();
             this.btnBrowseFasta = new System.Windows.Forms.Button();
             this.radTarget = new System.Windows.Forms.RadioButton();

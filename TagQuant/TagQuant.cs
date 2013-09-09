@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using CSMSL;
+﻿using CSMSL;
 using CSMSL.Analysis.Quantitation;
-using System.Text;
-using System.Threading.Tasks;
 using CSMSL.IO;
 using CSMSL.IO.Thermo;
 using CSMSL.Spectral;
 using LumenWorks.Framework.IO.Csv;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace TagQuant
 {
@@ -28,9 +29,14 @@ namespace TagQuant
         private StreamWriter logWriter;
         public Dictionary<TagSetType, IsobaricTagPurityCorrection> PurityMatrices;
 
+        public event EventHandler<ProgressChangedEventArgs> ProgressChanged;
+        public event EventHandler OnFinished; 
+
         private const double Carbon1213Difference = Constants.Carbon13 - Constants.Carbon;
 
-        public TagQuant(string outputDirectory, string rawFileDirectory, IEnumerable<string> inputFiles, IEnumerable<TagInformation> tags, MassTolerance itTolerance, MassTolerance ftTolerance, int etdQuantPosition = 0, bool nosiebasecap = false, bool isETDQuantified = true)
+        public TagQuant(string outputDirectory, string rawFileDirectory, IEnumerable<string> inputFiles,
+            IEnumerable<TagInformation> tags, MassTolerance itTolerance, MassTolerance ftTolerance,
+            int etdQuantPosition = 0, bool nosiebasecap = false, bool isETDQuantified = true)
         {
             OutputDirectory = outputDirectory;
             UsedTags = new SortedList<double, TagInformation>(tags.ToDictionary(t => t.MassCAD));
@@ -42,89 +48,132 @@ namespace TagQuant
             FtmMassTolerance = ftTolerance;
             ETDQuantPosition = etdQuantPosition;
 
-            logWriter = new StreamWriter(Path.Combine(outputDirectory,"tagquant_log.txt"));
+            logWriter = new StreamWriter(Path.Combine(outputDirectory, "tagquant_log.txt"));
             logWriter.AutoFlush = true;
 
             RawFiles =
                 Directory.EnumerateFiles(rawFileDirectory, "*.raw")
                     .ToDictionary(file => Path.GetFileNameWithoutExtension(file), file => new ThermoRawFile(file));
 
-            
+
         }
 
         public void Run()
         {
-            //WriteLog();
+            OnProgressUpdate(0);
+            WriteLog();
+            OnProgressUpdate(10);
 
             BuildPurityMatrixes(UsedTags.Values);
+            OnProgressUpdate(25);
 
             List<QuantFile> quantFiles = LoadFiles(InputFiles).ToList();
+            OnProgressUpdate(50);
 
             Normalize(quantFiles);
+            OnProgressUpdate(75);
 
             WriteOutputFiles(quantFiles);
+            OnProgressUpdate(100);
 
+            Log(string.Format("\nEnd Time: {0}", DateTime.Now));
             logWriter.Close();
+            var evt = OnFinished;
+            if (evt != null)
+            {
+                evt(this, EventArgs.Empty);
+            }
+        }
+
+        private void WriteLog()
+        {
+            Log(string.Format("===Tag Quant v{0}===",Assembly.GetExecutingAssembly().GetName().Version));
+            Log(string.Format("Start Time: {0}", DateTime.Now));
         }
 
         private void BuildPurityMatrixes(IEnumerable<TagInformation> inputTags)
         {
             List<TagInformation> tags = inputTags.ToList();
 
+            Log("\n== Purity Correction Matrices ==");
             PurityMatrices = new Dictionary<TagSetType, IsobaricTagPurityCorrection>();
             foreach (TagSetType tagSet in Enum.GetValues(typeof(TagSetType)))
             {
                 List<TagInformation> usedTags = tags.Where(t => t.TagSet == tagSet).ToList();
-                if (usedTags.Count > 0)
+                if (usedTags.Count <= 0) 
+                    continue;
+                usedTags = usedTags.OrderBy(t => t.NominalMass).ToList();
+                int max = usedTags[usedTags.Count - 1].NominalMass - usedTags[0].NominalMass + 1;
+                int minint = usedTags[0].NominalMass;
+
+                TagInformation[] tarray = new TagInformation[max];
+                double[,] data = new double[max, 4];
+
+                foreach (var tag in usedTags)
                 {
-                    usedTags = usedTags.OrderBy(t => t.NominalMass).ToList();
-                    int max = usedTags[usedTags.Count - 1].NominalMass - usedTags[0].NominalMass + 1;
-                    int minint = usedTags[0].NominalMass;
-
-                    TagInformation[] tarray = new TagInformation[max];
-                    double[,] data = new double[max, 4];
-
-                    foreach (var tag in usedTags)
-                    {
-                        tarray[tag.NominalMass - minint] = tag;
-                    }
-                  
-                    for (int i = 0; i < max; i++)
-                    {
-                        var tag = tarray[i];
-                        if (tag != null)
-                        {
-                            data[i, 0] = tag.M2;
-                            data[i, 1] = tag.M1;
-                            data[i, 2] = tag.P1;
-                            data[i, 3] = tag.P2;
-                        }
-                        else
-                        {
-                            for (int j = 0; j < 4; j++) data[i, j] = 0;
-                        }
-                    }
-                    IsobaricTagPurityCorrection correction = IsobaricTagPurityCorrection.Create(data);
-                    PurityMatrices.Add(tagSet, correction);
+                    tarray[tag.NominalMass - minint] = tag;
                 }
+
+                for (int i = 0; i < max; i++)
+                {
+                    var tag = tarray[i];
+                    if (tag != null)
+                    {
+                        data[i, 0] = tag.M2;
+                        data[i, 1] = tag.M1;
+                        data[i, 2] = tag.P1;
+                        data[i, 3] = tag.P2;
+                    }
+                    else
+                    {
+                        for (int j = 0; j < 4; j++) data[i, j] = 0;
+                    }
+                }
+                IsobaricTagPurityCorrection correction = IsobaricTagPurityCorrection.Create(data);
+                Log("Tag Set: "+tagSet);
+                Log(" Input Matrix");
+                for (int i = 0; i < max; i++)
+                {
+                    Log(string.Format(" {0:F1}\t{1:F1}\t{2:F1}\t{3:F1}", data[i, 0], data[i, 1], data[i, 2], data[i, 3]));
+                }
+                Log("\n Purity Matrix (determinant = "+correction.Determinant().ToString("g4")+")");
+                double[,] purityMatrix = correction.GetMatrix();
+                for (int i = 0; i < purityMatrix.GetLength(0); i++)
+                {
+                    StringBuilder sb = new StringBuilder(" ");
+                    for (int j = 0; j < purityMatrix.GetLength(1); j++)
+                    {
+                        sb.AppendFormat("{0:f3}",purityMatrix[i, j]);
+                        sb.Append('\t');
+                    }
+                    sb.Remove(sb.Length - 1, 1);
+                    Log(sb.ToString());
+                }
+                Log("");
+                PurityMatrices.Add(tagSet, correction);
             }
         }
 
         private void Normalize(IEnumerable<QuantFile> quantFiles)
         {
-            double maxSignal = (from TagInformation tag in UsedTags.Values where tag.IsUsed select tag.TotalSignal).Concat(new double[] {0}).Max();
-            
-            Log("Tag\tSample\tTotal Signal\tNormalizedSignal");
+            double maxSignal =
+                (from TagInformation tag in UsedTags.Values where tag.IsUsed select tag.TotalSignal).Concat(
+                    new double[] {0}).Max();
+
+            Log("\n== Normalization Data ==");
+
+            Log(string.Format("{0,-8}\t{1,-8}\t{2,-8}\t{3,-13}\t{4,-8}\t{5,-4}\t{6,-4}\t{7,-4}\t{8,-4}", "Sample", "Tag", "m/z", "Total Signal", "Normalized", "-2", "-1", "+1", "+2"));
+          
 
             foreach (TagInformation tag in UsedTags.Values)
             {
                 // Divide by max so that everything is less than or equal to 1
                 tag.NormalizedTotalSignal = tag.TotalSignal/maxSignal;
 
-                Log(string.Format("{0}\t{1}\t{2}\t{3}", tag.TagName, tag.SampleName, tag.TotalSignal,
-                    tag.NormalizedTotalSignal));
+                Log(string.Format("{0,-8}\t{1,-8}\t{2,-8:f5}\t{3,-13:g3}\t{4,-8:g3}\t{5,-4:f2}\t{6,-4:f2}\t{7,-4:f2}\t{8,-4:f2}",
+                    tag.SampleName, tag.TagName, tag.MassCAD, tag.TotalSignal,tag.NormalizedTotalSignal, tag.M2, tag.M1, tag.P1,
+                    tag.P2));
             }
-            
 
             foreach (QuantFile quantFile in quantFiles)
             {
@@ -184,7 +233,7 @@ namespace TagQuant
                         {
                             sb.AppendFormat(",{0} ({1} PCN)", tag.SampleName, tag.TagName);
                         }
-                        
+
 
                         // Number of Channels Detected
                         sb.Append(",Channels Detected");
@@ -197,20 +246,38 @@ namespace TagQuant
 
                             string[] inputData = new string[headerCount];
                             reader.CopyCurrentRecordTo(inputData);
-                            sb.Append(string.Join(",", inputData));
+                            foreach (string data in inputData)
+                            {
+                                if (data.Contains(','))
+                                {
+                                    sb.Append("\"");
+                                    sb.Append(data);
+                                    sb.Append("\"");
+                                }
+                                else
+                                {
+                                    sb.Append(data);
+                                }
+                                sb.Append(',');
+                            }
+                            sb.Remove(sb.Length - 1, 1);
+                            //sb.Append(string.Join(",", inputData));
 
-                            int scanNumber = int.Parse(reader["Spectrum number"]);
-                            PSM psm = file[scanNumber];
+                            //int scanNumber = int.Parse(reader["Spectrum number"]);
+                            string fileId = reader["Filename/id"];
 
-                            List<QuantPeak> peaks = (from TagInformation tag in UsedTags.Values select psm[tag]).ToList();
-                            
+                            PSM psm = file[fileId];
+
+                            List<QuantPeak> peaks =
+                                (from TagInformation tag in UsedTags.Values select psm[tag]).ToList();
+
                             // Raw Intensities
                             foreach (QuantPeak peak in peaks)
                             {
                                 sb.Append(',');
                                 sb.Append(peak.RawIntensity);
                             }
-                           
+
 
                             // Denormalized Intensities
                             foreach (QuantPeak peak in peaks)
@@ -218,7 +285,7 @@ namespace TagQuant
                                 sb.Append(',');
                                 sb.Append(peak.DeNormalizedIntensity);
                             }
-                           
+
 
                             // Purity Corrected Intensities
                             foreach (QuantPeak peak in peaks)
@@ -226,7 +293,7 @@ namespace TagQuant
                                 sb.Append(',');
                                 sb.Append(peak.PurityCorrectedIntensity);
                             }
-                           
+
 
                             // Purity Corrected Normalized Intensities
                             foreach (QuantPeak peak in peaks)
@@ -246,11 +313,13 @@ namespace TagQuant
                 }
             }
         }
-        
+
         private IEnumerable<QuantFile> LoadFiles(IEnumerable<string> filePaths)
         {
+            MSDataFile.CacheScans = false;
             foreach (string filePath in filePaths)
             {
+                Log("Processing file: " + filePath);
                 QuantFile quantFile = new QuantFile(filePath);
                 StreamReader basestreamReader = new StreamReader(filePath);
                 using (CsvReader reader = new CsvReader(basestreamReader, true))
@@ -263,20 +332,24 @@ namespace TagQuant
                         ThermoRawFile rawFile;
                         if (!RawFiles.TryGetValue(rawFileName, out rawFile))
                         {
-                            throw new ArgumentException("Cannot find this raw file: "+rawFileName + ".raw");
+                            throw new ArgumentException("Cannot find this raw file: " + rawFileName + ".raw");
                         }
-                        if(!rawFile.IsOpen)
+                        if (!rawFile.IsOpen)
+                        {
                             rawFile.Open();
-                        
+                        }
+
                         // Set default fragmentation to CAD / HCD
-                        FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.") ? FragmentationMethod.ETD : FragmentationMethod.CAD;
+                        FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.")
+                            ? FragmentationMethod.ETD
+                            : FragmentationMethod.CAD;
 
                         if (ScanFragMethod == FragmentationMethod.ETD)
                         {
                             ScanFragMethod = FragmentationMethod.CAD;
                             scanNumber += ETDQuantPosition;
                         }
-                        
+
                         MassTolerance massTolerance = filenameID.Contains(".FTMS") ? FtmMassTolerance : ItMassTolerance;
 
                         // Get the scan object for the sequence ms2 scan
@@ -301,7 +374,9 @@ namespace TagQuant
                             }
                             else
                             {
-                                throw new ArgumentException("Low resolution data has no noise associated with it");
+                                peak = massSpectrum.FirstPeak as ThermoLabeledPeak;
+                                noise = peak.Noise;
+                                //throw new ArgumentException("Low resolution data has no noise associated with it");
                             }
                         }
 
@@ -313,24 +388,25 @@ namespace TagQuant
                             double tagMz = ScanFragMethod == FragmentationMethod.ETD
                                 ? tag.MassEtd
                                 : tag.MassCAD;
-                          
+
                             var peak = massSpectrum.GetClosestPeak(tagMz, massTolerance);
 
                             QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, seqScan, noise,
-                                peak == null && NoisebandCap);                               
+                                peak == null && NoisebandCap);
 
                             peaks.Add(tag, qPeak);
                         }
 
                         PurityCorrect(peaks.Values);
 
-                        PSM psm = new PSM(filePath, scanNumber, peaks);
+                        PSM psm = new PSM(filenameID, scanNumber, peaks);
                         quantFile.AddPSM(psm);
                     }
                 }
+                Log(" Loaded: " + quantFile.Psms.Count + " psms");
                 yield return quantFile;
             }
-            
+
             // Dispose of all raw files
             foreach (ThermoRawFile rawFile in RawFiles.Values)
             {
@@ -341,10 +417,11 @@ namespace TagQuant
         private void PurityCorrect(IEnumerable<QuantPeak> peaks)
         {
             List<QuantPeak> quantPeaks = peaks.ToList();
-        
+
             foreach (TagSetType tagSet in PurityMatrices.Keys)
             {
-                QuantPeak[] tagSetPeaks = quantPeaks.Where(t => t.Tag.TagSet == tagSet).OrderBy(t => t.Tag.NominalMass).ToArray();
+                QuantPeak[] tagSetPeaks =
+                    quantPeaks.Where(t => t.Tag.TagSet == tagSet).OrderBy(t => t.Tag.NominalMass).ToArray();
 
                 int minint = tagSetPeaks[0].Tag.NominalMass;
                 int max = tagSetPeaks[tagSetPeaks.Length - 1].Tag.NominalMass - minint + 1;
@@ -376,10 +453,20 @@ namespace TagQuant
                     var qpeak = finalArray[i];
                     if (qpeak == null || qpeak.IsNoisedCapped)
                         continue;
-                    
+
                     qpeak.Tag.TotalSignal += qpeak.PurityCorrectedIntensity = correctedData[i];
                 }
             }
         }
+
+        private void OnProgressUpdate(int percent)
+        {
+            var delgate = ProgressChanged;
+            if (delgate != null)
+            {
+                delgate(this, new ProgressChangedEventArgs(percent, null));
+            }
+        }
     }
 }
+

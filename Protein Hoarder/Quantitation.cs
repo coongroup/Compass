@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class Quantitation
     {
@@ -17,7 +17,7 @@ namespace Compass.ProteinHoarder
         {
             Plex = plex;
             Peptides = new HashSet<Peptide>();
-            this.data = new double[(Plex * 4) + 1];
+            this.data = new double[Plex * 4];
             PSMs = 1;
             for (int i = 0; i < data.Length; i++)
             {

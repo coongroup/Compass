@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class PsmList : IEnumerable<PSM>
     {

@@ -1,22 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Threading;
-using System.Reflection;
 using System.IO;
-using Coon;
-using CoonThermo.IO;
+using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
+using CSMSL;
+using CSMSL.IO;
+using CSMSL.IO.OMSSA;
+using CSMSL.IO.Thermo;
+using CSMSL.Proteomics;
 using LumenWorks.Framework.IO.Csv;
-using Coon.Quant;
 
-namespace Lotor
+namespace Coon.Compass.Lotor
 {
-    public partial class mainForm : Form
+    public partial class lotorForm : Form
     {
         public static Version GetRunningVersion()
         {
@@ -29,7 +28,7 @@ namespace Lotor
         public BindingList<PTM> activePTMs;
         public HashSet<PTM> activePTMsHashSet;
 
-        public mainForm()
+        public lotorForm()
         {
             InitializeComponent();
             AdditionalSetup();           
@@ -39,12 +38,12 @@ namespace Lotor
         {
             Text = string.Format("Lotor ({0})", GetRunningVersion());
 
-            comboBox1.DataSource = Enum.GetValues(typeof(Coon.ToleranceType));
-            comboBox1.SelectedItem = Coon.ToleranceType.PPM;
+            comboBox1.DataSource = Enum.GetValues(typeof(MassToleranceType));
+            comboBox1.SelectedItem = MassToleranceType.PPM;
 
-            foreach (Modification mod in ModificationDictionary.Instance.Values)
+            foreach (OmssaModification mod in OmssaModification.GetAllOmssaModifications())
             {
-                comboBox2.Items.Add(mod);
+                comboBox2.Items.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));
             }
             activePTMsHashSet = new HashSet<PTM>();
             activePTMs = new BindingList<PTM>();
@@ -61,7 +60,7 @@ namespace Lotor
 
             DataGridViewTextBoxColumn massCol = new DataGridViewTextBoxColumn();
             massCol.HeaderText = "Mass";
-            massCol.DataPropertyName = "Mass";
+            massCol.DataPropertyName = "MonoisotopicMass";
             massCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             dataGridView1.Columns.Add(massCol);
 
@@ -79,7 +78,7 @@ namespace Lotor
 
             DataGridViewTextBoxColumn modCol = new DataGridViewTextBoxColumn();
             modCol.HeaderText = "Modified Sites";
-            modCol.DataPropertyName = "ModifiableSites";
+            modCol.DataPropertyName = "ModificationSites";
             modCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             dataGridView1.Columns.Add(modCol);
 
@@ -97,21 +96,6 @@ namespace Lotor
 
             dataGridView1.CellClick += new DataGridViewCellEventHandler(DGV_CellClick);
 
-            AddMod(new PTM(ModificationDictionary.Instance["carbamidomethyl C"]));
-          
-            // TEMP
-
-            //textBox2.Text = @"C:\Users\Derek\Desktop\Lotor";
-            //LoadPeptides(@"C:\Users\Derek\Desktop\Lotor\B6_parsimony_peptides_Acetyl_wQuant.csv");
-            //LoadUserMods(@"C:\Users\Derek\Desktop\Lotor\usermods_TMT_6-plex_AC.xml");
-            //PTM ptm = new PTM(ModificationDictionary.Instance["TMT 6-plex K"], true);
-            //ptm.ToggleModificationSite(ModificationSite.Npep, true);
-            //AddMod(ptm);
-
-            //LoadRawFiles(Directory.EnumerateFiles(@"C:\Users\Derek\Desktop\Lotor\rawFiles_07feb2012", "*.raw"));
-
-            //listBox1.Items.AddRange(Directory.EnumerateFiles(@"C:\Users\Derek\Desktop\Lotor\rawfiles_02feb2012", "*.raw").ToArray());
-            // TEMP
         }
 
         void activePTMs_ListChanged(object sender, ListChangedEventArgs e)
@@ -130,7 +114,7 @@ namespace Lotor
         {
             logTB.Clear();
             logTB.BackColor = Color.White;
-            Dictionary<string, ThermoRawFile> rawFiles = GetRawFiles();
+            Dictionary<string, MSDataFile> rawFiles = GetRawFiles();
             string inputcsvfile = textBox1.Text;
             if (!System.IO.File.Exists(inputcsvfile))
             {
@@ -153,8 +137,8 @@ namespace Lotor
             {
                 ptms.Add(ptm.Name, ptm);
             }
-            Tolerance prodTolerance = GetProductTolerance();
-            Lotor = new Lotor(rawFiles, inputcsvfile, outputDirectory, ptms, prodTolerance, 13, FragmentType.b | FragmentType.y);
+            MassTolerance prodTolerance = GetProductTolerance();
+            Lotor = new Lotor(rawFiles, inputcsvfile, outputDirectory, ptms, prodTolerance, 13, FragmentTypes.b | FragmentTypes.y);
             Lotor.UpdateLog += new EventHandler<StatusEventArgs>(lotor_UpdateLog);
             Lotor.UpdateProgress += new EventHandler<ProgressEventArgs>(lotor_UpdateProgress);
             MainThread = new Thread(Lotor.Localize);
@@ -163,19 +147,19 @@ namespace Lotor
             localizeB.Enabled = false;
         }
 
-        public Tolerance GetProductTolerance()
+        public MassTolerance GetProductTolerance()
         {
             double value = (double)numericUpDown1.Value;
-            ToleranceType type = (ToleranceType)comboBox1.SelectedItem;
-            return new Tolerance(value, type);
+            MassToleranceType type = (MassToleranceType)comboBox1.SelectedItem;
+            return new MassTolerance(type, value);
         }
 
-        private Dictionary<string, ThermoRawFile> GetRawFiles()
+        private Dictionary<string, MSDataFile> GetRawFiles()
         {
-            Dictionary<string, ThermoRawFile> dict = new Dictionary<string, ThermoRawFile>();
+            Dictionary<string, MSDataFile> dict = new Dictionary<string, MSDataFile>();
             foreach (string rawFileName in listBox1.Items)
             {
-                ThermoRawFile rawFile = new ThermoRawFile(rawFileName, true);
+                MSDataFile rawFile = new ThermoRawFile(rawFileName);
                 dict.Add(rawFile.Name, rawFile);
             }
             return dict;
@@ -183,11 +167,12 @@ namespace Lotor
 
         public void LoadUserMods(string userModFile)
         {
-            ModificationDictionary.Instance.LoadOmssaModifications(userModFile);
+            OmssaModification.LoadOmssaModifications(userModFile, true);
+
             comboBox2.Items.Clear();
-            foreach (Modification mod in ModificationDictionary.Instance.Values)
+            foreach (OmssaModification mod in OmssaModification.GetAllOmssaModifications())
             {
-                comboBox2.Items.Add(mod);
+                comboBox2.Items.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));
             }
             ReadMods(textBox1.Text);
         }
@@ -217,9 +202,9 @@ namespace Lotor
                     try
                     {
                         string modstring = reader["Mods"];
-                        foreach (Modification mod in Modification.ParseModificationLine(modstring))
+                        foreach (OmssaModification mod in OmssaModification.ParseModificationLine(modstring))
                         {
-                            mods.Add(new PTM(mod, false));                           
+                            mods.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));                           
                         }
                     }
                     catch (Exception e)
@@ -342,8 +327,8 @@ namespace Lotor
 
         private void button6_Click(object sender, EventArgs e)
         {
-            Modification mod = (Modification)comboBox2.SelectedItem;
-            AddMod(new PTM(mod, true));
+            PTM mod = (PTM)comboBox2.SelectedItem;
+            AddMod(mod);
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

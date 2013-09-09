@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using CSMSL.IO.Thermo;
 using MSFileReaderLib;
 using CSMSL.IO;
 using CSMSL.Spectral;
@@ -313,7 +314,7 @@ namespace DtaGenerator
             //SortedDictionary<int, double> ion_injection_times = new SortedDictionary<int, double>();
             //SortedDictionary<int, double?> precursor_sns = new SortedDictionary<int, double?>();
             //SortedDictionary<int, int> precursor_peak_depths = new SortedDictionary<int, int>();
-           MSDataFile datafile = new Mzml(filepath);
+           MSDataFile datafile = new ThermoRawFile(filepath);
             //   datafile.GetMsScans();
             //}
             //using (RawFile raw = new RawFile(filepath))

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CSMSL.Spectral;
+﻿using CSMSL.Spectral;
 
 namespace TagQuant
 {
     public class QuantPeak
     {
-        public MsnDataScan DataScan { get; set; }
+        //public MsnDataScan DataScan { get; set; }
 
         public double InjectionTime { get; set; }
 
@@ -46,7 +41,7 @@ namespace TagQuant
                 RawIntensity = peak.Y;
                 MZ = peak.X;
             }
-            DataScan = scan;
+            //DataScan = scan;
             InjectionTime = injectionTime;
             Noise = noise;
             IsNoisedCapped = isNoiseCapped;

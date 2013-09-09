@@ -1,31 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Reflection;
-using Coon;
-using CoonThermo.IO;
-using System.IO;
+using CSMSL;
+using CSMSL.Chemistry;
+using CSMSL.IO;
+using CSMSL.IO.OMSSA;
+using CSMSL.Proteomics;
 using LumenWorks.Framework.IO.Csv;
 
-namespace Lotor
+namespace Coon.Compass.Lotor
 {
     public class Lotor
     {
-        private Tolerance PROD_TOLERANCE;
-        private Dictionary<string, ThermoRawFile> RAW_FILES;
+        private MassTolerance PROD_TOLERANCE;
+        private Dictionary<string, MSDataFile> RAW_FILES;
         private string CSV_FILE;
         private string OUTPUT_DIRECTORY;
         private Dictionary<string, PTM> PTMS;
         private DateTime startTime;
         private double ASCORE_THRESHOLD;
-        private FragmentType FRAG_TYPE;
+        private FragmentTypes FRAG_TYPE;
 
         private int FirstQuantColumn = -1;
         private int LastQuantColumn = -1;
         private string[] headerInfo = null;
 
-        public Lotor(Dictionary<string, ThermoRawFile> rawFiles, string inputcsvFile, string outputDirectory, Dictionary<string, PTM> ptms, Tolerance prod_Tolerance, double ascore_threshold, FragmentType fragType)
+        public Lotor(Dictionary<string, MSDataFile> rawFiles, string inputcsvFile, string outputDirectory, Dictionary<string, PTM> ptms, MassTolerance prod_Tolerance, double ascore_threshold, FragmentTypes fragType)
         {
             RAW_FILES = rawFiles;
             CSV_FILE = inputcsvFile;
@@ -83,7 +85,7 @@ namespace Lotor
             {
                 TimeSpan diff = DateTime.Now - startTime;
                 Log(string.Format("Finished [{0:D2} hrs, {1:D2} mins, {2:D2} secs]", diff.Hours, diff.Minutes, diff.Seconds));
-                Log(string.Format("Lotor v{0}", mainForm.GetRunningVersion()));
+                Log(string.Format("Lotor v{0}", lotorForm.GetRunningVersion()));
                 ProgressUpdate(-1);
             }
         }
@@ -111,10 +113,10 @@ namespace Lotor
         private List<Protein> CompileResults(List<LocalizedHit> hits, string csvFile, string outputDirectory, List<PTM> quantMods)
         {
             Dictionary<string, LocalizedHit> hitsdict = new Dictionary<string, LocalizedHit>();
-            List<string> localizingMods = new List<string>();
-            foreach (PTM ptm in quantMods)
+            List<IMass> localizingMods = new List<IMass>();
+            foreach (IMass ptm in quantMods)
             {
-                localizingMods.Add(ptm.Name);
+                localizingMods.Add(ptm);
             }
             // Group all the localized Hits into proteins
             Dictionary<string, Protein> proteins = new Dictionary<string, Protein>();
@@ -173,7 +175,7 @@ namespace Lotor
                         }
                         if (localized)
                         {
-                            writer.Write(string.Format("{0},{1},{2}\n", localized, hit.LocalizedIsoform.SequenceWithMods, hit.AScore));
+                            writer.Write(string.Format("{0},{1},{2}\n", localized, hit.LocalizedIsoform.SequenceWithModifications, hit.AScore));
                         }
                         else
                         {
@@ -186,7 +188,7 @@ namespace Lotor
             return proteins.Values.ToList();
         }
 
-        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, double ascoreThreshold, FragmentType fragType, Tolerance prod_tolerance)
+        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, double ascoreThreshold, FragmentTypes fragType, MassTolerance prod_tolerance)
         {
             Log("Localizing Best Isoforms...");
             int totalisofromscount = 0;
@@ -238,12 +240,12 @@ namespace Lotor
             return hits;
         }
            
-        private List<PSM> LoadAllPSMs(string csvFile, Dictionary<string, ThermoRawFile> rawFiles, List<PTM> fixedMods)
+        private List<PSM> LoadAllPSMs(string csvFile, Dictionary<string, MSDataFile> rawFiles, List<PTM> fixedMods)
         {
             ProgressUpdate(0.0); //force the progressbar to go into marquee mode  
             Log("Reading PSMs from " + csvFile);
             List<PSM> psms = new List<PSM>();
-            ThermoRawFile rawFile = null;
+            MSDataFile rawFile = null;
             using (CsvReader reader = new CsvReader(new StreamReader(csvFile), true))
             {               
                 while (reader.ReadNextRecord())
@@ -264,11 +266,12 @@ namespace Lotor
                         // Apply all the fix modifications
                         foreach (PTM fixMod in fixedMods)
                         {
-                            psm.BasePeptide.SetFixedModification(fixMod, psm.IsProteinNTerm);
+                            psm.BasePeptide.SetModification(fixMod, fixMod.ModificationSites);
+                            //psm.BasePeptide.SetFixedModification(fixMod, psm.IsProteinNTerm);
                         }
                         
                         // Save all the variable mod types             
-                        psm.Modifications = Modification.ParseModificationLine(reader["Mods"]).ToList(); 
+                        psm.Modifications = OmssaModification.ParseModificationLine(reader["Mods"]).OfType<Modification>().ToList(); 
                         psms.Add(psm);
                     }
                     else
@@ -283,10 +286,10 @@ namespace Lotor
              
         #region Statics
 
-        public static double GetPValue(PSM psm, Tolerance prod_tolerance)
+        public static double GetPValue(PSM psm, MassTolerance prod_tolerance)
         {
-            double mzTol = Math.Abs(Tolerance.GetThfromPPM(prod_tolerance.Value, psm.IsolationMZ));
-            return psm.Spectrum.Count * 2 * mzTol / psm.Spectrum.MzRange.Width;
+            double mzTol = prod_tolerance.GetMassRange(psm.IsolationMZ).Width;
+            return psm.Spectrum.Count*2*mzTol/psm.DataScan.MzRange.Width;
         }
 
         public static int LocalizedIsoform(double[,] data, double threshold, out double lowestAscore)

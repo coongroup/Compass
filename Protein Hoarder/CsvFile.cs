@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.IO;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class CsvFile : INotifyPropertyChanged, IEquatable<CsvFile>
     {

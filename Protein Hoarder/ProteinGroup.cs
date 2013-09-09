@@ -1,11 +1,11 @@
-﻿using CSMSL.Analysis.Identification;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using CSMSL.Analysis.Identification;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class ProteinGroup : IEnumerable<Protein>, IEquatable<ProteinGroup>, IComparer<ProteinGroup>, IComparable<ProteinGroup>, IFalseDiscovery<double>
     {
@@ -263,7 +263,7 @@ namespace Compass.ProteinHoarder
                 else
                 {
                     sb.Append(",0,0");
-                    for (int i = 0; i < exp.QuantPlex * 4 + 1; i++)
+                    for (int i = 0; i < exp.QuantPlex * 4; i++)
                     {
                         sb.Append(",-");
                     }

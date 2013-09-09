@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Compass.ProteinHoarder
+namespace Coon.Compass.ProteinHoarder
 {
     public class ExperimentGroup
     {
@@ -20,7 +20,7 @@ namespace Compass.ProteinHoarder
         {
             get
             {
-                int length = TQStop - TQStart - 1;                
+                int length = TQStop - TQStart + 1;                
                 int plex = length / 4;
                 return plex;
             }

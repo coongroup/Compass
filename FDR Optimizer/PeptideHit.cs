@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using XRAWFILE2Lib;
 using CSMSL;
+using CSMSL.Chemistry;
 
 namespace FdrOptimizer
 {
     public class PeptideHit
     {
-        private const double PROTON_MASS = CSMSL.Constants.PROTON;
-        private const double C12_C13_MASS_DIFFERENCE = CSMSL.Constants.CARBON13 - CSMSL.Constants.CARBON;
+        private const double PROTON_MASS = Constants.Proton;
+        private const double C12_C13_MASS_DIFFERENCE = Constants.Carbon13 - Constants.Carbon;
 
         private string line;
         public string Line {
@@ -101,7 +101,7 @@ namespace FdrOptimizer
             double mass_offset = Math.Round(mass_error / C12_C13_MASS_DIFFERENCE) * C12_C13_MASS_DIFFERENCE;
             ExperimentalNeutralMass = IsolationMass - mass_offset;
             mass_error = ExperimentalNeutralMass - TheoreticalNeutralMass;
-            PrecursorMassError = CSMSL.Tolerance.GetTolerance(ExperimentalNeutralMass, TheoreticalNeutralMass, ToleranceType.PPM);                 
+            PrecursorMassError = MassTolerance.GetTolerance(ExperimentalNeutralMass, TheoreticalNeutralMass, MassToleranceType.PPM);                 
         }
 
        

@@ -1,35 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LumenWorks.Framework.IO.Csv;
+﻿using System.Collections.Generic;
 
 namespace TagQuant
 {
     public class QuantFile
     {
-        public Dictionary<int, PSM> Psms; 
+        public Dictionary<string, PSM> Psms; 
 
         public string FilePath { get; set; }
 
         public QuantFile(string filePath)
         {
             FilePath = filePath;
-            Psms = new Dictionary<int, PSM>();
+            Psms = new Dictionary<string, PSM>();
         }
 
         public void AddPSM(PSM psm)
         {
-           Psms.Add(psm.SpectrumNumber, psm);
+           Psms.Add(psm.FilenameID, psm);
         }
-        
-        public PSM this[int scanNumber]
+
+        public PSM this[string filenameID]
         {
             get
             {
-                return Psms[scanNumber];
+                return Psms[filenameID];
             }
         }
     }

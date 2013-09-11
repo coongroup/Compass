@@ -151,7 +151,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Compass\TagQuant\TagQuant.csproj">
+    <ProjectReference Include="..\Protein Hoarder\Protein Hoarder.csproj">
+      <Project>{f9872e16-407f-4640-867b-f0b7072a3535}</Project>
+      <Name>Protein Hoarder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TagQuant\TagQuant.csproj">
       <Project>{298b64e4-f767-4204-a9ac-efda8a7bc2e1}</Project>
       <Name>TagQuant</Name>
     </ProjectReference>
@@ -195,11 +199,7 @@
       <Project>{542B99D3-D91D-4DFD-9395-2975BB3CF38F}</Project>
       <Name>Low-Res FDR Optimizer</Name>
     </ProjectReference>
-    <ProjectReference Include="E:\Software\Compass\Protein Hoarder\Protein Hoarder.csproj">
-      <Project>{F9872E16-407F-4640-867B-F0B7072A3535}</Project>
-      <Name>Protein Hoarder</Name>
-    </ProjectReference>
-    <ProjectReference Include="E:\Software\CSMSL\CSMSL\CSMSL.csproj">
+    <ProjectReference Include="..\..\CSMSL\CSMSL\CSMSL.csproj">
       <Project>{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}</Project>
       <Name>CSMSL</Name>
     </ProjectReference>
@@ -211,9 +211,6 @@
     <Content Include="COMPASS.ico" />
     <None Include="Resources\coon_blue.ico" />
     <Content Include="Resources\Elements.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="formatdb.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="gallop.wav">

@@ -1,4 +1,5 @@
 ﻿using System;
+using MSFileReaderLib;
 
 namespace BatchFdrOptimizer
 {
@@ -96,7 +97,7 @@ namespace BatchFdrOptimizer
         }
 
         public PeptideHit(string sequence, string dynamicModifications, double eValueScore, bool decoy, 
-            Peptide peptide, XRAWFILE2Lib.IXRawfile2 raw, int scanNumber, int firstScanNumber, int charge)
+            Peptide peptide, IXRawfile2 raw, int scanNumber, int firstScanNumber, int charge)
         {
             this.sequence = sequence;
             this.dynamicModifications = dynamicModifications;
@@ -122,7 +123,7 @@ namespace BatchFdrOptimizer
             this.qValue = qValue;
         }
 
-        protected void CalculatePrecursorMassError(XRAWFILE2Lib.IXRawfile2 raw, int scanNumber, int firstScanNumber, int charge)
+        protected void CalculatePrecursorMassError(IXRawfile2 raw, int scanNumber, int firstScanNumber, int charge)
         {
             int survey_scan_number = scanNumber;
             while(survey_scan_number >= firstScanNumber)

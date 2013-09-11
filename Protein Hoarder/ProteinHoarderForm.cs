@@ -11,7 +11,7 @@ using LumenWorks.Framework.IO.Csv;
 
 namespace Coon.Compass.ProteinHoarder
 {
-    public partial class Form1 : Form
+    public partial class ProteinHoarderForm : Form
     {
         private Version GetRunningVersion()
         {
@@ -32,7 +32,7 @@ namespace Coon.Compass.ProteinHoarder
 
         private HashSet<string> UsedModifications;
 
-        public Form1()
+        public ProteinHoarderForm()
         {
             InitializeComponent();
             AdditionalSetup();

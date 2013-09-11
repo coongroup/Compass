@@ -1,4 +1,5 @@
 ﻿using System;
+using MSFileReaderLib;
 
 namespace BatchFdrOptimizer
 {
@@ -21,7 +22,7 @@ namespace BatchFdrOptimizer
 
         public FullPeptideHit(string line, string sequence, string dynamicModifications, double eValueScore, bool decoy,
             Peptide peptide,
-            XRAWFILE2Lib.IXRawfile2 raw, int scanNumber, int firstScanNumber,
+            IXRawfile2 raw, int scanNumber, int firstScanNumber,
             int charge)
             : base(sequence, dynamicModifications, eValueScore, decoy, peptide, raw, scanNumber, firstScanNumber, charge)
         {

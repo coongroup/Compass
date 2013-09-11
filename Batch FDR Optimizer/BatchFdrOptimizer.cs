@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using MSFileReaderLib;
 
 namespace BatchFdrOptimizer
 {
@@ -130,7 +131,7 @@ namespace BatchFdrOptimizer
             StreamWriter overall_log = null;
             StreamWriter log = null;
             StreamWriter summary = null;
-            XRAWFILE2Lib.IXRawfile2 raw = null;
+            IXRawfile2 raw = null;
             StreamReader csv = null;
             StreamWriter scans_output = null;
             StreamWriter scans_phospho_output = null;
@@ -331,8 +332,8 @@ namespace BatchFdrOptimizer
                 foreach(KeyValuePair<string, List<string>> raw_csv_filepath in raw_csv_filepaths)
                 {
                     string raw_filepath = raw_csv_filepath.Key;
-                                        
-                    raw = (XRAWFILE2Lib.IXRawfile3)new XRAWFILE2Lib.XRawfile();
+
+                    raw = (IXRawfile3)new MSFileReader_XRawfile();
                     raw.Open(raw_filepath);
                     raw.SetCurrentController(0, 1);
 

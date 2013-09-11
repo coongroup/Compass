@@ -13,9 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch FDR Optimizer", "..\B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Batch Low-Res FDR Optimizer", "..\Batch Low-Res FDR Optimizer\Batch Low-Res FDR Optimizer.csproj", "{7AA28AD1-6864-4651-A7CC-58A8EEE4BAB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protein Hoarder", "E:\Software\Compass\Protein Hoarder\Protein Hoarder.csproj", "{F9872E16-407F-4640-867B-F0B7072A3535}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Protein Hoarder", "..\Protein Hoarder\Protein Hoarder.csproj", "{F9872E16-407F-4640-867B-F0B7072A3535}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSMSL", "E:\Software\CSMSL\CSMSL\CSMSL.csproj", "{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSMSL", "..\..\CSMSL\CSMSL\CSMSL.csproj", "{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{98AC8A6C-E062-4B2A-8246-ABEACE7636F2}"
 	ProjectSection(SolutionItems) = preProject
@@ -26,7 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{98AC8A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lotor", "..\Lotor\Lotor\Lotor.csproj", "{3653D2EB-F33F-484B-A58E-73030A03F4BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thermo", "E:\Software\CSMSL\CSMSL\IO\Thermo\Thermo.csproj", "{24DC85FF-E97B-4140-9614-77DD8FDDD32F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thermo", "..\..\CSMSL\CSMSL\IO\Thermo\Thermo.csproj", "{24DC85FF-E97B-4140-9614-77DD8FDDD32F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagQuant", "..\TagQuant\TagQuant.csproj", "{298B64E4-F767-4204-A9AC-EFDA8A7BC2E1}"
 EndProject

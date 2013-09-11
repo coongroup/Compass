@@ -124,7 +124,7 @@ namespace Coon.Compass
 
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            Form1 proteinHoarder = new Form1 {MdiParent = this};
+            ProteinHoarderForm proteinHoarder = new ProteinHoarderForm {MdiParent = this};
             proteinHoarder.Show();
         }
 

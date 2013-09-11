@@ -74,7 +74,7 @@
     <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -127,12 +127,13 @@
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LumenWorks.Framework.IO">
-      <HintPath>..\..\CoonWare\COMPASS\packages\LumenWorks.Framework.IO.3.8.0\lib\net20\LumenWorks.Framework.IO.dll</HintPath>
+      <HintPath>..\COMPASS\packages\LumenWorks.Framework.IO.3.8.0\lib\net20\LumenWorks.Framework.IO.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -147,11 +148,11 @@
   <ItemGroup>
     <Compile Include="CsvFile.cs" />
     <Compile Include="ExperimentGroup.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="ProteinHoarderForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="ProteinHoarderForm.Designer.cs">
+      <DependentUpon>ProteinHoarderForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Modification.cs" />
     <Compile Include="OutputFileType.cs" />
@@ -167,8 +168,8 @@
     <Compile Include="Quantitation.cs" />
     <Compile Include="QuantitationType.cs" />
     <Compile Include="StatusEventArgs.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="ProteinHoarderForm.resx">
+      <DependentUpon>ProteinHoarderForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

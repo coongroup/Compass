@@ -34,6 +34,7 @@
             this.folderBrowserDialog2 = new System.Windows.Forms.FolderBrowserDialog();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.label1 = new System.Windows.Forms.Label();
             this.Add = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
@@ -45,8 +46,6 @@
             this.textOutputFolder = new System.Windows.Forms.TextBox();
             this.BrowseOutput = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
-            this.ComboBoxETDoptions = new System.Windows.Forms.ComboBox();
-            this.label13 = new System.Windows.Forms.Label();
             this.Quantify = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label23 = new System.Windows.Forms.Label();
@@ -68,7 +67,7 @@
             this.dataGridView2 = new System.Windows.Forms.DataGridView();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog2 = new System.Windows.Forms.OpenFileDialog();
-            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.statusStrip1.SuspendLayout();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
@@ -103,6 +102,12 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(39, 17);
             this.toolStripStatusLabel1.Spring = true;
             this.toolStripStatusLabel1.Text = "Ready";
+            // 
+            // toolStripProgressBar1
+            // 
+            this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(400, 16);
             // 
             // label1
             // 
@@ -208,29 +213,6 @@
             this.label8.Size = new System.Drawing.Size(71, 13);
             this.label8.TabIndex = 54;
             this.label8.Text = "Output Folder";
-            // 
-            // ComboBoxETDoptions
-            // 
-            this.ComboBoxETDoptions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ComboBoxETDoptions.FormattingEnabled = true;
-            this.ComboBoxETDoptions.Items.AddRange(new object[] {
-            "Use Scan Before",
-            "Use Scan After",
-            "Use ETD reporters",
-            "Don\'t Quantify"});
-            this.ComboBoxETDoptions.Location = new System.Drawing.Point(103, 46);
-            this.ComboBoxETDoptions.Name = "ComboBoxETDoptions";
-            this.ComboBoxETDoptions.Size = new System.Drawing.Size(120, 21);
-            this.ComboBoxETDoptions.TabIndex = 76;
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(12, 50);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(89, 13);
-            this.label13.TabIndex = 77;
-            this.label13.Text = "ETD Quantitation";
             // 
             // Quantify
             // 
@@ -432,9 +414,8 @@
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.checkBox1);
             this.groupBox6.Controls.Add(this.noisebandcapCB);
-            this.groupBox6.Controls.Add(this.ComboBoxETDoptions);
-            this.groupBox6.Controls.Add(this.label13);
             this.groupBox6.Location = new System.Drawing.Point(305, 175);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(237, 76);
@@ -498,11 +479,15 @@
             this.openFileDialog2.FileName = "openFileDialog2";
             this.openFileDialog2.Filter = "CSV|*.csv";
             // 
-            // toolStripProgressBar1
+            // checkBox1
             // 
-            this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(400, 16);
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(15, 42);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(108, 17);
+            this.checkBox1.TabIndex = 93;
+            this.checkBox1.Text = "MS3 Quantitation";
+            this.checkBox1.UseVisualStyleBackColor = true;
             // 
             // TagQuantForm
             // 
@@ -556,8 +541,6 @@
         private System.Windows.Forms.TextBox textOutputFolder;
         private System.Windows.Forms.Button BrowseOutput;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.ComboBox ComboBoxETDoptions;
-        private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Button Quantify;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.Label label23;
@@ -580,6 +563,7 @@
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.OpenFileDialog openFileDialog2;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
+        private System.Windows.Forms.CheckBox checkBox1;
 
 
     }

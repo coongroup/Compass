@@ -17,8 +17,8 @@ namespace Coon.Compass.TagQuant
 
         private List<TagInformation> tmtTags = new List<TagInformation>
         {
-            new TagInformation(126, "TMT 126", "", 126.1277261, 114.1279, TagSetType.TMTC, 0, 0, 7, 0),
-            new TagInformation(127, "TMT 127N", "", 127.124761, 114.1279, TagSetType.TMTN, 0, 2.1, 6.5, 0),
+            new TagInformation(126, "TMT 126C", "", 126.1277261, 114.1279, TagSetType.TMTC, 0, 0, 7, 0),
+            new TagInformation(127, "TMT 127N", "", 127.1247610, 114.1279, TagSetType.TMTN, 0, 2.1, 6.5, 0),
             new TagInformation(127, "TMT 127C", "", 127.1310809, 114.1279, TagSetType.TMTC, 0, 0.4, 6.3, 0),
             new TagInformation(128, "TMT 128N", "", 128.1281158, 114.1279, TagSetType.TMTN, 0, 0.6, 4.7, 0),
             new TagInformation(128, "TMT 128C", "", 128.1344357, 114.1279, TagSetType.TMTC, 0, 1.1, 5.1, 0),
@@ -26,7 +26,7 @@ namespace Coon.Compass.TagQuant
             new TagInformation(129, "TMT 129C", "", 129.1377905, 114.1279, TagSetType.TMTC, 0.2, 0.1, 0, 0),
             new TagInformation(130, "TMT 130N", "", 130.1348254, 114.1279, TagSetType.TMTN, 0, 1.3, 2.4, 3.2),
             new TagInformation(130, "TMT 130C", "", 130.1411453, 118.1415, TagSetType.TMTC, 0.1, 2.9, 2.9, 0),
-            new TagInformation(131, "TMT 131", "", 131.1381802, 119.1384, TagSetType.TMTC, 0.2, 3.3, 3, 0)
+            new TagInformation(131, "TMT 131N", "", 131.1381802, 119.1384, TagSetType.TMTN, 0.2, 3.3, 3, 0)
         };
 
         List<TagInformation> itraqTags = new List<TagInformation>
@@ -195,7 +195,7 @@ namespace Coon.Compass.TagQuant
 
         private void TagQuantForm_Load(object sender, EventArgs e)
         {
-            ComboBoxETDoptions.SelectedIndex = 3;
+         
         }
 
         // Drag & enter files into listbox1
@@ -323,11 +323,12 @@ namespace Coon.Compass.TagQuant
 
             double ITerror = (double)numericUpDown1.Value;
             double FTerror = (double)numericUpDown2.Value;
-            
-            bool DontQuantifyETD = ComboBoxETDoptions.Text == "Don't Quantify";
-            bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
 
-            TagQuant tagQuant = new TagQuant(textOutputFolder.Text, textRawFolder.Text, listBox1.Items.OfType<string>(), tagsToUse, MassTolerance.FromDA(ITerror), MassTolerance.FromDA(FTerror), 0, noisebandCap);
+            bool DontQuantifyETD = false;// ComboBoxETDoptions.Text == "Don't Quantify";
+            bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
+            bool ms3Quant = checkBox1.Checked;
+
+            TagQuant tagQuant = new TagQuant(textOutputFolder.Text, textRawFolder.Text, listBox1.Items.OfType<string>(), tagsToUse, MassTolerance.FromDA(ITerror), MassTolerance.FromDA(FTerror),ms3Quant,nosiebasecap:noisebandCap);
             tagQuant.ProgressChanged += tagQuant_ProgressChanged;
             tagQuant.OnFinished += tagQuant_OnFinished;
             Thread thread = new Thread(tagQuant.Run);

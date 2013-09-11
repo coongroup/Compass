@@ -9,6 +9,7 @@ using CSMSL;
 using CSMSL.Analysis.Quantitation;
 using CSMSL.IO;
 using CSMSL.IO.Thermo;
+using CSMSL.Proteomics;
 using CSMSL.Spectral;
 using LumenWorks.Framework.IO.Csv;
 
@@ -18,9 +19,10 @@ namespace Coon.Compass.TagQuant
     {
         public bool DontQuantifyETD;
         public bool NoisebandCap;
+        public bool MS3Quant;
         public SortedList<double, TagInformation> UsedTags;
         public MassTolerance ItMassTolerance;
-        public MassTolerance FtmMassTolerance;
+        public MassTolerance FtMassTolerance;
         public string OutputDirectory;
         public string RawFileDirectory;
         public int ETDQuantPosition;
@@ -35,17 +37,19 @@ namespace Coon.Compass.TagQuant
         private const double Carbon1213Difference = Constants.Carbon13 - Constants.Carbon;
 
         public TagQuant(string outputDirectory, string rawFileDirectory, IEnumerable<string> inputFiles,
-            IEnumerable<TagInformation> tags, MassTolerance itTolerance, MassTolerance ftTolerance,
+            IEnumerable<TagInformation> tags, MassTolerance itTolerance, MassTolerance ftTolerance, bool isMS3Quant = false,
             int etdQuantPosition = 0, bool nosiebasecap = false, bool isETDQuantified = true)
         {
+            RawFileDirectory = rawFileDirectory;
             OutputDirectory = outputDirectory;
             UsedTags = new SortedList<double, TagInformation>(tags.ToDictionary(t => t.MassCAD));
             InputFiles = inputFiles.ToList();
             NoisebandCap = nosiebasecap;
             DontQuantifyETD = isETDQuantified;
+            MS3Quant = isMS3Quant;
 
             ItMassTolerance = itTolerance;
-            FtmMassTolerance = ftTolerance;
+            FtMassTolerance = ftTolerance;
             ETDQuantPosition = etdQuantPosition;
 
             logWriter = new StreamWriter(Path.Combine(outputDirectory, "tagquant_log.txt"));
@@ -65,7 +69,7 @@ namespace Coon.Compass.TagQuant
             BuildPurityMatrixes(UsedTags.Values);
             OnProgressUpdate(25);
 
-            List<QuantFile> quantFiles = LoadFiles(InputFiles).ToList();
+            List<QuantFile> quantFiles = LoadFiles(InputFiles, MS3Quant).ToList();
             OnProgressUpdate(50);
 
             Normalize(quantFiles);
@@ -74,7 +78,7 @@ namespace Coon.Compass.TagQuant
             WriteOutputFiles(quantFiles);
             OnProgressUpdate(100);
 
-            Log(string.Format("\nEnd Time: {0}", DateTime.Now));
+            Log("\nEnd Time:\t" + DateTime.Now);
             logWriter.Close();
             var evt = OnFinished;
             if (evt != null)
@@ -86,7 +90,13 @@ namespace Coon.Compass.TagQuant
         private void WriteLog()
         {
             Log(string.Format("===Tag Quant v{0}===",Assembly.GetExecutingAssembly().GetName().Version));
-            Log(string.Format("Start Time: {0}", DateTime.Now));
+            Log("Start Time:\t" + DateTime.Now);
+            Log("Use Noise Band Capping:\t" + NoisebandCap);
+            Log("Use MS3 Quant:\t" + MS3Quant);
+            Log("FT Mass Tolerance:\t" + FtMassTolerance);
+            Log("IT Mass Tolerance:\t" + ItMassTolerance);
+            Log("Input Raw Folder:\t" + RawFileDirectory);
+            Log("Output Folder:\t" + OutputDirectory);
         }
 
         private void BuildPurityMatrixes(IEnumerable<TagInformation> inputTags)
@@ -128,17 +138,17 @@ namespace Coon.Compass.TagQuant
                     }
                 }
                 IsobaricTagPurityCorrection correction = IsobaricTagPurityCorrection.Create(data);
-                Log("Tag SetSite: "+tagSet);
-                Log(" Input Matrix");
+                Log("Tag SetSite:\t"+tagSet);
+                Log("Input Matrix");
                 for (int i = 0; i < max; i++)
                 {
-                    Log(string.Format(" {0:F1}\t{1:F1}\t{2:F1}\t{3:F1}", data[i, 0], data[i, 1], data[i, 2], data[i, 3]));
+                    Log(string.Format("\t{0:F1}\t{1:F1}\t{2:F1}\t{3:F1}", data[i, 0], data[i, 1], data[i, 2], data[i, 3]));
                 }
-                Log("\n Purity Matrix (determinant = "+correction.Determinant().ToString("g4")+")");
+                Log("\nPurity Matrix (determinant = "+correction.Determinant().ToString("g4")+")");
                 double[,] purityMatrix = correction.GetMatrix();
                 for (int i = 0; i < purityMatrix.GetLength(0); i++)
                 {
-                    StringBuilder sb = new StringBuilder(" ");
+                    StringBuilder sb = new StringBuilder("\t");
                     for (int j = 0; j < purityMatrix.GetLength(1); j++)
                     {
                         sb.AppendFormat("{0:f3}",purityMatrix[i, j]);
@@ -160,7 +170,7 @@ namespace Coon.Compass.TagQuant
 
             Log("\n== Normalization Data ==");
 
-            Log(string.Format("{0,-8}\t{1,-8}\t{2,-8}\t{3,-13}\t{4,-8}\t{5,-4}\t{6,-4}\t{7,-4}\t{8,-4}", "Sample", "Tag", "m/z", "Total Signal", "Normalized", "-2", "-1", "+1", "+2"));
+            Log(string.Format("\t{0,-8}\t{1,-8}\t{2,-8}\t{3,-13}\t{4,-8}\t{5,-4}\t{6,-4}\t{7,-4}\t{8,-4}", "Sample", "Tag", "m/z", "Total Signal", "Normalized", "-2", "-1", "+1", "+2"));
           
 
             foreach (TagInformation tag in UsedTags.Values)
@@ -168,7 +178,7 @@ namespace Coon.Compass.TagQuant
                 // Divide by max so that everything is less than or equal to 1
                 tag.NormalizedTotalSignal = tag.TotalSignal/maxSignal;
 
-                Log(string.Format("{0,-8}\t{1,-8}\t{2,-8:f5}\t{3,-13:g3}\t{4,-8:g3}\t{5,-4:f2}\t{6,-4:f2}\t{7,-4:f2}\t{8,-4:f2}",
+                Log(string.Format("\t{0,-8}\t{1,-8}\t{2,-8:f5}\t{3,-13:g3}\t{4,-8:g3}\t{5,-4:f2}\t{6,-4:f2}\t{7,-4:f2}\t{8,-4:f2}",
                     tag.SampleName, tag.TagName, tag.MassCAD, tag.TotalSignal,tag.NormalizedTotalSignal, tag.M2, tag.M1, tag.P1,
                     tag.P2));
             }
@@ -312,12 +322,12 @@ namespace Coon.Compass.TagQuant
             }
         }
 
-        private IEnumerable<QuantFile> LoadFiles(IEnumerable<string> filePaths)
+        private IEnumerable<QuantFile> LoadFiles(IEnumerable<string> filePaths, bool ms3Quant = false)
         {
             MSDataFile.CacheScans = false;
             foreach (string filePath in filePaths)
             {
-                Log("Processing file: " + filePath);
+                Log("Processing file:\t" + filePath);
                 QuantFile quantFile = new QuantFile(filePath);
                 StreamReader basestreamReader = new StreamReader(filePath);
                 using (CsvReader reader = new CsvReader(basestreamReader, true))
@@ -337,29 +347,50 @@ namespace Coon.Compass.TagQuant
                             rawFile.Open();
                         }
 
-                        // SetSite default fragmentation to CAD / HCD
-                        FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.")
-                            ? FragmentationMethod.ETD
-                            : FragmentationMethod.CAD;
+                        //// SetSite default fragmentation to CAD / HCD
+                        //FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.")
+                        //    ? FragmentationMethod.ETD
+                        //    : FragmentationMethod.CAD;
 
-                        if (ScanFragMethod == FragmentationMethod.ETD)
-                        {
-                            ScanFragMethod = FragmentationMethod.CAD;
-                            scanNumber += ETDQuantPosition;
-                        }
-
-                        MassTolerance massTolerance = filenameID.Contains(".FTMS") ? FtmMassTolerance : ItMassTolerance;
-
+                        //if (ScanFragMethod == FragmentationMethod.ETD)
+                        //{
+                        //    ScanFragMethod = FragmentationMethod.CAD;
+                        //    scanNumber += ETDQuantPosition;
+                        //}
+                        
                         // Get the scan object for the sequence ms2 scan
-                        MsnDataScan seqScan = rawFile[scanNumber] as MsnDataScan;
+                        MsnDataScan quantitationMsnScan = rawFile[scanNumber] as MsnDataScan;
 
-                        if (seqScan == null)
+                        if (quantitationMsnScan == null)
                         {
-                            throw new ArgumentException("Not an MS2 scan");
+                            throw new ArgumentException("Spectrum Number " + scanNumber + " is not a valid MS2 scan");
                         }
 
-                        double injectionTime = seqScan.InjectionTime;
-                        var massSpectrum = seqScan.MassSpectrum;
+                        if (MS3Quant)
+                        {
+                            quantitationMsnScan = null;
+                            // Look forward to find associated MS3 quant scan (based on parent scan number)
+                            int ms3ScanNumber = scanNumber + 1;
+                            while (ms3ScanNumber < rawFile.LastSpectrumNumber)
+                            {
+                                if (rawFile.GetParentSpectrumNumber(ms3ScanNumber) == scanNumber)
+                                {
+                                    quantitationMsnScan = rawFile[ms3ScanNumber] as MsnDataScan;
+                                    break;
+                                }
+                                ms3ScanNumber++;
+                            }
+                            if (quantitationMsnScan == null)
+                            {
+                                throw new ArgumentException("Cannot find a MS3 spectrum associated with spectrum number " + scanNumber);
+                            }
+                        }
+
+                        MassTolerance massTolerance = quantitationMsnScan.MzAnalyzer == MZAnalyzerType.IonTrap2D ? ItMassTolerance : FtMassTolerance;
+                        bool isETD = quantitationMsnScan.DissociationType == DissociationType.ETD;
+
+                        double injectionTime = quantitationMsnScan.InjectionTime;
+                        var massSpectrum = quantitationMsnScan.MassSpectrum;
                         double noise = 0;
                         if (NoisebandCap)
                         {
@@ -373,8 +404,11 @@ namespace Coon.Compass.TagQuant
                             else
                             {
                                 peak = massSpectrum.FirstPeak as ThermoLabeledPeak;
+                                if (peak == null)
+                                {
+                                    throw new ArgumentException("Either the spectrum (#" + quantitationMsnScan.SpectrumNumber+") has no m/z peaks, or they are low-resolution data without noise information");
+                                }
                                 noise = peak.Noise;
-                                //throw new ArgumentException("Low resolution data has no noise associated with it");
                             }
                         }
 
@@ -383,13 +417,13 @@ namespace Coon.Compass.TagQuant
                         // Read in the peak data
                         foreach (TagInformation tag in UsedTags.Values)
                         {
-                            double tagMz = ScanFragMethod == FragmentationMethod.ETD
+                            double tagMz = isETD
                                 ? tag.MassEtd
                                 : tag.MassCAD;
 
                             var peak = massSpectrum.GetClosestPeak(tagMz, massTolerance);
 
-                            QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, seqScan, noise,
+                            QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise,
                                 peak == null && NoisebandCap);
 
                             peaks.Add(tag, qPeak);
@@ -401,7 +435,7 @@ namespace Coon.Compass.TagQuant
                         quantFile.AddPSM(psm);
                     }
                 }
-                Log(" Loaded: " + quantFile.Psms.Count + " psms");
+                Log("PSMs Loaded:\t" + quantFile.Psms.Count );
                 yield return quantFile;
             }
 

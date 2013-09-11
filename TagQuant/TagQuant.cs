@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Windows.Forms;
 using CSMSL;
 using CSMSL.Analysis.Quantitation;
 using CSMSL.IO;
@@ -62,34 +63,47 @@ namespace Coon.Compass.TagQuant
 
         public void Run()
         {
-            OnProgressUpdate(0);
-            WriteLog();
-            OnProgressUpdate(10);
-
-            BuildPurityMatrixes(UsedTags.Values);
-            OnProgressUpdate(25);
-
-            List<QuantFile> quantFiles = LoadFiles(InputFiles, MS3Quant).ToList();
-            OnProgressUpdate(50);
-
-            Normalize(quantFiles);
-            OnProgressUpdate(75);
-
-            WriteOutputFiles(quantFiles);
-            OnProgressUpdate(100);
-
-            Log("\nEnd Time:\t" + DateTime.Now);
-            logWriter.Close();
-            var evt = OnFinished;
-            if (evt != null)
+            try
             {
-                evt(this, EventArgs.Empty);
+                OnProgressUpdate(0);
+                WriteLog();
+                OnProgressUpdate(10);
+
+                BuildPurityMatrixes(UsedTags.Values);
+                OnProgressUpdate(25);
+
+                List<QuantFile> quantFiles = LoadFiles(InputFiles, MS3Quant).ToList();
+                OnProgressUpdate(50);
+
+                Normalize(quantFiles);
+                OnProgressUpdate(75);
+
+                WriteOutputFiles(quantFiles);
+                OnProgressUpdate(100);
+
+                Log("\nEnd Time:\t" + DateTime.Now);
+            }
+            catch (Exception e)
+            {
+                OnUpdateLog("[ERROR!] " + e.Message);
+              // MessageBox.Show(e.Message);
+            }
+            finally
+            {
+                logWriter.Close();
+                var evt = OnFinished;
+                if (evt != null)
+                {
+                    evt(this, EventArgs.Empty);
+                }
+                OnUpdateLog("Finished");
             }
         }
 
         private void WriteLog()
         {
             Log(string.Format("===Tag Quant v{0}===",Assembly.GetExecutingAssembly().GetName().Version));
+            OnUpdateLog("Starting");
             Log("Start Time:\t" + DateTime.Now);
             Log("Use Noise Band Capping:\t" + NoisebandCap);
             Log("Use MS3 Quant:\t" + MS3Quant);
@@ -104,6 +118,7 @@ namespace Coon.Compass.TagQuant
             List<TagInformation> tags = inputTags.ToList();
 
             Log("\n== Purity Correction Matrices ==");
+            OnUpdateLog("Building Purity Matricies");
             PurityMatrices = new Dictionary<TagSetType, IsobaricTagPurityCorrection>();
             foreach (TagSetType tagSet in Enum.GetValues(typeof(TagSetType)))
             {
@@ -138,6 +153,7 @@ namespace Coon.Compass.TagQuant
                     }
                 }
                 IsobaricTagPurityCorrection correction = IsobaricTagPurityCorrection.Create(data);
+                OnUpdateLog("Purity Matrix for "+tagSet+" complete");
                 Log("Tag SetSite:\t"+tagSet);
                 Log("Input Matrix");
                 for (int i = 0; i < max; i++)
@@ -169,6 +185,7 @@ namespace Coon.Compass.TagQuant
                     new double[] {0}).Max();
 
             Log("\n== Normalization Data ==");
+            OnUpdateLog("Normalizing data to max signal "+maxSignal+"...");
 
             Log(string.Format("\t{0,-8}\t{1,-8}\t{2,-8}\t{3,-13}\t{4,-8}\t{5,-4}\t{6,-4}\t{7,-4}\t{8,-4}", "Sample", "Tag", "m/z", "Total Signal", "Normalized", "-2", "-1", "+1", "+2"));
           
@@ -187,7 +204,7 @@ namespace Coon.Compass.TagQuant
             {
                 foreach (PSM psm in quantFile.Psms.Values)
                 {
-                    foreach (QuantPeak qpeak in psm.QuantPeaks.Values)
+                    foreach (QuantPeak qpeak in psm.QuantPeaks)
                     {
                         // Divide by the tags Normalized value again to normalize all channels to 1
                         qpeak.PurityCorrectedNormalizedIntensity = qpeak.PurityCorrectedIntensity/
@@ -204,10 +221,14 @@ namespace Coon.Compass.TagQuant
 
         private void WriteOutputFiles(IEnumerable<QuantFile> quantFiles)
         {
+            OnUpdateLog("Writing output files...");
             foreach (QuantFile file in quantFiles)
             {
                 string filePath = file.FilePath;
-                string outputFilePath = filePath.Replace(".csv", "_quant.csv");
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+
+                string outputFilePath = Path.Combine(OutputDirectory, fileName+"_quant.csv");
+                OnUpdateLog("Writing "+outputFilePath+"...");
                 using (CsvReader reader = new CsvReader(new StreamReader(filePath), true))
                 {
                     using (StreamWriter writer = new StreamWriter(outputFilePath))
@@ -286,7 +307,6 @@ namespace Coon.Compass.TagQuant
                                 sb.Append(peak.RawIntensity);
                             }
 
-
                             // Denormalized Intensities
                             foreach (QuantPeak peak in peaks)
                             {
@@ -294,14 +314,12 @@ namespace Coon.Compass.TagQuant
                                 sb.Append(peak.DeNormalizedIntensity);
                             }
 
-
                             // Purity Corrected Intensities
                             foreach (QuantPeak peak in peaks)
                             {
                                 sb.Append(',');
                                 sb.Append(peak.PurityCorrectedIntensity);
                             }
-
 
                             // Purity Corrected Normalized Intensities
                             foreach (QuantPeak peak in peaks)
@@ -325,11 +343,23 @@ namespace Coon.Compass.TagQuant
         private IEnumerable<QuantFile> LoadFiles(IEnumerable<string> filePaths, bool ms3Quant = false)
         {
             MSDataFile.CacheScans = false;
+            //int largestQuantPeak = 0;
+            int i = 0;
+            foreach (TagInformation tag in UsedTags.Values)
+            {
+                tag.UniqueTagNumber = i++;
+            }
+            int largestQuantPeak = i-1;
+            //int largestQuantPeak = UsedTags.Values.Select(tag => tag.UniqueTagNumber).Concat(new[] {0}).Max();
+
             foreach (string filePath in filePaths)
             {
                 Log("Processing file:\t" + filePath);
+                OnUpdateLog("Processing File "+filePath+"...");
                 QuantFile quantFile = new QuantFile(filePath);
                 StreamReader basestreamReader = new StreamReader(filePath);
+     
+
                 using (CsvReader reader = new CsvReader(basestreamReader, true))
                 {
                     while (reader.ReadNextRecord()) // go through csv and raw file to extract the info we want
@@ -347,7 +377,7 @@ namespace Coon.Compass.TagQuant
                             rawFile.Open();
                         }
 
-                        //// SetSite default fragmentation to CAD / HCD
+                        //// Set default fragmentation to CAD / HCD
                         //FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.")
                         //    ? FragmentationMethod.ETD
                         //    : FragmentationMethod.CAD;
@@ -363,7 +393,7 @@ namespace Coon.Compass.TagQuant
 
                         if (quantitationMsnScan == null)
                         {
-                            throw new ArgumentException("Spectrum Number " + scanNumber + " is not a valid MS2 scan");
+                            throw new ArgumentException("Spectrum Number " + scanNumber + " is not a valid MS2 scan from: "+rawFile.FilePath);
                         }
 
                         if (MS3Quant)
@@ -412,8 +442,8 @@ namespace Coon.Compass.TagQuant
                             }
                         }
 
-                        Dictionary<TagInformation, QuantPeak> peaks = new Dictionary<TagInformation, QuantPeak>();
-
+                        //Dictionary<TagInformation, QuantPeak> peaks = new Dictionary<TagInformation, QuantPeak>();
+                        QuantPeak[] peaks = new QuantPeak[largestQuantPeak+1];
                         // Read in the peak data
                         foreach (TagInformation tag in UsedTags.Values)
                         {
@@ -426,23 +456,25 @@ namespace Coon.Compass.TagQuant
                             QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise,
                                 peak == null && NoisebandCap);
 
-                            peaks.Add(tag, qPeak);
+                            peaks[tag.UniqueTagNumber] = qPeak;
+                            //peaks.Add(tag, qPeak);
                         }
 
-                        PurityCorrect(peaks.Values);
+                        PurityCorrect(peaks);
 
                         PSM psm = new PSM(filenameID, scanNumber, peaks);
                         quantFile.AddPSM(psm);
                     }
                 }
+
+                // Dispose of all raw files
+                foreach (ThermoRawFile rawFile in RawFiles.Values)
+                {
+                    rawFile.Dispose();
+                }
+                OnUpdateLog("PSMs loaded " + quantFile.Psms.Count);
                 Log("PSMs Loaded:\t" + quantFile.Psms.Count );
                 yield return quantFile;
-            }
-
-            // Dispose of all raw files
-            foreach (ThermoRawFile rawFile in RawFiles.Values)
-            {
-                rawFile.Dispose();
             }
         }
 
@@ -497,6 +529,17 @@ namespace Coon.Compass.TagQuant
             if (delgate != null)
             {
                 delgate(this, new ProgressChangedEventArgs(percent, null));
+            }
+        }
+
+        public event EventHandler<StatusEventArgs> UpdateLog;
+
+        protected virtual void OnUpdateLog(string message)
+        {
+            var del = UpdateLog;
+            if (del != null)
+            {
+                del(this, new StatusEventArgs(message));
             }
         }
     }

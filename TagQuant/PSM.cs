@@ -6,20 +6,20 @@ namespace Coon.Compass.TagQuant
     {
         public string FilenameID { get; set; }
         public int SpectrumNumber { get; set; }
-        public Dictionary<TagInformation, QuantPeak> QuantPeaks; 
+        public QuantPeak[] QuantPeaks;
 
-        public PSM(string filenameID, int spectrumNumber, Dictionary<TagInformation, QuantPeak> quantPeaks)
+        public PSM(string filenameID, int spectrumNumber, QuantPeak[] quantPeaks)
         {
             FilenameID = filenameID;
             SpectrumNumber = spectrumNumber;
-            QuantPeaks = new Dictionary<TagInformation, QuantPeak>(quantPeaks);
+            QuantPeaks = quantPeaks;
         }
 
         public QuantPeak this[TagInformation tag]
         {
             get
             {
-                return QuantPeaks[tag];
+                return QuantPeaks[tag.UniqueTagNumber];
             }
         }
     }

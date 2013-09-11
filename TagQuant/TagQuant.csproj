@@ -102,6 +102,7 @@
     <Compile Include="PSM.cs" />
     <Compile Include="QuantFile.cs" />
     <Compile Include="QuantPeak.cs" />
+    <Compile Include="StatusEventArgs.cs" />
     <Compile Include="TagInformation.cs" />
     <Compile Include="TagQuant.cs" />
     <Compile Include="TagQuantForm.cs">
@@ -127,7 +128,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

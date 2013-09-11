@@ -331,6 +331,8 @@ namespace Coon.Compass.TagQuant
             TagQuant tagQuant = new TagQuant(textOutputFolder.Text, textRawFolder.Text, listBox1.Items.OfType<string>(), tagsToUse, MassTolerance.FromDA(ITerror), MassTolerance.FromDA(FTerror),ms3Quant,nosiebasecap:noisebandCap);
             tagQuant.ProgressChanged += tagQuant_ProgressChanged;
             tagQuant.OnFinished += tagQuant_OnFinished;
+            tagQuant.UpdateLog += tagQuant_UpdateLog;
+            richTextBox1.Clear();
             Thread thread = new Thread(tagQuant.Run);
             thread.IsBackground = true;
             thread.Start();
@@ -1601,6 +1603,21 @@ namespace Coon.Compass.TagQuant
             */
         }
 
+        private void tagQuant_UpdateLog(object sender, StatusEventArgs e)
+        {
+            MethodInvoker method = delegate
+            {
+                richTextBox1.AppendText(string.Format("[{0}]\t{1}\n", DateTime.Now.ToLongTimeString(), e.Message));
+                richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                richTextBox1.ScrollToCaret();
+            };
+
+            if (InvokeRequired)
+                BeginInvoke(method);
+            else
+                method.Invoke();
+        }
+
         private void tagQuant_OnFinished(object sender, EventArgs e)
         {
             MethodInvoker method = delegate
@@ -1740,6 +1757,11 @@ namespace Coon.Compass.TagQuant
             {
                 dataGridView2.CommitEdit(DataGridViewDataErrorContexts.Commit);
             }
+        }
+
+        private void splitContainer1_Panel2_Paint(object sender, PaintEventArgs e)
+        {
+
         }
 
     }

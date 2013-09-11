@@ -1,19 +1,29 @@
-﻿namespace DtaGenerator
+﻿namespace Coon.Compass.DtaGenerator
 {
-    public struct MSPeak
+    public class MSPeak
     {
-        public double MZ;
-        public double Intensity;
-       
-        public MSPeak(double mz, double intensity)
+        protected double mz;
+
+        public double MZ
         {
-            MZ = mz;
-            Intensity = intensity;
+            get { return mz; }
+            set { mz = value; }
         }
 
-        public override string ToString()
+        protected double intensity;
+
+        public double Intensity
         {
-            return string.Format("[{0:0.000}, {1:0.00}]", MZ, Intensity);
+            get { return intensity; }
+            set { intensity = value; }
+        }
+
+        public MSPeak() { }
+
+        public MSPeak(double mz, double intensity)
+        {
+            this.mz = mz;
+            this.intensity = intensity;
         }
     }
 }

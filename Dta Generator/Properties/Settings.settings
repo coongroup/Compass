@@ -1,57 +1,57 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DtaGenerator.Properties" GeneratedClassName="SetSitetings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DtaGenerator.Properties" GeneratedClassName="Settings">
   <Profiles />
-  <SetSitetings>
-    <SetSiteting Name="minimumAssumedPrecursorChargeState" Type="System.Decimal" Scope="User">
+  <Settings>
+    <Setting Name="minimumAssumedPrecursorChargeState" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">2</Value>
-    </SetSiteting>
-    <SetSiteting Name="maximumAssumedPrecursorChargeState" Type="System.Decimal" Scope="User">
+    </Setting>
+    <Setting Name="maximumAssumedPrecursorChargeState" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">6</Value>
-    </SetSiteting>
-    <SetSiteting Name="enableLockMassRecalibration" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="enableLockMassRecalibration" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="lockMassMZ" Type="System.Decimal" Scope="User">
+    </Setting>
+    <Setting Name="lockMassMZ" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">202.07770</Value>
-    </SetSiteting>
-    <SetSiteting Name="kenny" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="kenny" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="cleanPrecursor" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="cleanPrecursor" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </SetSiteting>
-    <SetSiteting Name="enableEtdPreProcessing" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="enableEtdPreProcessing" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </SetSiteting>
-    <SetSiteting Name="cleanTmtDuplex" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="cleanTmtDuplex" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="cleanItraq4Plex" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="cleanItraq4Plex" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="cleanTmt6Plex" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="cleanTmt6Plex" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="cleanItraq8Plex" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="cleanItraq8Plex" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="enableDeIsotoping" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="enableDeIsotoping" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="fragmentIntensityThreshold" Type="System.String" Scope="User">
+    </Setting>
+    <Setting Name="fragmentIntensityThreshold" Type="System.String" Scope="User">
       <Value Profile="(Default)">0</Value>
-    </SetSiteting>
-    <SetSiteting Name="groupByActivationEnergyTime" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="groupByActivationEnergyTime" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="sequestDtaOutput" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="sequestDtaOutput" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-    <SetSiteting Name="omssaTxtOutput" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="omssaTxtOutput" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </SetSiteting>
-    <SetSiteting Name="mascotMgfOutput" Type="System.Boolean" Scope="User">
+    </Setting>
+    <Setting Name="mascotMgfOutput" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </SetSiteting>
-  </SetSitetings>
-</SetSitetingsFile>
+    </Setting>
+  </Settings>
+</SettingsFile>

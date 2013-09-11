@@ -1,4 +1,4 @@
-namespace DtaGenerator
+namespace Coon.Compass.DtaGenerator
 {
     partial class frmMain
     {
@@ -47,9 +47,6 @@ namespace DtaGenerator
             this.chkOmssaTxtOutput = new System.Windows.Forms.CheckBox();
             this.chkGroupByActivationEnergyTime = new System.Windows.Forms.CheckBox();
             this.grpPeakFilteringOptions = new System.Windows.Forms.GroupBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.grpIsobaricLabelCleaning = new System.Windows.Forms.GroupBox();
             this.chkCleanItraq8Plex = new System.Windows.Forms.CheckBox();
@@ -64,14 +61,17 @@ namespace DtaGenerator
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
             this.pnlMain.SuspendLayout();
             this.grpOutputOptions.SuspendLayout();
             this.grpPeakFilteringOptions.SuspendLayout();
-            this.groupBox1.SuspendLayout();
             this.grpIsobaricLabelCleaning.SuspendLayout();
             this.grpAssumedPrecursorChargeStateRange.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumAssumedPrecursorChargeState)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMinimumAssumedPrecursorChargeState)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // prgProgress
@@ -173,8 +173,8 @@ namespace DtaGenerator
             // chkMascotMgfOutput
             // 
             this.chkMascotMgfOutput.AutoSize = true;
-            this.chkMascotMgfOutput.Checked = global::DtaGenerator.Properties.Settings.Default.mascotMgfOutput;
-            this.chkMascotMgfOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "mascotMgfOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkMascotMgfOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.mascotMgfOutput;
+            this.chkMascotMgfOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "mascotMgfOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkMascotMgfOutput.Location = new System.Drawing.Point(313, 51);
             this.chkMascotMgfOutput.Name = "chkMascotMgfOutput";
             this.chkMascotMgfOutput.Size = new System.Drawing.Size(119, 17);
@@ -211,8 +211,8 @@ namespace DtaGenerator
             // chkSequestDtaOutput
             // 
             this.chkSequestDtaOutput.AutoSize = true;
-            this.chkSequestDtaOutput.Checked = global::DtaGenerator.Properties.Settings.Default.sequestDtaOutput;
-            this.chkSequestDtaOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "sequestDtaOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkSequestDtaOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.sequestDtaOutput;
+            this.chkSequestDtaOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "sequestDtaOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkSequestDtaOutput.Location = new System.Drawing.Point(9, 51);
             this.chkSequestDtaOutput.Name = "chkSequestDtaOutput";
             this.chkSequestDtaOutput.Size = new System.Drawing.Size(121, 17);
@@ -223,9 +223,9 @@ namespace DtaGenerator
             // chkOmssaTxtOutput
             // 
             this.chkOmssaTxtOutput.AutoSize = true;
-            this.chkOmssaTxtOutput.Checked = global::DtaGenerator.Properties.Settings.Default.omssaTxtOutput;
+            this.chkOmssaTxtOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.omssaTxtOutput;
             this.chkOmssaTxtOutput.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkOmssaTxtOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "omssaTxtOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkOmssaTxtOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "omssaTxtOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkOmssaTxtOutput.Location = new System.Drawing.Point(163, 51);
             this.chkOmssaTxtOutput.Name = "chkOmssaTxtOutput";
             this.chkOmssaTxtOutput.Size = new System.Drawing.Size(116, 17);
@@ -236,8 +236,8 @@ namespace DtaGenerator
             // chkGroupByActivationEnergyTime
             // 
             this.chkGroupByActivationEnergyTime.AutoSize = true;
-            this.chkGroupByActivationEnergyTime.Checked = global::DtaGenerator.Properties.Settings.Default.groupByActivationEnergyTime;
-            this.chkGroupByActivationEnergyTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "groupByActivationEnergyTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkGroupByActivationEnergyTime.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.groupByActivationEnergyTime;
+            this.chkGroupByActivationEnergyTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "groupByActivationEnergyTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkGroupByActivationEnergyTime.Location = new System.Drawing.Point(9, 22);
             this.chkGroupByActivationEnergyTime.Name = "chkGroupByActivationEnergyTime";
             this.chkGroupByActivationEnergyTime.Size = new System.Drawing.Size(189, 17);
@@ -258,37 +258,6 @@ namespace DtaGenerator
             this.grpPeakFilteringOptions.TabIndex = 106;
             this.grpPeakFilteringOptions.TabStop = false;
             this.grpPeakFilteringOptions.Text = "Peak Filtering Options";
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.checkedListBox2);
-            this.groupBox1.Controls.Add(this.checkedListBox1);
-            this.groupBox1.Location = new System.Drawing.Point(202, 53);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(230, 102);
-            this.groupBox1.TabIndex = 119;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Neutral Loss Cleaning";
-            // 
-            // checkedListBox2
-            // 
-            this.checkedListBox2.CheckOnClick = true;
-            this.checkedListBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkedListBox2.FormattingEnabled = true;
-            this.checkedListBox2.Location = new System.Drawing.Point(3, 16);
-            this.checkedListBox2.Name = "checkedListBox2";
-            this.checkedListBox2.Size = new System.Drawing.Size(224, 83);
-            this.checkedListBox2.TabIndex = 95;
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(239, 16);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(120, 94);
-            this.checkedListBox1.TabIndex = 94;
             // 
             // linkLabel1
             // 
@@ -317,8 +286,8 @@ namespace DtaGenerator
             // chkCleanItraq8Plex
             // 
             this.chkCleanItraq8Plex.AutoSize = true;
-            this.chkCleanItraq8Plex.Checked = global::DtaGenerator.Properties.Settings.Default.cleanItraq8Plex;
-            this.chkCleanItraq8Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "cleanItraq8Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanItraq8Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq8Plex;
+            this.chkCleanItraq8Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq8Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkCleanItraq8Plex.Location = new System.Drawing.Point(98, 45);
             this.chkCleanItraq8Plex.Name = "chkCleanItraq8Plex";
             this.chkCleanItraq8Plex.Size = new System.Drawing.Size(89, 17);
@@ -329,8 +298,8 @@ namespace DtaGenerator
             // chkCleanTmt6Plex
             // 
             this.chkCleanTmt6Plex.AutoSize = true;
-            this.chkCleanTmt6Plex.Checked = global::DtaGenerator.Properties.Settings.Default.cleanTmt6Plex;
-            this.chkCleanTmt6Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "cleanTmt6Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanTmt6Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmt6Plex;
+            this.chkCleanTmt6Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmt6Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkCleanTmt6Plex.Location = new System.Drawing.Point(6, 45);
             this.chkCleanTmt6Plex.Name = "chkCleanTmt6Plex";
             this.chkCleanTmt6Plex.Size = new System.Drawing.Size(81, 17);
@@ -341,8 +310,8 @@ namespace DtaGenerator
             // chkCleanTmtDuplex
             // 
             this.chkCleanTmtDuplex.AutoSize = true;
-            this.chkCleanTmtDuplex.Checked = global::DtaGenerator.Properties.Settings.Default.cleanTmtDuplex;
-            this.chkCleanTmtDuplex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "cleanTmtDuplex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanTmtDuplex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmtDuplex;
+            this.chkCleanTmtDuplex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmtDuplex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkCleanTmtDuplex.Location = new System.Drawing.Point(6, 22);
             this.chkCleanTmtDuplex.Name = "chkCleanTmtDuplex";
             this.chkCleanTmtDuplex.Size = new System.Drawing.Size(85, 17);
@@ -353,8 +322,8 @@ namespace DtaGenerator
             // chkCleanItraq4Plex
             // 
             this.chkCleanItraq4Plex.AutoSize = true;
-            this.chkCleanItraq4Plex.Checked = global::DtaGenerator.Properties.Settings.Default.cleanItraq4Plex;
-            this.chkCleanItraq4Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "cleanItraq4Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanItraq4Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq4Plex;
+            this.chkCleanItraq4Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq4Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkCleanItraq4Plex.Location = new System.Drawing.Point(98, 22);
             this.chkCleanItraq4Plex.Name = "chkCleanItraq4Plex";
             this.chkCleanItraq4Plex.Size = new System.Drawing.Size(89, 17);
@@ -366,9 +335,9 @@ namespace DtaGenerator
             // chkCleanPrecursor
             // 
             this.chkCleanPrecursor.AutoSize = true;
-            this.chkCleanPrecursor.Checked = global::DtaGenerator.Properties.Settings.Default.cleanPrecursor;
+            this.chkCleanPrecursor.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanPrecursor;
             this.chkCleanPrecursor.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCleanPrecursor.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "cleanPrecursor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanPrecursor.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanPrecursor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkCleanPrecursor.Location = new System.Drawing.Point(9, 25);
             this.chkCleanPrecursor.Name = "chkCleanPrecursor";
             this.chkCleanPrecursor.Size = new System.Drawing.Size(101, 17);
@@ -379,9 +348,9 @@ namespace DtaGenerator
             // chkEnableEtdPreProcessing
             // 
             this.chkEnableEtdPreProcessing.AutoSize = true;
-            this.chkEnableEtdPreProcessing.Checked = global::DtaGenerator.Properties.Settings.Default.enableEtdPreProcessing;
+            this.chkEnableEtdPreProcessing.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.enableEtdPreProcessing;
             this.chkEnableEtdPreProcessing.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkEnableEtdPreProcessing.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::DtaGenerator.Properties.Settings.Default, "enableEtdPreProcessing", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkEnableEtdPreProcessing.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "enableEtdPreProcessing", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.chkEnableEtdPreProcessing.Location = new System.Drawing.Point(144, 25);
             this.chkEnableEtdPreProcessing.Name = "chkEnableEtdPreProcessing";
             this.chkEnableEtdPreProcessing.Size = new System.Drawing.Size(158, 17);
@@ -404,7 +373,7 @@ namespace DtaGenerator
             // 
             // numMaximumAssumedPrecursorChargeState
             // 
-            this.numMaximumAssumedPrecursorChargeState.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::DtaGenerator.Properties.Settings.Default, "maximumAssumedPrecursorChargeState", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numMaximumAssumedPrecursorChargeState.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "maximumAssumedPrecursorChargeState", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numMaximumAssumedPrecursorChargeState.Location = new System.Drawing.Point(183, 23);
             this.numMaximumAssumedPrecursorChargeState.Maximum = new decimal(new int[] {
             99,
@@ -419,11 +388,11 @@ namespace DtaGenerator
             this.numMaximumAssumedPrecursorChargeState.Name = "numMaximumAssumedPrecursorChargeState";
             this.numMaximumAssumedPrecursorChargeState.Size = new System.Drawing.Size(40, 20);
             this.numMaximumAssumedPrecursorChargeState.TabIndex = 3;
-            this.numMaximumAssumedPrecursorChargeState.Value = global::DtaGenerator.Properties.Settings.Default.maximumAssumedPrecursorChargeState;
+            this.numMaximumAssumedPrecursorChargeState.Value = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.maximumAssumedPrecursorChargeState;
             // 
             // numMinimumAssumedPrecursorChargeState
             // 
-            this.numMinimumAssumedPrecursorChargeState.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::DtaGenerator.Properties.Settings.Default, "minimumAssumedPrecursorChargeState", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numMinimumAssumedPrecursorChargeState.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "minimumAssumedPrecursorChargeState", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numMinimumAssumedPrecursorChargeState.Location = new System.Drawing.Point(63, 23);
             this.numMinimumAssumedPrecursorChargeState.Maximum = new decimal(new int[] {
             99,
@@ -438,7 +407,7 @@ namespace DtaGenerator
             this.numMinimumAssumedPrecursorChargeState.Name = "numMinimumAssumedPrecursorChargeState";
             this.numMinimumAssumedPrecursorChargeState.Size = new System.Drawing.Size(40, 20);
             this.numMinimumAssumedPrecursorChargeState.TabIndex = 2;
-            this.numMinimumAssumedPrecursorChargeState.Value = global::DtaGenerator.Properties.Settings.Default.minimumAssumedPrecursorChargeState;
+            this.numMinimumAssumedPrecursorChargeState.Value = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.minimumAssumedPrecursorChargeState;
             // 
             // label6
             // 
@@ -460,8 +429,39 @@ namespace DtaGenerator
             // 
             // ofdRawFiles
             // 
-            this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw|MzML File (.mzML, .xml)|*.mzml;*.xml";
+            this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
             this.ofdRawFiles.Multiselect = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.checkedListBox2);
+            this.groupBox1.Controls.Add(this.checkedListBox1);
+            this.groupBox1.Location = new System.Drawing.Point(202, 53);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(230, 102);
+            this.groupBox1.TabIndex = 119;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Neutral Loss Cleaning";
+            // 
+            // checkedListBox1
+            // 
+            this.checkedListBox1.FormattingEnabled = true;
+            this.checkedListBox1.Location = new System.Drawing.Point(239, 16);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(120, 94);
+            this.checkedListBox1.TabIndex = 94;
+            // 
+            // checkedListBox2
+            // 
+            this.checkedListBox2.CheckOnClick = true;
+            this.checkedListBox2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.checkedListBox2.FormattingEnabled = true;
+            this.checkedListBox2.Location = new System.Drawing.Point(3, 16);
+            this.checkedListBox2.Name = "checkedListBox2";
+            this.checkedListBox2.Size = new System.Drawing.Size(224, 83);
+            this.checkedListBox2.TabIndex = 95;
             // 
             // frmMain
             // 
@@ -486,13 +486,13 @@ namespace DtaGenerator
             this.grpOutputOptions.PerformLayout();
             this.grpPeakFilteringOptions.ResumeLayout(false);
             this.grpPeakFilteringOptions.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
             this.grpIsobaricLabelCleaning.ResumeLayout(false);
             this.grpIsobaricLabelCleaning.PerformLayout();
             this.grpAssumedPrecursorChargeStateRange.ResumeLayout(false);
             this.grpAssumedPrecursorChargeStateRange.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumAssumedPrecursorChargeState)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMinimumAssumedPrecursorChargeState)).EndInit();
+            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 

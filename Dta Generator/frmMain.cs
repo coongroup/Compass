@@ -1,18 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace DtaGenerator
+namespace Coon.Compass.DtaGenerator
 {
     public partial class frmMain : Form
     {
-
-        private Dictionary<RawFile,double> TotalProgress = null;
-
         public frmMain()
         {
             InitializeComponent();
@@ -45,7 +41,7 @@ namespace DtaGenerator
 
             foreach(string filepath in filepaths)
             {
-                if(Path.GetExtension(filepath).Equals(".mzML", StringComparison.InvariantCultureIgnoreCase) &&
+                if(Path.GetExtension(filepath).Equals(".raw", StringComparison.InvariantCultureIgnoreCase) &&
                     !lstRawFiles.Items.Contains(filepath))
                 {
                     lstRawFiles.Items.Add(filepath);
@@ -145,9 +141,6 @@ namespace DtaGenerator
                 nlmass.Add(kvp.Value);
             }
 
-            TotalProgress = new Dictionary<RawFile, double>();
-
-
             DtaGenerator dta_generator = new DtaGenerator(raw_filepaths,
                 minimum_assumed_precursor_charge_state, maximum_assumed_precursor_charge_state,
                 clean_precursor, enable_etd_preprocessing,
@@ -182,7 +175,7 @@ namespace DtaGenerator
                     new object[] { enabled });
             }
             else
-            {                
+            {
                 pnlMain.Enabled = enabled;
             }
         }
@@ -212,32 +205,24 @@ namespace DtaGenerator
             changeCurrentFile(e.Filepath);
         }
 
-        private delegate void changeProgressBarValueCallback(double progressValue, RawFile rawfile);
+        private delegate void changeProgressBarValueCallback(int progressValue);
 
-        private void changeProgressBarValue(double progressValue, RawFile rawfile)
+        private void changeProgressBarValue(int progressValue)
         {
             if(prgProgress.InvokeRequired)
             {
                 prgProgress.Invoke(new changeProgressBarValueCallback(changeProgressBarValue),
-                    new object[] { progressValue, rawfile });
+                    new object[] { progressValue });
             }
             else
             {
-                TotalProgress[rawfile] = progressValue;
-
-                double sum_progress = 1;
-                foreach (double progess in TotalProgress.Values)
-                {
-                    sum_progress *= progess;
-                }
-
-                prgProgress.Value = (int)(sum_progress * prgProgress.Maximum);
+                prgProgress.Value = progressValue;
             }
         }
 
         private void handleUpdateProgress(object sender, ProgressEventArgs e)
         {
-            changeProgressBarValue(e.Progress, e.RawFile);
+            changeProgressBarValue(e.Progress);
         }
 
         private void handleThrowException(object sender, ExceptionEventArgs e)

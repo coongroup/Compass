@@ -1,16 +1,20 @@
 using System;
 
-namespace DtaGenerator
+namespace Coon.Compass.DtaGenerator
 {
     public class ProgressEventArgs : EventArgs
     {
-        public double Progress { get; set; }
-        public RawFile RawFile { get; set; }
+        private int _progress;
 
-        public ProgressEventArgs(double progress, RawFile rawfile)
+        public int Progress
         {
-            Progress = progress;
-            RawFile = rawfile;
+            get { return _progress; }
+            set { _progress = value; }
+        }
+
+        public ProgressEventArgs(int progress)
+        {
+            _progress = progress;
         }
     }
 }

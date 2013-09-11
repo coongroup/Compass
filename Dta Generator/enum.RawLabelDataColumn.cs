@@ -1,4 +1,4 @@
-namespace DtaGenerator
+namespace Coon.Compass.DtaGenerator
 {
     public enum RawLabelDataColumn
     {

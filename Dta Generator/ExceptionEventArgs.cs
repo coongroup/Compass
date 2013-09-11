@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DtaGenerator
+namespace Coon.Compass.DtaGenerator
 {
     public class ExceptionEventArgs : EventArgs
     {

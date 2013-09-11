@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TagQuant
+namespace Coon.Compass.TagQuant
 {
     public class QuantFile
     {

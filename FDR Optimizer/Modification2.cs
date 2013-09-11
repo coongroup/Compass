@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
-    public class Modification
+    public class Modification2
     {
         private string name;
 
@@ -44,7 +44,7 @@ namespace FdrOptimizer
             set { userModification = value; }
         }
 
-        public Modification(string name, double monoisotopicMassShift,
+        public Modification2(string name, double monoisotopicMassShift,
             ModificationType modificationType, IEnumerable<char> aminoAcidResidues,
             bool userModification)
         {

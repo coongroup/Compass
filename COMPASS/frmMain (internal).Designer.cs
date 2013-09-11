@@ -1,4 +1,4 @@
-﻿namespace Compass
+﻿namespace Coon.Compass
 {
     partial class frmMain
     {
@@ -286,7 +286,7 @@
             // 
             // toolStripButton2
             // 
-            this.toolStripButton2.Image = global::Compass.Properties.Resources.coon_blue;
+            this.toolStripButton2.Image = global::Coon.Compass.Properties.Resources.coon_blue;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(55, 22);

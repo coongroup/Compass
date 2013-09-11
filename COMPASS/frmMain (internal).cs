@@ -5,8 +5,9 @@ using System.Windows.Forms;
 using Coon.Compass.DatabaseMaker;
 using Coon.Compass.Lotor;
 using Coon.Compass.ProteinHoarder;
+using Coon.Compass.TagQuant;
 
-namespace Compass
+namespace Coon.Compass
 {
     public partial class frmMain : Form
     {
@@ -116,7 +117,7 @@ namespace Compass
 
         private void tsbTagQuant_Click(object sender, EventArgs e)
         {
-            TagQuant.TagQuantForm tag_quant = new TagQuant.TagQuantForm();
+            TagQuantForm tag_quant = new TagQuantForm();
             tag_quant.MdiParent = this;
             tag_quant.Show();
         }

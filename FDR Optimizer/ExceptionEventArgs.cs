@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
     public class ExceptionEventArgs : EventArgs
     {

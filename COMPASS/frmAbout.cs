@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Forms;
 
-namespace Compass
+namespace Coon.Compass
 {
     partial class frmAbout : Form
     {

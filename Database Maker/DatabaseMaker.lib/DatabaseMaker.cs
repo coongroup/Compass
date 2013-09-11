@@ -41,11 +41,6 @@ namespace Coon.Compass.DatabaseMaker
             {
                 handler(this, new FastaEvent(fasta));
             }
-            // BAD below
-            //if (OnInvalidHeader != null)
-            //{
-            //    OnInvalidHeader(this, new FastaEvent(fasta));
-            //}
         }
 
         public void CreateDatabase()

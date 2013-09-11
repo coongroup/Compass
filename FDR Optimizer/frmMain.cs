@@ -1,28 +1,26 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using CSMSL.IO.OMSSA;
+using CSMSL.Proteomics;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
     public partial class frmMain : Form
     {
         public frmMain()
         {
             InitializeComponent();
+            UpdateModsListboxes();
+            comboBox1.DataSource = Enum.GetValues(typeof (UniquePeptideType));
+            comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifactions;
         }
-
-        private static ModificationDictionary modifications;
-
         private void frmMain_Load(object sender, EventArgs e)
         {
-            modifications = new ModificationDictionary(Path.Combine(Application.StartupPath, "mods.xml"));
-            Peptide.SetModifications(modifications);
-            UpdateModsListboxes();
+            
         }
 
         private void UpdateModsListboxes()
@@ -32,7 +30,7 @@ namespace FdrOptimizer
 
             lstAllModifications.DisplayMember = "Text";
             lstSelectedFixedModifications.DisplayMember = "Text";
-            foreach(Modification modification in modifications.Values)
+            foreach (OmssaModification modification in OmssaModification.GetAllModifications())
             {
                 ListViewItem list_view_item = new ListViewItem(modification.ToString());
                 list_view_item.Tag = modification;
@@ -85,8 +83,7 @@ namespace FdrOptimizer
                 }
                 else if(Path.GetExtension(filepath).Equals(".xml", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    modifications.ReadModificationsFromXmlFile(filepath, true);
-                    Peptide.SetModifications(modifications);
+                    OmssaModification.LoadOmssaModifications(filepath,true);
                     UpdateModsListboxes();
                 }
             }
@@ -172,8 +169,7 @@ namespace FdrOptimizer
         {
             if(ofdModsXml.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                modifications.ReadModificationsFromXmlFile(ofdModsXml.FileName, true);
-                Peptide.SetModifications(modifications);
+                OmssaModification.LoadOmssaModifications(ofdModsXml.FileName,true);
                 UpdateModsListboxes();
             }
         }
@@ -228,75 +224,96 @@ namespace FdrOptimizer
             }
         }
 
-        private void btnOK_Click(object sender, EventArgs e)
+        private void Run()
         {
-            List<string> csv_filepaths = new List<string>(lstOmssaCsvFiles.Items.Count);
-            foreach(string csv_filepath in lstOmssaCsvFiles.Items)
-            {
-                csv_filepaths.Add(csv_filepath);
-            }
-            string raw_folder = txtRawFolder.Text;
-            List<Modification> fixed_modifications = new List<Modification>(lstSelectedFixedModifications.Items.Count);
-            foreach(ListViewItem checked_item in lstSelectedFixedModifications.Items)
-            {
-                fixed_modifications.Add((Modification)checked_item.Tag);
-            }
-            double max_precursor_mass_error = (double)numMaximumPrecursorMassError.Value;
-            double precursor_mass_error_increment = (double)numPrecursorMassErrorIncrement.Value;
-            bool higher_scores_are_better = chkHigherScoresAreBetter.Checked;
-            double max_false_discovery_rate = (double)numMaximumFalseDiscoveryRate.Value;
-            bool unique = chkUnique.Checked;
-            bool overall_outputs = chkOverallOutputs.Checked;
-            bool phosphopeptide_outputs = chkPhosphopeptideOutputs.Checked;
-            string output_folder = txtOutputFolder.Text;
+            richTextBox1.Clear();
+            string rawFolder = txtRawFolder.Text;
 
-            if(precursor_mass_error_increment > max_precursor_mass_error)
+            List<string> csvFilepaths = new List<string>(lstOmssaCsvFiles.Items.Cast<string>());
+            List<Modification> fixedModifications = new List<Modification>(from ListViewItem checkedItem in lstSelectedFixedModifications.Items select (Modification)checkedItem.Tag);
+
+            double maxPrecursorMassError = (double)numMaximumPrecursorMassError.Value;
+            double precursorMassErrorIncrement = (double)numPrecursorMassErrorIncrement.Value;
+            bool higherScoresAreBetter = chkHigherScoresAreBetter.Checked;
+            double maxFalseDiscoveryRate = (double)numMaximumFalseDiscoveryRate.Value;
+            bool overallOutputs = chkOverallOutputs.Checked;
+            bool phosphopeptideOutputs = chkPhosphopeptideOutputs.Checked;
+            bool isBatched = checkBox1.Checked;
+            bool is2DFDR = radioButton2.Checked;
+            bool includeFixedMods = checkBox2.Checked;
+            string outputFolder = txtOutputFolder.Text;
+            UniquePeptideType uniquePeptideType = (UniquePeptideType)comboBox1.SelectedValue;
+
+            if (precursorMassErrorIncrement > maxPrecursorMassError)
             {
-                MessageBox.Show("Precursor mass error increment (" + precursor_mass_error_increment.ToString() + " ppm) must not be greater than maximum precursor mass error (" + max_precursor_mass_error.ToString() + " ppm)");
+                MessageBox.Show("Precursor mass error increment (" + precursorMassErrorIncrement.ToString() + " ppm) must not be greater than maximum precursor mass error (" + maxPrecursorMassError.ToString() + " ppm)");
                 return;
             }
 
-            if(output_folder == null || output_folder == string.Empty)
+            if (string.IsNullOrEmpty(outputFolder))
             {
                 MessageBox.Show("Output folder must be specified");
                 return;
             }
+            Directory.CreateDirectory(outputFolder);
 
-            FdrOptimizer fdr_optimizer = new FdrOptimizer(csv_filepaths, raw_folder,
-                fixed_modifications, 
-                max_precursor_mass_error, precursor_mass_error_increment,
-                higher_scores_are_better,
-                max_false_discovery_rate, unique,
-                overall_outputs, phosphopeptide_outputs, output_folder);
+            FdrOptimizer fdrOptimizer = new FdrOptimizer(csvFilepaths, rawFolder,
+                fixedModifications,
+                maxPrecursorMassError, precursorMassErrorIncrement,
+                higherScoresAreBetter,
+                maxFalseDiscoveryRate, uniquePeptideType,
+                overallOutputs, phosphopeptideOutputs, outputFolder, isBatched, is2DFDR, includeFixedMods);
 
-            fdr_optimizer.Starting += handleStarting;
-            fdr_optimizer.StartingFile += handleStartingFile;
-            fdr_optimizer.UpdateProgress += handleUpdateProgress;
-            fdr_optimizer.ThrowException += handleThrowException;
-            fdr_optimizer.FinishedFile += handleFinishedFile;
-            fdr_optimizer.Finished += handleFinished;
+            fdrOptimizer.Starting += handleStarting;
+            fdrOptimizer.StartingFile += handleStartingFile;
+            fdrOptimizer.UpdateProgress += handleUpdateProgress;
+            fdrOptimizer.ThrowException += handleThrowException;
+            fdrOptimizer.FinishedFile += handleFinishedFile;
+            fdrOptimizer.Finished += handleFinished;
+            fdrOptimizer.UpdateLog += fdrOptimizer_UpdateLog;
 
             lstOmssaCsvFiles.SelectedItem = null;
             prgProgress.Value = prgProgress.Minimum;
 
-            Thread thread = new Thread(new ThreadStart(fdr_optimizer.Optimize));
-            thread.IsBackground = true;
+
+            Thread thread = new Thread(fdrOptimizer.Optimize) {IsBackground = true};
             thread.Start();
         }
 
+        void fdrOptimizer_UpdateLog(object sender, StatusEventArgs e)
+        {
+            UpdateLog(e.Message);
+        }
+   
+        private delegate void UpdateLogDelegate(string msg);
+
+        public void UpdateLog(string msg)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new UpdateLogDelegate(UpdateLog), new object[] { msg });
+            }
+            else
+            {
+                richTextBox1.AppendText(string.Format("[{0}]\t{1}\n", DateTime.Now.ToLongTimeString(), msg));
+                richTextBox1.SelectionStart = richTextBox1.Text.Length;
+                richTextBox1.ScrollToCaret();
+            }
+        }
+ 
         private delegate void changeMainPanelEnabledCallback(bool enabled);
 
         private void changeMainPanelEnabled(bool enabled)
         {
-            if(pnlMain.InvokeRequired)
-            {
-                pnlMain.Invoke(new changeMainPanelEnabledCallback(changeMainPanelEnabled),
-                    new object[] { enabled });
-            }
-            else
-            {
-                pnlMain.Enabled = enabled;
-            }
+            //if(pnlMain.InvokeRequired)
+            //{
+            //    pnlMain.Invoke(new changeMainPanelEnabledCallback(changeMainPanelEnabled),
+            //        new object[] { enabled });
+            //}
+            //else
+            //{
+            //    pnlMain.Enabled = enabled;
+            //}
         }
 
         private void handleStarting(object sender, EventArgs e)
@@ -366,5 +383,24 @@ namespace FdrOptimizer
         {
             Properties.Settings.Default.Save();
         }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            numMaximumPrecursorMassError.Enabled = true;
+            numPrecursorMassErrorIncrement.Enabled = true;
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            numMaximumPrecursorMassError.Enabled = false;
+            numPrecursorMassErrorIncrement.Enabled = false;
+        }
+
+        private void btnOK_Click_1(object sender, EventArgs e)
+        {
+            Run();
+        }
+
+   
     }
 }

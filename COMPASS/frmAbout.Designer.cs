@@ -1,4 +1,4 @@
-﻿namespace Compass
+﻿namespace Coon.Compass
 {
     partial class frmAbout
     {

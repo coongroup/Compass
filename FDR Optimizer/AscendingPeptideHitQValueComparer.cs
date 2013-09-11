@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
     public class AscendingPeptideHitQValueComparer : Comparer<PeptideHit>
     {
@@ -23,11 +23,11 @@ namespace FdrOptimizer
                 int comparision2 = x.EValueScore.CompareTo(y.EValueScore);
                 if (comparision2 == 0)
                 {
-                    if (x.Decoy && !y.Decoy)
+                    if (x.IsDecoy && !y.IsDecoy)
                     {
                         return 1;
                     }
-                    if (!x.Decoy && y.Decoy)
+                    if (!x.IsDecoy && y.IsDecoy)
                     {
                         return -1;
                     }

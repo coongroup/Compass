@@ -1,18 +1,18 @@
-﻿using CSMSL;
-using CSMSL.Analysis.Quantitation;
-using CSMSL.IO;
-using CSMSL.IO.Thermo;
-using CSMSL.Spectral;
-using LumenWorks.Framework.IO.Csv;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using CSMSL;
+using CSMSL.Analysis.Quantitation;
+using CSMSL.IO;
+using CSMSL.IO.Thermo;
+using CSMSL.Spectral;
+using LumenWorks.Framework.IO.Csv;
 
-namespace TagQuant
+namespace Coon.Compass.TagQuant
 {
     public class TagQuant
     {
@@ -54,8 +54,6 @@ namespace TagQuant
             RawFiles =
                 Directory.EnumerateFiles(rawFileDirectory, "*.raw")
                     .ToDictionary(file => Path.GetFileNameWithoutExtension(file), file => new ThermoRawFile(file));
-
-
         }
 
         public void Run()
@@ -130,7 +128,7 @@ namespace TagQuant
                     }
                 }
                 IsobaricTagPurityCorrection correction = IsobaricTagPurityCorrection.Create(data);
-                Log("Tag Set: "+tagSet);
+                Log("Tag SetSite: "+tagSet);
                 Log(" Input Matrix");
                 for (int i = 0; i < max; i++)
                 {
@@ -339,7 +337,7 @@ namespace TagQuant
                             rawFile.Open();
                         }
 
-                        // Set default fragmentation to CAD / HCD
+                        // SetSite default fragmentation to CAD / HCD
                         FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.")
                             ? FragmentationMethod.ETD
                             : FragmentationMethod.CAD;

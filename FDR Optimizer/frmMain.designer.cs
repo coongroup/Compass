@@ -1,4 +1,4 @@
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
     partial class frmMain
     {
@@ -31,27 +31,22 @@ namespace FdrOptimizer
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.fbdRawFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdOmssaCsvFiles = new System.Windows.Forms.OpenFileDialog();
-            this.btnOK = new System.Windows.Forms.Button();
-            this.pnlMain = new System.Windows.Forms.Panel();
             this.grpFixedModifications = new System.Windows.Forms.GroupBox();
-            this.btnBrowseMods = new System.Windows.Forms.Button();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.label5 = new System.Windows.Forms.Label();
             this.btnMoveLeft = new System.Windows.Forms.Button();
             this.btnMoveRight = new System.Windows.Forms.Button();
             this.lstSelectedFixedModifications = new System.Windows.Forms.ListBox();
             this.lstAllModifications = new System.Windows.Forms.ListBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.numPrecursorMassErrorIncrement = new System.Windows.Forms.NumericUpDown();
+            this.label14 = new System.Windows.Forms.Label();
+            this.numMaximumPrecursorMassError = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
             this.btnBrowseOutputFolder = new System.Windows.Forms.Button();
             this.txtOutputFolder = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.chkUnique = new System.Windows.Forms.CheckBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.label14 = new System.Windows.Forms.Label();
-            this.numMaximumPrecursorMassError = new System.Windows.Forms.NumericUpDown();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.numPrecursorMassErrorIncrement = new System.Windows.Forms.NumericUpDown();
             this.chkOverallOutputs = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
             this.chkPhosphopeptideOutputs = new System.Windows.Forms.CheckBox();
@@ -69,11 +64,24 @@ namespace FdrOptimizer
             this.prgProgress = new System.Windows.Forms.ProgressBar();
             this.fbdOutputFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdModsXml = new System.Windows.Forms.OpenFileDialog();
-            this.pnlMain.SuspendLayout();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.radioButton2 = new System.Windows.Forms.RadioButton();
+            this.btnOK = new System.Windows.Forms.Button();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.grpFixedModifications.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numMaximumPrecursorMassError)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPrecursorMassErrorIncrement)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaximumPrecursorMassError)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // ofdOmssaCsvFiles
@@ -81,73 +89,34 @@ namespace FdrOptimizer
             this.ofdOmssaCsvFiles.Filter = "OMSSA comma-separated value output files (.csv)|*.csv";
             this.ofdOmssaCsvFiles.Multiselect = true;
             // 
-            // btnOK
-            // 
-            this.btnOK.Location = new System.Drawing.Point(8, 508);
-            this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(75, 23);
-            this.btnOK.TabIndex = 38;
-            this.btnOK.Text = "OK";
-            this.btnOK.UseVisualStyleBackColor = true;
-            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
-            // 
-            // pnlMain
-            // 
-            this.pnlMain.Controls.Add(this.grpFixedModifications);
-            this.pnlMain.Controls.Add(this.btnBrowseOutputFolder);
-            this.pnlMain.Controls.Add(this.txtOutputFolder);
-            this.pnlMain.Controls.Add(this.label3);
-            this.pnlMain.Controls.Add(this.label2);
-            this.pnlMain.Controls.Add(this.chkUnique);
-            this.pnlMain.Controls.Add(this.label12);
-            this.pnlMain.Controls.Add(this.label14);
-            this.pnlMain.Controls.Add(this.numMaximumPrecursorMassError);
-            this.pnlMain.Controls.Add(this.label6);
-            this.pnlMain.Controls.Add(this.label7);
-            this.pnlMain.Controls.Add(this.numPrecursorMassErrorIncrement);
-            this.pnlMain.Controls.Add(this.chkOverallOutputs);
-            this.pnlMain.Controls.Add(this.label10);
-            this.pnlMain.Controls.Add(this.chkPhosphopeptideOutputs);
-            this.pnlMain.Controls.Add(this.chkHigherScoresAreBetter);
-            this.pnlMain.Controls.Add(this.btnBrowse);
-            this.pnlMain.Controls.Add(this.txtRawFolder);
-            this.pnlMain.Controls.Add(this.label17);
-            this.pnlMain.Controls.Add(this.numMaximumFalseDiscoveryRate);
-            this.pnlMain.Controls.Add(this.label8);
-            this.pnlMain.Controls.Add(this.btnClear);
-            this.pnlMain.Controls.Add(this.btnRemove);
-            this.pnlMain.Controls.Add(this.btnAdd);
-            this.pnlMain.Controls.Add(this.btnOK);
-            this.pnlMain.Location = new System.Drawing.Point(4, 139);
-            this.pnlMain.Name = "pnlMain";
-            this.pnlMain.Size = new System.Drawing.Size(471, 534);
-            this.pnlMain.TabIndex = 45;
-            // 
             // grpFixedModifications
             // 
-            this.grpFixedModifications.Controls.Add(this.btnBrowseMods);
+            this.grpFixedModifications.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpFixedModifications.Controls.Add(this.checkBox2);
             this.grpFixedModifications.Controls.Add(this.label5);
             this.grpFixedModifications.Controls.Add(this.btnMoveLeft);
             this.grpFixedModifications.Controls.Add(this.btnMoveRight);
             this.grpFixedModifications.Controls.Add(this.lstSelectedFixedModifications);
             this.grpFixedModifications.Controls.Add(this.lstAllModifications);
             this.grpFixedModifications.Controls.Add(this.label4);
-            this.grpFixedModifications.Location = new System.Drawing.Point(8, 93);
+            this.grpFixedModifications.Location = new System.Drawing.Point(426, 193);
             this.grpFixedModifications.Name = "grpFixedModifications";
-            this.grpFixedModifications.Size = new System.Drawing.Size(454, 179);
+            this.grpFixedModifications.Size = new System.Drawing.Size(445, 164);
             this.grpFixedModifications.TabIndex = 173;
             this.grpFixedModifications.TabStop = false;
             this.grpFixedModifications.Text = "Fixed Modifications (* = user modification)";
             // 
-            // btnBrowseMods
+            // checkBox2
             // 
-            this.btnBrowseMods.Location = new System.Drawing.Point(11, 147);
-            this.btnBrowseMods.Name = "btnBrowseMods";
-            this.btnBrowseMods.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowseMods.TabIndex = 172;
-            this.btnBrowseMods.Text = "Browse";
-            this.btnBrowseMods.UseVisualStyleBackColor = true;
-            this.btnBrowseMods.Click += new System.EventHandler(this.btnBrowseMods_Click);
+            this.checkBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(11, 141);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(196, 17);
+            this.checkBox2.TabIndex = 172;
+            this.checkBox2.Text = "Include Fixed Mods in Mods Column";
+            this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // label5
             // 
@@ -160,7 +129,8 @@ namespace FdrOptimizer
             // 
             // btnMoveLeft
             // 
-            this.btnMoveLeft.Location = new System.Drawing.Point(217, 90);
+            this.btnMoveLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnMoveLeft.Location = new System.Drawing.Point(217, 105);
             this.btnMoveLeft.Name = "btnMoveLeft";
             this.btnMoveLeft.Size = new System.Drawing.Size(21, 23);
             this.btnMoveLeft.TabIndex = 170;
@@ -170,7 +140,8 @@ namespace FdrOptimizer
             // 
             // btnMoveRight
             // 
-            this.btnMoveRight.Location = new System.Drawing.Point(217, 61);
+            this.btnMoveRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnMoveRight.Location = new System.Drawing.Point(217, 40);
             this.btnMoveRight.Name = "btnMoveRight";
             this.btnMoveRight.Size = new System.Drawing.Size(21, 23);
             this.btnMoveRight.TabIndex = 169;
@@ -180,20 +151,25 @@ namespace FdrOptimizer
             // 
             // lstSelectedFixedModifications
             // 
+            this.lstSelectedFixedModifications.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lstSelectedFixedModifications.FormattingEnabled = true;
             this.lstSelectedFixedModifications.Location = new System.Drawing.Point(244, 33);
             this.lstSelectedFixedModifications.Name = "lstSelectedFixedModifications";
             this.lstSelectedFixedModifications.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstSelectedFixedModifications.Size = new System.Drawing.Size(200, 108);
+            this.lstSelectedFixedModifications.Size = new System.Drawing.Size(195, 95);
             this.lstSelectedFixedModifications.TabIndex = 168;
             // 
             // lstAllModifications
             // 
+            this.lstAllModifications.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.lstAllModifications.FormattingEnabled = true;
             this.lstAllModifications.Location = new System.Drawing.Point(11, 33);
             this.lstAllModifications.Name = "lstAllModifications";
             this.lstAllModifications.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstAllModifications.Size = new System.Drawing.Size(200, 108);
+            this.lstAllModifications.Size = new System.Drawing.Size(200, 95);
             this.lstAllModifications.Sorted = true;
             this.lstAllModifications.TabIndex = 167;
             // 
@@ -206,116 +182,12 @@ namespace FdrOptimizer
             this.label4.TabIndex = 166;
             this.label4.Text = "All";
             // 
-            // btnBrowseOutputFolder
-            // 
-            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(387, 474);
-            this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
-            this.btnBrowseOutputFolder.Size = new System.Drawing.Size(75, 23);
-            this.btnBrowseOutputFolder.TabIndex = 159;
-            this.btnBrowseOutputFolder.Text = "Browse";
-            this.btnBrowseOutputFolder.UseVisualStyleBackColor = true;
-            this.btnBrowseOutputFolder.Click += new System.EventHandler(this.btnBrowseOverallOutputFolder_Click);
-            // 
-            // txtOutputFolder
-            // 
-            this.txtOutputFolder.Location = new System.Drawing.Point(8, 476);
-            this.txtOutputFolder.Name = "txtOutputFolder";
-            this.txtOutputFolder.Size = new System.Drawing.Size(373, 20);
-            this.txtOutputFolder.TabIndex = 158;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(5, 460);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(71, 13);
-            this.label3.TabIndex = 157;
-            this.label3.Text = "Output Folder";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(5, 302);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(13, 13);
-            this.label2.TabIndex = 154;
-            this.label2.Text = "±";
-            // 
-            // chkUnique
-            // 
-            this.chkUnique.AutoSize = true;
-            this.chkUnique.Checked = global::FdrOptimizer.Properties.Settings.Default.unique;
-            this.chkUnique.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkUnique.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::FdrOptimizer.Properties.Settings.Default, "unique", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkUnique.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chkUnique.Location = new System.Drawing.Point(8, 396);
-            this.chkUnique.Name = "chkUnique";
-            this.chkUnique.Size = new System.Drawing.Size(431, 17);
-            this.chkUnique.TabIndex = 146;
-            this.chkUnique.Text = "FDR Calculation and Optimization Based on Unique Peptide Sequences";
-            this.chkUnique.UseVisualStyleBackColor = true;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(93, 302);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(27, 13);
-            this.label12.TabIndex = 142;
-            this.label12.Text = "ppm";
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(5, 284);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(152, 13);
-            this.label14.TabIndex = 141;
-            this.label14.Text = "Maximum Precursor Mass Error";
-            // 
-            // numMaximumPrecursorMassError
-            // 
-            this.numMaximumPrecursorMassError.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::FdrOptimizer.Properties.Settings.Default, "maximumPrecursorMassError", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.numMaximumPrecursorMassError.DecimalPlaces = 2;
-            this.numMaximumPrecursorMassError.Location = new System.Drawing.Point(18, 300);
-            this.numMaximumPrecursorMassError.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numMaximumPrecursorMassError.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numMaximumPrecursorMassError.Name = "numMaximumPrecursorMassError";
-            this.numMaximumPrecursorMassError.Size = new System.Drawing.Size(75, 20);
-            this.numMaximumPrecursorMassError.TabIndex = 140;
-            this.numMaximumPrecursorMassError.Value = global::FdrOptimizer.Properties.Settings.Default.maximumPrecursorMassError;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(246, 302);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(27, 13);
-            this.label6.TabIndex = 139;
-            this.label6.Text = "ppm";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(168, 284);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(155, 13);
-            this.label7.TabIndex = 138;
-            this.label7.Text = "Precursor Mass Error Increment";
-            // 
             // numPrecursorMassErrorIncrement
             // 
-            this.numPrecursorMassErrorIncrement.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::FdrOptimizer.Properties.Settings.Default, "precursorMassErrorIncrement", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numPrecursorMassErrorIncrement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.numPrecursorMassErrorIncrement.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "precursorMassErrorIncrement", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numPrecursorMassErrorIncrement.DecimalPlaces = 2;
-            this.numPrecursorMassErrorIncrement.Location = new System.Drawing.Point(171, 300);
+            this.numPrecursorMassErrorIncrement.Location = new System.Drawing.Point(281, 128);
             this.numPrecursorMassErrorIncrement.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -327,17 +199,98 @@ namespace FdrOptimizer
             0,
             -2147483648});
             this.numPrecursorMassErrorIncrement.Name = "numPrecursorMassErrorIncrement";
-            this.numPrecursorMassErrorIncrement.Size = new System.Drawing.Size(75, 20);
+            this.numPrecursorMassErrorIncrement.Size = new System.Drawing.Size(46, 20);
             this.numPrecursorMassErrorIncrement.TabIndex = 137;
-            this.numPrecursorMassErrorIncrement.Value = global::FdrOptimizer.Properties.Settings.Default.precursorMassErrorIncrement;
+            this.numPrecursorMassErrorIncrement.Value = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.precursorMassErrorIncrement;
+            // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(6, 130);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(152, 13);
+            this.label14.TabIndex = 141;
+            this.label14.Text = "Maximum Precursor Mass Error";
+            // 
+            // numMaximumPrecursorMassError
+            // 
+            this.numMaximumPrecursorMassError.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.numMaximumPrecursorMassError.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "maximumPrecursorMassError", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numMaximumPrecursorMassError.DecimalPlaces = 2;
+            this.numMaximumPrecursorMassError.Location = new System.Drawing.Point(179, 126);
+            this.numMaximumPrecursorMassError.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numMaximumPrecursorMassError.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.numMaximumPrecursorMassError.Name = "numMaximumPrecursorMassError";
+            this.numMaximumPrecursorMassError.Size = new System.Drawing.Size(63, 20);
+            this.numMaximumPrecursorMassError.TabIndex = 140;
+            this.numMaximumPrecursorMassError.Value = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.maximumPrecursorMassError;
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(166, 128);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(13, 13);
+            this.label2.TabIndex = 154;
+            this.label2.Text = "±";
+            // 
+            // label12
+            // 
+            this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(248, 128);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(27, 13);
+            this.label12.TabIndex = 142;
+            this.label12.Text = "ppm";
+            // 
+            // btnBrowseOutputFolder
+            // 
+            this.btnBrowseOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(795, 164);
+            this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
+            this.btnBrowseOutputFolder.Size = new System.Drawing.Size(75, 23);
+            this.btnBrowseOutputFolder.TabIndex = 159;
+            this.btnBrowseOutputFolder.Text = "Browse";
+            this.btnBrowseOutputFolder.UseVisualStyleBackColor = true;
+            this.btnBrowseOutputFolder.Click += new System.EventHandler(this.btnBrowseOverallOutputFolder_Click);
+            // 
+            // txtOutputFolder
+            // 
+            this.txtOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtOutputFolder.Location = new System.Drawing.Point(121, 164);
+            this.txtOutputFolder.Name = "txtOutputFolder";
+            this.txtOutputFolder.Size = new System.Drawing.Size(668, 20);
+            this.txtOutputFolder.TabIndex = 158;
+            // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(12, 169);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(71, 13);
+            this.label3.TabIndex = 157;
+            this.label3.Text = "Output Folder";
             // 
             // chkOverallOutputs
             // 
             this.chkOverallOutputs.AutoSize = true;
-            this.chkOverallOutputs.Checked = global::FdrOptimizer.Properties.Settings.Default.overallOutputs;
+            this.chkOverallOutputs.Checked = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.overallOutputs;
             this.chkOverallOutputs.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkOverallOutputs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::FdrOptimizer.Properties.Settings.Default, "overallOutputs", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkOverallOutputs.Location = new System.Drawing.Point(8, 429);
+            this.chkOverallOutputs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "overallOutputs", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkOverallOutputs.Location = new System.Drawing.Point(6, 66);
             this.chkOverallOutputs.Name = "chkOverallOutputs";
             this.chkOverallOutputs.Size = new System.Drawing.Size(99, 17);
             this.chkOverallOutputs.TabIndex = 122;
@@ -347,7 +300,7 @@ namespace FdrOptimizer
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(246, 358);
+            this.label10.Location = new System.Drawing.Point(247, 98);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(15, 13);
             this.label10.TabIndex = 97;
@@ -356,9 +309,9 @@ namespace FdrOptimizer
             // chkPhosphopeptideOutputs
             // 
             this.chkPhosphopeptideOutputs.AutoSize = true;
-            this.chkPhosphopeptideOutputs.Checked = global::FdrOptimizer.Properties.Settings.Default.phosphopeptideOutputs;
-            this.chkPhosphopeptideOutputs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::FdrOptimizer.Properties.Settings.Default, "phosphopeptideOutputs", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkPhosphopeptideOutputs.Location = new System.Drawing.Point(171, 429);
+            this.chkPhosphopeptideOutputs.Checked = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.phosphopeptideOutputs;
+            this.chkPhosphopeptideOutputs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "phosphopeptideOutputs", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkPhosphopeptideOutputs.Location = new System.Drawing.Point(111, 66);
             this.chkPhosphopeptideOutputs.Name = "chkPhosphopeptideOutputs";
             this.chkPhosphopeptideOutputs.Size = new System.Drawing.Size(143, 17);
             this.chkPhosphopeptideOutputs.TabIndex = 119;
@@ -368,9 +321,9 @@ namespace FdrOptimizer
             // chkHigherScoresAreBetter
             // 
             this.chkHigherScoresAreBetter.AutoSize = true;
-            this.chkHigherScoresAreBetter.Checked = global::FdrOptimizer.Properties.Settings.Default.higherScoresAreBetter;
-            this.chkHigherScoresAreBetter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::FdrOptimizer.Properties.Settings.Default, "higherScoresAreBetter", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkHigherScoresAreBetter.Location = new System.Drawing.Point(8, 344);
+            this.chkHigherScoresAreBetter.Checked = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.higherScoresAreBetter;
+            this.chkHigherScoresAreBetter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "higherScoresAreBetter", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkHigherScoresAreBetter.Location = new System.Drawing.Point(258, 66);
             this.chkHigherScoresAreBetter.Name = "chkHigherScoresAreBetter";
             this.chkHigherScoresAreBetter.Size = new System.Drawing.Size(142, 17);
             this.chkHigherScoresAreBetter.TabIndex = 116;
@@ -379,7 +332,8 @@ namespace FdrOptimizer
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(387, 58);
+            this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnBrowse.Location = new System.Drawing.Point(795, 138);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 111;
@@ -389,34 +343,37 @@ namespace FdrOptimizer
             // 
             // txtRawFolder
             // 
-            this.txtRawFolder.Location = new System.Drawing.Point(8, 60);
+            this.txtRawFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtRawFolder.Location = new System.Drawing.Point(121, 138);
             this.txtRawFolder.Name = "txtRawFolder";
-            this.txtRawFolder.Size = new System.Drawing.Size(373, 20);
+            this.txtRawFolder.Size = new System.Drawing.Size(668, 20);
             this.txtRawFolder.TabIndex = 110;
             // 
             // label17
             // 
+            this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(5, 44);
+            this.label17.Location = new System.Drawing.Point(12, 143);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(205, 13);
+            this.label17.Size = new System.Drawing.Size(103, 13);
             this.label17.TabIndex = 71;
-            this.label17.Text = "Thermo LC-MS/MS Data (.raw) File Folder";
+            this.label17.Text = "Thermo .Raw Folder";
             // 
             // numMaximumFalseDiscoveryRate
             // 
-            this.numMaximumFalseDiscoveryRate.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::FdrOptimizer.Properties.Settings.Default, "maximumFalseDiscoveryRate", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.numMaximumFalseDiscoveryRate.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "maximumFalseDiscoveryRate", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numMaximumFalseDiscoveryRate.DecimalPlaces = 2;
-            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(171, 354);
+            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(198, 94);
             this.numMaximumFalseDiscoveryRate.Name = "numMaximumFalseDiscoveryRate";
-            this.numMaximumFalseDiscoveryRate.Size = new System.Drawing.Size(75, 20);
+            this.numMaximumFalseDiscoveryRate.Size = new System.Drawing.Size(44, 20);
             this.numMaximumFalseDiscoveryRate.TabIndex = 96;
-            this.numMaximumFalseDiscoveryRate.Value = global::FdrOptimizer.Properties.Settings.Default.maximumFalseDiscoveryRate;
+            this.numMaximumFalseDiscoveryRate.Value = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.maximumFalseDiscoveryRate;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(168, 338);
+            this.label8.Location = new System.Drawing.Point(3, 96);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(186, 13);
             this.label8.TabIndex = 95;
@@ -424,7 +381,8 @@ namespace FdrOptimizer
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(387, 3);
+            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClear.Location = new System.Drawing.Point(795, 83);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 23);
             this.btnClear.TabIndex = 70;
@@ -434,7 +392,8 @@ namespace FdrOptimizer
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(197, 3);
+            this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRemove.Location = new System.Drawing.Point(795, 54);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 69;
@@ -444,7 +403,8 @@ namespace FdrOptimizer
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(8, 3);
+            this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAdd.Location = new System.Drawing.Point(795, 25);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 23);
             this.btnAdd.TabIndex = 68;
@@ -454,18 +414,21 @@ namespace FdrOptimizer
             // 
             // lstOmssaCsvFiles
             // 
+            this.lstOmssaCsvFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lstOmssaCsvFiles.FormattingEnabled = true;
             this.lstOmssaCsvFiles.HorizontalScrollbar = true;
-            this.lstOmssaCsvFiles.Location = new System.Drawing.Point(12, 25);
+            this.lstOmssaCsvFiles.Location = new System.Drawing.Point(10, 25);
             this.lstOmssaCsvFiles.Name = "lstOmssaCsvFiles";
             this.lstOmssaCsvFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstOmssaCsvFiles.Size = new System.Drawing.Size(454, 108);
+            this.lstOmssaCsvFiles.Size = new System.Drawing.Size(779, 95);
             this.lstOmssaCsvFiles.TabIndex = 69;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(10, 7);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(253, 13);
             this.label1.TabIndex = 68;
@@ -473,26 +436,156 @@ namespace FdrOptimizer
             // 
             // prgProgress
             // 
-            this.prgProgress.Location = new System.Drawing.Point(12, 679);
+            this.prgProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.prgProgress.Location = new System.Drawing.Point(4, 368);
             this.prgProgress.Name = "prgProgress";
-            this.prgProgress.Size = new System.Drawing.Size(454, 23);
+            this.prgProgress.Size = new System.Drawing.Size(786, 23);
             this.prgProgress.TabIndex = 70;
             // 
             // ofdModsXml
             // 
             this.ofdModsXml.Filter = "OMSSA mods files (.xml)|*.xml";
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.comboBox1);
+            this.groupBox1.Controls.Add(this.checkBox1);
+            this.groupBox1.Controls.Add(this.chkHigherScoresAreBetter);
+            this.groupBox1.Controls.Add(this.numPrecursorMassErrorIncrement);
+            this.groupBox1.Controls.Add(this.chkOverallOutputs);
+            this.groupBox1.Controls.Add(this.label14);
+            this.groupBox1.Controls.Add(this.numMaximumPrecursorMassError);
+            this.groupBox1.Controls.Add(this.chkPhosphopeptideOutputs);
+            this.groupBox1.Controls.Add(this.label8);
+            this.groupBox1.Controls.Add(this.numMaximumFalseDiscoveryRate);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.label12);
+            this.groupBox1.Controls.Add(this.radioButton1);
+            this.groupBox1.Controls.Add(this.radioButton2);
+            this.groupBox1.Location = new System.Drawing.Point(10, 190);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(410, 167);
+            this.groupBox1.TabIndex = 174;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Global Options";
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(307, 20);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(84, 17);
+            this.checkBox1.TabIndex = 177;
+            this.checkBox1.Text = "Batch Mode";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(6, 19);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(146, 17);
+            this.radioButton1.TabIndex = 175;
+            this.radioButton1.Text = "Low Resolution (1D FDR)";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
+            // 
+            // radioButton2
+            // 
+            this.radioButton2.AutoSize = true;
+            this.radioButton2.Checked = true;
+            this.radioButton2.Location = new System.Drawing.Point(158, 19);
+            this.radioButton2.Name = "radioButton2";
+            this.radioButton2.Size = new System.Drawing.Size(143, 17);
+            this.radioButton2.TabIndex = 176;
+            this.radioButton2.TabStop = true;
+            this.radioButton2.Text = "High resolution (2D FDR)";
+            this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
+            // 
+            // btnOK
+            // 
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOK.Location = new System.Drawing.Point(796, 368);
+            this.btnOK.Name = "btnOK";
+            this.btnOK.Size = new System.Drawing.Size(78, 23);
+            this.btnOK.TabIndex = 178;
+            this.btnOK.Text = "Start";
+            this.btnOK.UseVisualStyleBackColor = true;
+            this.btnOK.Click += new System.EventHandler(this.btnOK_Click_1);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.grpFixedModifications);
+            this.splitContainer1.Panel1.Controls.Add(this.prgProgress);
+            this.splitContainer1.Panel1.Controls.Add(this.lstOmssaCsvFiles);
+            this.splitContainer1.Panel1.Controls.Add(this.label1);
+            this.splitContainer1.Panel1.Controls.Add(this.txtRawFolder);
+            this.splitContainer1.Panel1.Controls.Add(this.label3);
+            this.splitContainer1.Panel1.Controls.Add(this.groupBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
+            this.splitContainer1.Panel1.Controls.Add(this.btnClear);
+            this.splitContainer1.Panel1.Controls.Add(this.btnBrowseOutputFolder);
+            this.splitContainer1.Panel1.Controls.Add(this.txtOutputFolder);
+            this.splitContainer1.Panel1.Controls.Add(this.label17);
+            this.splitContainer1.Panel1.Controls.Add(this.btnOK);
+            this.splitContainer1.Panel1.Controls.Add(this.btnAdd);
+            this.splitContainer1.Panel1.Controls.Add(this.btnRemove);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
+            this.splitContainer1.Size = new System.Drawing.Size(887, 520);
+            this.splitContainer1.SplitterDistance = 397;
+            this.splitContainer1.TabIndex = 179;
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.richTextBox1.Location = new System.Drawing.Point(0, 0);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
+            this.richTextBox1.Size = new System.Drawing.Size(883, 115);
+            this.richTextBox1.TabIndex = 0;
+            this.richTextBox1.Text = "";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(135, 39);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(166, 21);
+            this.comboBox1.TabIndex = 178;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 43);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(123, 13);
+            this.label6.TabIndex = 179;
+            this.label6.Text = "Reduce PSMs based on";
+            // 
             // frmMain
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(477, 714);
-            this.Controls.Add(this.prgProgress);
-            this.Controls.Add(this.lstOmssaCsvFiles);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.pnlMain);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.ClientSize = new System.Drawing.Size(887, 520);
+            this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
@@ -503,15 +596,19 @@ namespace FdrOptimizer
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmMain_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmMain_DragEnter);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.frmMain_KeyPress);
-            this.pnlMain.ResumeLayout(false);
-            this.pnlMain.PerformLayout();
             this.grpFixedModifications.ResumeLayout(false);
             this.grpFixedModifications.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numMaximumPrecursorMassError)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPrecursorMassErrorIncrement)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numMaximumPrecursorMassError)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -519,8 +616,6 @@ namespace FdrOptimizer
 
         private System.Windows.Forms.OpenFileDialog ofdOmssaCsvFiles;
         private System.Windows.Forms.FolderBrowserDialog fbdRawFolder;
-        private System.Windows.Forms.Button btnOK;
-        private System.Windows.Forms.Panel pnlMain;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnRemove;
         private System.Windows.Forms.Button btnAdd;
@@ -536,12 +631,9 @@ namespace FdrOptimizer
         private System.Windows.Forms.CheckBox chkHigherScoresAreBetter;
         private System.Windows.Forms.CheckBox chkPhosphopeptideOutputs;
         private System.Windows.Forms.CheckBox chkOverallOutputs;
-        private System.Windows.Forms.CheckBox chkUnique;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.NumericUpDown numMaximumPrecursorMassError;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown numPrecursorMassErrorIncrement;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnBrowseOutputFolder;
@@ -549,7 +641,6 @@ namespace FdrOptimizer
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.FolderBrowserDialog fbdOutputFolder;
         private System.Windows.Forms.GroupBox grpFixedModifications;
-        private System.Windows.Forms.Button btnBrowseMods;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button btnMoveLeft;
         private System.Windows.Forms.Button btnMoveRight;
@@ -557,6 +648,16 @@ namespace FdrOptimizer
         private System.Windows.Forms.ListBox lstAllModifications;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.OpenFileDialog ofdModsXml;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.RadioButton radioButton2;
+        private System.Windows.Forms.Button btnOK;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.CheckBox checkBox2;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label6;
     }
 }
 

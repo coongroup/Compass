@@ -1,6 +1,6 @@
 ﻿using CSMSL.Spectral;
 
-namespace TagQuant
+namespace Coon.Compass.TagQuant
 {
     public class QuantPeak
     {

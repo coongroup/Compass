@@ -1,4 +1,4 @@
-﻿namespace TagQuant
+﻿namespace Coon.Compass.TagQuant
 {
     public enum FragmentationMethod
     {

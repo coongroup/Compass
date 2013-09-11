@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using CSMSL;
+using CSMSL.Analysis.Identification;
 using CSMSL.Chemistry;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
-    public class PeptideHit
+    public class PeptideHit : IComparer<PeptideHit>,  IFalseDiscovery<double>
     {
         private const double PROTON_MASS = Constants.Proton;
         private const double C12_C13_MASS_DIFFERENCE = Constants.Carbon13 - Constants.Carbon;
@@ -41,7 +42,7 @@ namespace FdrOptimizer
 
         public double EValueScore { get; set; }      
 
-        public bool Decoy { get; set; }
+        public bool IsDecoy { get; set; }
 
         public double IsolationMZ { get; set; }
 
@@ -57,14 +58,14 @@ namespace FdrOptimizer
 
         public double QValue { get; set; }
       
-        public PeptideHit(string line, string sequence, string dynamicModifications, double eValueScore, bool decoy, 
-            Peptide peptide, List<double> ms1peaks, double headermz, int charge)
+        public PeptideHit(string line, string sequence, string dynamicModifications, double eValueScore, bool isDecoy, 
+            Peptide2 peptide, List<double> ms1peaks, double headermz, int charge)
         {
             Line = line;
             Sequence = sequence;
             DynamicModifications = dynamicModifications;
             EValueScore = eValueScore;
-            Decoy = decoy;
+            IsDecoy = isDecoy;
             TheoreticalNeutralMass = peptide.Mass;
             CalculatePrecursorMassErrorFromIsolation(ms1peaks, headermz, charge);
             QValue = double.NaN;
@@ -72,29 +73,29 @@ namespace FdrOptimizer
 
         private void CalculatePrecursorMassErrorFromIsolation(List<double> ms1peaks, double headermz, int charge)
         {                  
-            double smallestDiff = double.MaxValue;
+            //double smallestDiff = double.MaxValue;
             double bestmatch = headermz;
-            int index = ms1peaks.BinarySearch(headermz);
-            if (index < 0)
-            {
-                int minindex = ~index - 1;
-                if (minindex < 0) minindex = 0;
-                for (int i = minindex; i < minindex + 3 && i < ms1peaks.Count; i++)
-                {
-                    double mz = ms1peaks[i];
-                    double mz_diff = headermz - mz;
-                    double mz_diff_abs = Math.Abs(mz_diff);
-                    if (mz_diff_abs < smallestDiff)
-                    {
-                        smallestDiff = mz_diff_abs;
-                        bestmatch = mz;
-                    }
-                }
-            }
-            else
-            {
-                bestmatch = ms1peaks[index];
-            }
+            //int index = ms1peaks.BinarySearch(headermz);
+            //if (index < 0)
+            //{
+            //    int minindex = ~index - 1;
+            //    if (minindex < 0) minindex = 0;
+            //    for (int i = minindex; i < minindex + 3 && i < ms1peaks.Count; i++)
+            //    {
+            //        double mz = ms1peaks[i];
+            //        double mz_diff = headermz - mz;
+            //        double mz_diff_abs = Math.Abs(mz_diff);
+            //        if (mz_diff_abs < smallestDiff)
+            //        {
+            //            smallestDiff = mz_diff_abs;
+            //            bestmatch = mz;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    bestmatch = ms1peaks[index];
+            //}
             IsolationMZ = bestmatch;  
             IsolationMass = Mass.MassFromMz(IsolationMZ, charge);           
             double mass_error = IsolationMass - TheoreticalNeutralMass;
@@ -104,6 +105,38 @@ namespace FdrOptimizer
             PrecursorMassError = MassTolerance.GetTolerance(ExperimentalNeutralMass, TheoreticalNeutralMass, MassToleranceType.PPM);                 
         }
 
-       
+        public static int CompareDecreasing(PeptideHit x, PeptideHit y)
+        {
+            return Compare(x, y, -1);
+        }
+
+        public static int CompareIncreasing(PeptideHit x, PeptideHit y)
+        {
+            return Compare(x, y, 1);
+        }
+
+        public static int Compare(PeptideHit x, PeptideHit y, int direction)
+        {
+            if (x.EValueScore.Equals(y.EValueScore))
+            {
+                if (x.IsDecoy)
+                    return 1;
+                if (y.IsDecoy)
+                    return -1;
+                return 0;
+            }
+            direction = Math.Sign(direction);
+            return x.EValueScore.CompareTo(y.EValueScore)*direction;
+        }
+
+        public int Compare(PeptideHit x, PeptideHit y)
+        {
+            return Compare(x, y, 1);
+        }
+
+        double IFalseDiscovery<double>.FdrScoreMetric
+        {
+            get { return EValueScore; }
+        }
     }
 }

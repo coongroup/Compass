@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Compass
+namespace Coon.Compass
 {
     static class Program
     {

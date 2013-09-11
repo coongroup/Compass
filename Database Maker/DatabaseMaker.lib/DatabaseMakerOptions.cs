@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using CommandLine;
 using CommandLine.Text;
 using CSMSL.IO;
@@ -61,7 +57,7 @@ namespace Coon.Compass.DatabaseMaker
         [HelpOption]
         public string GetUsage()
         {
-            var text = HelpText.AutoBuild(this, (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current), false, false);  
+            var text = HelpText.AutoBuild(this, (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current), false);  
             text.AddPreOptionsLine("Usage: dbmaker [Input Files]... [OPTIONS] -o <Output Base Name>");      
             text.MaximumDisplayWidth = 80;
             return text;

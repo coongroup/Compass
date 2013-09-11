@@ -1,15 +1,15 @@
-﻿using System.Reflection;
-using CSMSL;
-using LumenWorks.Framework.IO.Csv;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using CSMSL;
+using LumenWorks.Framework.IO.Csv;
 
-namespace TagQuant
+namespace Coon.Compass.TagQuant
 {
     public partial class TagQuantForm : Form
     {
@@ -347,8 +347,8 @@ namespace TagQuant
             int ExceptionCount = 0;
             double IsoWindow = 0;
             double PreErrorAllowed = 0;
-            //IsoWindow = double.Parse(windowTextBox.Text);   // Set isolation window
-            //PreErrorAllowed = double.Parse(ppmTextBox.Text);    // Set allowed precursor error
+            //IsoWindow = double.Parse(windowTextBox.Text);   // SetSite isolation window
+            //PreErrorAllowed = double.Parse(ppmTextBox.Text);    // SetSite allowed precursor error
 
             List<int> TagsInUse = new List<int>();
             double TagCount = 0;
@@ -535,7 +535,7 @@ namespace TagQuant
 
                             rawFile.Open();
 
-                            // Set default fragmentation to CAD / HCD
+                            // SetSite default fragmentation to CAD / HCD
                             FragmentationMethod ScanFragMethod = FragmentationMethod.CAD;
 
                             if (filenameID.Contains(".ETD."))

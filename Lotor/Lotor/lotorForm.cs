@@ -41,7 +41,7 @@ namespace Coon.Compass.Lotor
             comboBox1.DataSource = Enum.GetValues(typeof(MassToleranceType));
             comboBox1.SelectedItem = MassToleranceType.PPM;
 
-            foreach (OmssaModification mod in OmssaModification.GetAllOmssaModifications())
+            foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
                 comboBox2.Items.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));
             }
@@ -170,7 +170,7 @@ namespace Coon.Compass.Lotor
             OmssaModification.LoadOmssaModifications(userModFile, true);
 
             comboBox2.Items.Clear();
-            foreach (OmssaModification mod in OmssaModification.GetAllOmssaModifications())
+            foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
                 comboBox2.Items.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));
             }

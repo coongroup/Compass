@@ -8,7 +8,7 @@
     <ProjectGuid>{D8A7739D-4CAB-49FD-99C0-88FDEABDEF30}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FdrOptimizer</RootNamespace>
+    <RootNamespace>Coon.Compass.FdrOptimizer</RootNamespace>
     <AssemblyName>FDR Optimizer</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -66,11 +66,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>Coon.Compass.FdrOptimizer.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LumenWorks.Framework.IO">
+    <Reference Include="LumenWorks.Framework.IO, Version=3.8.0.0, Culture=neutral, PublicKeyToken=5ad3ea2f85776344, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\COMPASS\packages\LumenWorks.Framework.IO.3.8.0\lib\net20\LumenWorks.Framework.IO.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -85,6 +85,7 @@
     <Compile Include="AminoAcidDictionary.cs" />
     <Compile Include="AscendingPeptideHitEValueScoreComparer.cs" />
     <Compile Include="AscendingPeptideHitQValueComparer.cs" />
+    <Compile Include="CsvFile.cs" />
     <Compile Include="enum.RawLabelDataColumn.cs" />
     <Compile Include="ExceptionEventArgs.cs" />
     <Compile Include="FilepathEventArgs.cs" />
@@ -95,14 +96,19 @@
       <DependentUpon>frmMain.cs</DependentUpon>
     </Compile>
     <Compile Include="FdrOptimizer.cs" />
-    <Compile Include="Modification.cs" />
+    <Compile Include="Modification2.cs" />
     <Compile Include="ModificationDictionary.cs" />
     <Compile Include="ModificationType.cs" />
     <Compile Include="Peptide.cs" />
+    <Compile Include="Peptide2.cs" />
     <Compile Include="PeptideHit.cs" />
+    <Compile Include="PeptideSpectralMatch2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RawFile.cs" />
+    <Compile Include="StatusEventArgs.cs" />
+    <Compile Include="UniquePeptideType.cs" />
     <EmbeddedResource Include="frmMain.resx">
       <SubType>Designer</SubType>
       <DependentUpon>frmMain.cs</DependentUpon>
@@ -131,37 +137,17 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="coon_red.ico" />
-    <Content Include="mods.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
-    <COMReference Include="MSFileReaderLib">
-      <Guid>{F0C5F3E3-4F2A-443E-A74D-0AABE3237494}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="XRAWFILE2Lib">
-      <Guid>{5FE970A2-29C3-11D3-811D-00104B304896}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\CSMSL\CSMSL\CSMSL.csproj">
+    <ProjectReference Include="..\..\CSMSL\CSMSL\IO\OMSSA\OMSSA.csproj">
+      <Project>{45a71e18-42e8-41a4-9479-2852c4186993}</Project>
+      <Name>OMSSA</Name>
+    </ProjectReference>
+    <ProjectReference Include="E:\Software\CSMSL\CSMSL\CSMSL.csproj">
       <Project>{3c8c9f05-9c19-4251-95fa-05d7edc8cae6}</Project>
       <Name>CSMSL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CSMSL\CSMSL\IO\Thermo\Thermo.csproj">
+    <ProjectReference Include="E:\Software\CSMSL\CSMSL\IO\Thermo\Thermo.csproj">
       <Project>{24dc85ff-e97b-4140-9614-77dd8fddd32f}</Project>
       <Name>Thermo</Name>
     </ProjectReference>

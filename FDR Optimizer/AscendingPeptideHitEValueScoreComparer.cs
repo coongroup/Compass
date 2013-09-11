@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
     public class AscendingPeptideHitEValueScoreComparer : Comparer<PeptideHit>
     {

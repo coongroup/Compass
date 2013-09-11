@@ -2,9 +2,9 @@
 using System.IO;
 using System.Xml;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
-    public class ModificationDictionary : SortedDictionary<string, Modification>
+    public class ModificationDictionary : SortedDictionary<string, Modification2>
     {
         public ModificationDictionary() : base() { }
 
@@ -38,7 +38,7 @@ namespace FdrOptimizer
                     mod_amino_acid_residues.Add(amino_acid_residue.FirstChild.Value[0]);
                 }
 
-                Modification mod = new Modification(mod_name, mod_monomass, mod_type, mod_amino_acid_residues, userModifications);
+                Modification2 mod = new Modification2(mod_name, mod_monomass, mod_type, mod_amino_acid_residues, userModifications);
 
                 if(!ContainsKey(mod_name))
                 {
@@ -51,9 +51,9 @@ namespace FdrOptimizer
             }
         }
 
-        private void Add(Modification modification)
+        private void Add(Modification2 modification2)
         {
-            Add(modification.Name, modification);
+            Add(modification2.Name, modification2);
         }
     }
 }

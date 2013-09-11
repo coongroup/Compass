@@ -1,151 +1,108 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
-using System.Xml;
-using CSMSL;
+using System.Threading.Tasks;
+using CSMSL.Analysis.Identification;
 
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
-    public class Peptide
+    public class Peptide : IFalseDiscovery<double>, IComparable<Peptide>
     {
-        private List<AminoAcid> aminoAcidSequence;
+        private List<PeptideSpectralMatch> PSMs;
 
-        public List<AminoAcid> AminoAcidSequence
+        public PeptideSpectralMatch BestMatch;
+
+        public int Count
         {
-            get { return aminoAcidSequence; }
+            get { return PSMs.Count; }
         }
 
-        public string Sequence { get; set; }
-       
-        //private double mass = 18.0105646942;  // H2O
-
-        public double Mass { get; set; }      
-
-        private static readonly AminoAcidDictionary AMINO_ACIDS = new AminoAcidDictionary();
-
-        private static ModificationDictionary MODIFICATIONS;
-
-        public static void SetModifications(ModificationDictionary modifications)
+        public Peptide(PeptideSpectralMatch psm)
         {
-            MODIFICATIONS = modifications;
+            PSMs = new List<PeptideSpectralMatch>();
+            IsDecoy = false;
+            AddPsm(psm);
         }
 
-        public Peptide(string sequence, IEnumerable<Modification> fixedModifications, string dynamicModifications)
+        public void AddPsm(PeptideSpectralMatch psm)
         {
-            aminoAcidSequence = new List<AminoAcid>(sequence.Length);
-            StringBuilder sequence_sb = new StringBuilder(sequence.Length);
-            Sequence = sequence.ToUpper();
-
-            // Get Mass using CSMSL Peptide
-            CSMSL.Proteomics.Peptide peptide = new CSMSL.Proteomics.Peptide(sequence);
-            double mass = peptide.MonoisotopicMass;
-
-            //foreach(char c in sequence.ToUpper())
-            //{
-            //    if(AMINO_ACIDS.ContainsKey(c))
-            //    {
-            //        aminoAcidSequence.Add(AMINO_ACIDS[c]);
-            //        sequence_sb.Append(c);
-            //        mass += AMINO_ACIDS[c].Mass;
-            //    }
-            //}
-            //this.sequence = sequence_sb.ToString();
-
-            // fixed modifications
-            foreach(Modification modification in fixedModifications)
+            if (BestMatch == null)
             {
-                switch(modification.ModificationType)
-                {
-                    case ModificationType.AminoAcidResidue:
-                        foreach(char amino_acid_residue in modification.AminoAcidResidues)
-                        {
-                            foreach(char c in sequence)
-                            {
-                                if(c == amino_acid_residue)
-                                {
-                                    mass += modification.MonoisotopicMassShift;
-                                }
-                            }
-                        }
-                        break;
-                    case ModificationType.ProteinNTerminus:
-                        throw new NotSupportedException("Fixed modifications of protein N-terminii are not currently supported.");
-                    case ModificationType.ProteinNTerminusAminoAcidResidue:
-                        throw new NotSupportedException("Fixed modifications of protein N-terminii at specific amino acid residues are not currently supported.");
-                    case ModificationType.ProteinCTerminus:
-                        throw new NotSupportedException("Fixed modifications of protein C-terminii are not currently supported.");
-                    case ModificationType.ProteinCTerminusAminoAcidResidue:
-                        throw new NotSupportedException("Fixed modifications of protein C-terminii at specific amino acid residues are not currently supported.");
-                    case ModificationType.PeptideNTerminus:
-                        mass += modification.MonoisotopicMassShift;
-                        break;
-                    case ModificationType.PeptideNTerminusAminoAcidResidue:
-                        throw new NotSupportedException("Fixed modifications of peptide N-terminii at specific amino acid residues are not currently supported.");
-                    case ModificationType.PeptideCTerminus:
-                        mass += modification.MonoisotopicMassShift;
-                        break;
-                    case ModificationType.PeptideCTerminusAminoAcidResidue:
-                        foreach (char amino_acid_residue in modification.AminoAcidResidues)
-                        {
-                            if (sequence.ToUpper()[sequence.Length - 1] == amino_acid_residue)
-                            {
-                                mass += modification.MonoisotopicMassShift;
-                            }
-                        }
-                        break;
-                        //throw new NotSupportedException("Fixed modifications of peptide C-terminii at specific amino acid residues are not currently supported.");
-                }
+                BestMatch = psm;
             }
-
-            // dynamic modifications
-            string[] dynamic_modifications = dynamicModifications.Replace("\"", string.Empty).Split(',');
-            foreach(string dynamic_modification in dynamic_modifications)
+            else
             {
-                int index = dynamic_modification.IndexOf(':');
-                if(index >= 0)
-                {
-                    string modification_name = dynamic_modification.Substring(0, index);
-                    if(dynamic_modification.Substring(2).StartsWith("substitution for"))
-                    {
-                        char c = dynamic_modification[0];
-                        if(AMINO_ACIDS.ContainsKey(c))
-                        {
-                            mass += AMINO_ACIDS[c].Mass;
-                        }
-                        else
-                        {
-                            throw new Exception("Unknown amino acid '" + c + "'");
-                        }
-                    }
-                    else
-                    {
-                        if(!MODIFICATIONS.ContainsKey(modification_name))
-                        {
-                            throw new Exception("Mass of modification \"" + modification_name + "\" not found");
-                        }
-                        else
-                        {
-                            mass += MODIFICATIONS[modification_name].MonoisotopicMassShift;
-                        }
-                    }
-                }
-                else if(dynamic_modification.Contains("mutation"))
-                {
-                    char c1 = dynamic_modification[0];
-                    char c2 = dynamic_modification[5];
-                    if(AMINO_ACIDS.ContainsKey(c1) && AMINO_ACIDS.ContainsKey(c2))
-                    {
-                        mass += AMINO_ACIDS[c2].Mass - AMINO_ACIDS[c1].Mass;
-                    }
-                }
+                if (psm.Score < BestMatch.Score)
+                    BestMatch = psm;
             }
-            Mass = mass;
+            if (psm.IsDecoy)
+                IsDecoy = true;
+            PSMs.Add(psm);
         }
 
-        public override string ToString()
+        public double PrecursorErrorPPM
         {
-            return Sequence;
+            get
+            {
+                return BestMatch.PrecursorMassError.Value;
+            }
+        }
+
+        public bool IsDecoy
+        {
+            get; private set;
+        }
+
+        public double FdrScoreMetric
+        {
+            get { return BestMatch.Score; }
+        }
+
+        public int CompareTo(Peptide other)
+        {
+            return BestMatch.CompareTo(other.BestMatch);
+        }
+    }
+
+    public class SequenceComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            return x.BestMatch.Peptide.Sequence.Equals(y.BestMatch.Peptide.Sequence);
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.BestMatch.Peptide.Sequence.GetHashCode();
+        }
+    }
+
+    public class SequenceModComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            return x.BestMatch.Peptide.Equals(y.BestMatch.Peptide);
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.BestMatch.Peptide.GetHashCode();
+        }
+    }
+
+    public class SequenceMassComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            return x.BestMatch.Peptide.Sequence.Equals(y.BestMatch.Peptide.Sequence) &&
+                   x.BestMatch.Peptide.MonoisotopicMass.Equals(y.BestMatch.Peptide.MonoisotopicMass);
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.BestMatch.Peptide.Sequence.GetHashCode() + obj.BestMatch.Peptide.MonoisotopicMass.GetHashCode();
         }
     }
 }

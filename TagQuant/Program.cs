@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace TagQuant
+namespace Coon.Compass.TagQuant
 {
     static class Program
     {

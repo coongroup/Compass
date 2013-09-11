@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -136,8 +137,8 @@ namespace Coon.Compass.DatabaseMaker
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            DatabaseMakerOptions options = new DatabaseMakerOptions();            
-                      
+            DatabaseMakerOptions options = new DatabaseMakerOptions();
+            options.InputFiles = fastaLB.Items.OfType<string>().ToList();    
             if(radDecoy.Checked)
             {
                 options.OutputType = DatabaseType.Decoy;               
@@ -173,8 +174,9 @@ namespace Coon.Compass.DatabaseMaker
                 options.OutputFastaFile = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
 
-            DatabaseMaker database_maker = new DatabaseMaker(options);
-            database_maker.CreateDatabase();
+            DatabaseMaker databaseMaker = new DatabaseMaker(options);
+            
+            databaseMaker.CreateDatabase();
         }
      
         /**

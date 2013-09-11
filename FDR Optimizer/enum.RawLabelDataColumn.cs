@@ -1,4 +1,4 @@
-namespace FdrOptimizer
+namespace Coon.Compass.FdrOptimizer
 {
     public enum RawLabelDataColumn
     {

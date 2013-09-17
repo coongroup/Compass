@@ -104,6 +104,8 @@ namespace Coon.Compass.FdrOptimizer
             // 
             this.checkBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox2.AutoSize = true;
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox2.Location = new System.Drawing.Point(11, 141);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(196, 17);
@@ -232,6 +234,7 @@ namespace Coon.Compass.FdrOptimizer
             this.chkPhosphopeptideOutputs.AutoSize = true;
             this.chkPhosphopeptideOutputs.Checked = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.phosphopeptideOutputs;
             this.chkPhosphopeptideOutputs.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "phosphopeptideOutputs", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkPhosphopeptideOutputs.Enabled = false;
             this.chkPhosphopeptideOutputs.Location = new System.Drawing.Point(111, 66);
             this.chkPhosphopeptideOutputs.Name = "chkPhosphopeptideOutputs";
             this.chkPhosphopeptideOutputs.Size = new System.Drawing.Size(143, 17);
@@ -244,6 +247,7 @@ namespace Coon.Compass.FdrOptimizer
             this.chkHigherScoresAreBetter.AutoSize = true;
             this.chkHigherScoresAreBetter.Checked = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.higherScoresAreBetter;
             this.chkHigherScoresAreBetter.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "higherScoresAreBetter", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkHigherScoresAreBetter.Enabled = false;
             this.chkHigherScoresAreBetter.Location = new System.Drawing.Point(258, 66);
             this.chkHigherScoresAreBetter.Name = "chkHigherScoresAreBetter";
             this.chkHigherScoresAreBetter.Size = new System.Drawing.Size(142, 17);
@@ -410,6 +414,7 @@ namespace Coon.Compass.FdrOptimizer
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
+            this.checkBox1.Enabled = false;
             this.checkBox1.Location = new System.Drawing.Point(307, 20);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(84, 17);

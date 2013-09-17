@@ -135,15 +135,10 @@ namespace Coon.Compass.FdrOptimizer
             }
 
             // Adjust all psms to 
-            using (StreamWriter writer = new StreamWriter(FilePath.Replace(".csv", "_precursor_errors.csv")))
+            foreach (PeptideSpectralMatch psm in PeptideSpectralMatches)
             {
-                writer.WriteLine("Precursor Mass Error(ppm),e-value,Decoy");
-                foreach (PeptideSpectralMatch psm in PeptideSpectralMatches)
-                {
-                    psm.CorrectedPrecursorMassError =
-                        MassTolerance.FromPPM(psm.PrecursorMassError.Value - SystematicPrecursorMassError);
-                    writer.WriteLine(psm.CorrectedPrecursorMassError.Value + "," + psm.Score + "," + (psm.IsDecoy ? "1" : "0"));
-                }
+                psm.CorrectedPrecursorMassError =
+                    MassTolerance.FromPPM(psm.PrecursorMassError.Value - SystematicPrecursorMassError);
             }
         }
 

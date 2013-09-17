@@ -9,7 +9,9 @@ using CSMSL;
 using CSMSL.Analysis.Identification;
 using CSMSL.IO;
 using CSMSL.IO.Thermo;
+using CSMSL.Chemistry;
 using CSMSL.Proteomics;
+using CSMSL.IO.OMSSA;
 using LumenWorks.Framework.IO.Csv;
 
 namespace Coon.Compass.FdrOptimizer
@@ -231,19 +233,19 @@ namespace Coon.Compass.FdrOptimizer
             _overallTargetUniquePhosphoFilepath = Path.Combine(_overallPhosphoOutputFolder, "target_unique_phospho.csv");
             _overallDecoyUniquePhosphoFilepath = Path.Combine(_overallPhosphoOutputFolder, "decoy_unique_phospho.csv");
 
-            overall_scans_output = new StreamWriter(_overallScansFilepath);
-            overall_target_output = new StreamWriter(_overallTargetFilepath);
-            overall_decoy_output = new StreamWriter(_overallDecoyFilepath);
-            overall_target_unique_output = new StreamWriter(_overallTargetUniqueFilepath);
-            overall_decoy_unique_output = new StreamWriter(_overallDecoyUniqueFilepath);
+            //overall_scans_output = new StreamWriter(_overallScansFilepath);
+            //overall_target_output = new StreamWriter(_overallTargetFilepath);
+           // overall_decoy_output = new StreamWriter(_overallDecoyFilepath);
+            //overall_target_unique_output = new StreamWriter(_overallTargetUniqueFilepath);
+            //overall_decoy_unique_output = new StreamWriter(_overallDecoyUniqueFilepath);
 
             if (phosphopeptideOutputs)
             {
-                overall_scans_phospho_output = new StreamWriter(_overallScansPhosphoFilepath);
-                overall_target_phospho_output = new StreamWriter(_overallTargetPhosphoFilepath);
-                overall_decoy_phospho_output = new StreamWriter(_overallDecoyPhosphoFilepath);
-                overall_target_unique_phospho_output = new StreamWriter(_overallTargetUniquePhosphoFilepath);
-                overall_decoy_unique_phospho_output = new StreamWriter(_overallDecoyUniquePhosphoFilepath);
+               // overall_scans_phospho_output = new StreamWriter(_overallScansPhosphoFilepath);
+                //overall_target_phospho_output = new StreamWriter(_overallTargetPhosphoFilepath);
+                //overall_decoy_phospho_output = new StreamWriter(_overallDecoyPhosphoFilepath);
+                //overall_target_unique_phospho_output = new StreamWriter(_overallTargetUniquePhosphoFilepath);
+                //overall_decoy_unique_phospho_output = new StreamWriter(_overallDecoyUniquePhosphoFilepath);
             }
         }
 
@@ -310,22 +312,22 @@ namespace Coon.Compass.FdrOptimizer
             }
 
             Directory.CreateDirectory(_outputFolder);
-            Directory.CreateDirectory(_logFolder);
-            Directory.CreateDirectory(_scansFolder);
-            Directory.CreateDirectory(_targetDecoyFolder);
-            Directory.CreateDirectory(_uniqueFolder);
+            //Directory.CreateDirectory(_logFolder);
+            //Directory.CreateDirectory(_scansFolder);
+            //Directory.CreateDirectory(_targetDecoyFolder);
+            //Directory.CreateDirectory(_uniqueFolder);
 
             if (phosphopeptideOutputs)
             {
-                Directory.CreateDirectory(_scansPhosphoFolder);
-                Directory.CreateDirectory(_targetDecoyPhosphoFolder);
-                Directory.CreateDirectory(_uniquePhosphoFolder);
-                if (overallOutputs)
-                    Directory.CreateDirectory(_overallPhosphoOutputFolder);
+               // Directory.CreateDirectory(_scansPhosphoFolder);
+                //Directory.CreateDirectory(_targetDecoyPhosphoFolder);
+               // Directory.CreateDirectory(_uniquePhosphoFolder);
+               // if (overallOutputs)
+                //    Directory.CreateDirectory(_overallPhosphoOutputFolder);
             }
 
-            if (overallOutputs)
-            {
+           // if (overallOutputs)
+            //{
                 _overallLog = new StreamWriter(Path.Combine(_outputFolder, "FDR_Optimizer_log.txt"));
                 _overallLog.AutoFlush = true;
                 WriteToOverallLog("FDR Optimizer PARAMETERS");
@@ -334,7 +336,7 @@ namespace Coon.Compass.FdrOptimizer
                 WriteToOverallLog("Maximum False Discovery Rate (%): " + maximumFalseDiscoveryRate.ToString());
                 WriteToOverallLog("FDR Calculation and Optimization Based on Unique Peptide Sequences: " + UseUniqueSequence.ToString());
                 WriteToOverallLog();
-           }
+          // }
 
             _summaryStreamWriter = new StreamWriter(Path.Combine(_outputFolder, "summary.csv"));
             _summaryStreamWriter.AutoFlush = true;
@@ -346,6 +348,12 @@ namespace Coon.Compass.FdrOptimizer
             try
             {
                 Setup();
+
+                if (IsBatched)
+                {
+                    BatchOptimize(csvFilepaths);
+                }               
+          
 
                 // Read in each CSV File
                 List<InputFile> csvFiles = ReadInCSVFiles(csvFilepaths, fixedModifications, 1).ToList();
@@ -374,6 +382,8 @@ namespace Coon.Compass.FdrOptimizer
                     Calculate2dFdr(csvFiles);
                 }
 
+                WriteFiles(csvFiles);
+
             }
             //catch(Exception ex)
             //{
@@ -382,6 +392,125 @@ namespace Coon.Compass.FdrOptimizer
             finally
             {
                 Cleanup();
+            }
+        }
+
+        private void BatchOptimize(IList<string> csvFilepaths)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void WriteFiles(IList<InputFile> csvFiles)
+        {
+            foreach (InputFile csvFile in csvFiles)
+            {               
+                string outputTargetFile = Path.Combine(_outputFolder, Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_target.csv");
+                string outputDecoyFile = Path.Combine(_outputFolder, Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_decoy.csv");
+                string outputScansFile = Path.Combine(_outputFolder, Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_scans.csv");
+                string outputTargetUniqueFile = Path.Combine(_outputFolder, Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_target_unique.csv");
+                string outputDecoyUniqueFile = Path.Combine(_outputFolder, Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_decoy_unique.csv");
+                Log("Writing output files for " + Path.GetFileNameWithoutExtension(csvFile.FilePath) + " in " + _outputFolder + "...");
+                using (StreamWriter targetWriter = new StreamWriter(outputTargetFile), 
+                    decoyWriter = new StreamWriter(outputDecoyFile),
+                    scansWriter = new StreamWriter(outputScansFile),
+                    targetUniqueWriter = new StreamWriter(outputTargetUniqueFile),
+                    decoyUniqueWriter = new StreamWriter(outputDecoyUniqueFile))
+                {                    
+                    Dictionary<string, PeptideSpectralMatch> psms = csvFile.PeptideSpectralMatches.ToDictionary(psm => psm.FileName + psm.Peptide.Sequence);
+                    HashSet<PeptideSpectralMatch> successfulPSMs = new HashSet<PeptideSpectralMatch>(csvFile.PeptideSpectralMatches.Where(psm => psm.Score <= csvFile.ScoreThreshold && Math.Abs(psm.CorrectedPrecursorMassError.Value) < csvFile.PrecursorMassToleranceThreshold.Value));
+                    Dictionary<PeptideSpectralMatch, Peptide> successfulPeptides = csvFile.Peptides.Where(psm => psm.FdrScoreMetric <= csvFile.ScoreThreshold && Math.Abs(psm.CorrectedPrecursorErrorPPM) < csvFile.PrecursorMassToleranceThreshold.Value)
+                        .ToDictionary(pep => pep.BestMatch);
+
+                    HashSet<int> scansProcessed = new HashSet<int>();
+                    StringBuilder sb = new StringBuilder();
+                    using (CsvReader reader = new CsvReader(new StreamReader(csvFile.FilePath), true))
+                    {
+                        string[] headers = reader.GetFieldHeaders();
+                        int headerCount = headers.Length;
+                        int modsColumnIndex = reader.GetFieldIndex("Mods");
+                        string[] data = new string[headerCount];
+                        string headerLine = string.Join(",", headers) + "Precursor Isolation m/z,Precursor Isolation Mass (Da),Precursor Theoretical Neutral Mass (Da),Precursor Experimental Neutral Mass (Da),Precursor Mass Error (ppm),Adjusted Precursor Mass Error (ppm),Q-Value (%)";
+
+                        decoyWriter.WriteLine(headerLine);
+                        targetWriter.WriteLine(headerLine);
+                        scansWriter.WriteLine(headerLine);
+                        targetUniqueWriter.WriteLine(headerLine);
+                        decoyUniqueWriter.WriteLine(headerLine);
+                        while (reader.ReadNextRecord())
+                        {
+                            PeptideSpectralMatch psm;
+                            int spectralNumber = int.Parse(reader["Spectrum number"]);
+                            if (scansProcessed.Contains(spectralNumber))
+                                continue;                            
+                            string fileName = reader["Filename/id"];
+                            string sequence = reader["Peptide"].ToUpper();
+                        
+                            if (psms.TryGetValue(fileName + sequence, out psm))
+                            {
+                                scansProcessed.Add(spectralNumber);
+                                sb.Clear();
+                                reader.CopyCurrentRecordTo(data);
+                                for (int i = 0; i < headerCount; i++)
+                                {
+                                    string datum = data[i];
+
+                                    if (IncludeFixedMods && i == modsColumnIndex)
+                                    {
+                                        datum = OmssaModification.WriteModificationString(psm.Peptide);
+                                    }
+                                   
+                                    if (datum.Contains(','))
+                                    {
+                                        sb.Append("\"");
+                                        sb.Append(datum);
+                                        sb.Append("\"");
+                                    }
+                                    else
+                                    {
+                                        sb.Append(datum);
+                                    }
+                                    
+                                    sb.Append(',');
+                                }
+                                sb.Append(psm.IsolationMz);
+                                sb.Append(',');
+                                sb.Append(Mass.MassFromMz(psm.IsolationMz, psm.Charge));
+                                sb.Append(',');
+                                sb.Append("n/a");
+                                sb.Append(',');
+                                sb.Append(psm.PrecursorMassError.Value);
+                                sb.Append(',');
+                                sb.Append(psm.CorrectedPrecursorMassError.Value);
+                                sb.Append(',');
+                                sb.Append("n/a");
+
+                                string line = sb.ToString();
+
+                                scansWriter.WriteLine(line);
+
+                                // Passes FDR, write out
+                                if (successfulPSMs.Contains(psm))
+                                {
+                                    if (psm.IsDecoy)
+                                        decoyWriter.WriteLine(line);
+                                    else
+                                        targetWriter.WriteLine(line);
+
+
+                                    Peptide pep;
+                                    // Is this the best unique psm?
+                                    if (successfulPeptides.TryGetValue(psm, out pep))
+                                    {
+                                        if (pep.IsDecoy)
+                                            decoyUniqueWriter.WriteLine(line);
+                                        else
+                                            targetUniqueWriter.WriteLine(line);
+                                    }
+                                }
+                            }
+                        }
+                    }                 
+                }
             }
         }
 

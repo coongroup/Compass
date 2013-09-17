@@ -17,6 +17,7 @@ namespace Coon.Compass.ProteinHoarder
             LeucineSequence = sequence;
             _hCode = sequence.GetHashCode();
             PSMs = new PsmList();
+            ProteinGroups = new List<ProteinGroup>();
         }
     
         public bool IsShared

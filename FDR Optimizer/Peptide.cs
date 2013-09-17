@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
 using CSMSL.Analysis.Identification;
 
 namespace Coon.Compass.FdrOptimizer
@@ -35,19 +31,30 @@ namespace Coon.Compass.FdrOptimizer
             else
             {
                 if (psm.Score < BestMatch.Score)
+                {
                     BestMatch = psm;
+                } else if (psm.Score == BestMatch.Score)
+                {
+                    if (psm.CorrectedPrecursorMassError.Value < BestMatch.CorrectedPrecursorMassError.Value)
+                        BestMatch = psm;
+                }
             }
             if (psm.IsDecoy)
                 IsDecoy = true;
             PSMs.Add(psm);
         }
 
-        public double PrecursorErrorPPM
+        public double CorrectedPrecursorErrorPPM
         {
             get
             {
-                return BestMatch.PrecursorMassError.Value;
+                return BestMatch.CorrectedPrecursorMassError.Value;
             }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} (e-Value: {1:g4}{2})", BestMatch.Peptide, FdrScoreMetric, IsDecoy ? " Decoy" : "");
         }
 
         public bool IsDecoy
@@ -76,6 +83,45 @@ namespace Coon.Compass.FdrOptimizer
         public int GetHashCode(Peptide obj)
         {
             return obj.BestMatch.Peptide.Sequence.GetHashCode();
+        }
+    }
+
+    public class IdentityComparer<T> : IEqualityComparer<T>
+    {
+        public bool Equals(T x, T y)
+        {
+            return ReferenceEquals(x, y);
+        }
+
+        public int GetHashCode(T obj)
+        {
+            return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(obj);
+        }
+    }
+
+    public class SequenceILComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            return x.BestMatch.Peptide.GetLeucineSequence().Equals(y.BestMatch.Peptide.GetLeucineSequence());
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.BestMatch.Peptide.GetLeucineSequence().GetHashCode();
+        }
+    }
+
+    public class MassComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            return Math.Abs(x.BestMatch.MonoisotopicMass - y.BestMatch.MonoisotopicMass) < 0.0000001;
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.BestMatch.MonoisotopicMass.GetHashCode();
         }
     }
 

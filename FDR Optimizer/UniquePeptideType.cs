@@ -3,7 +3,9 @@
     public enum UniquePeptideType
     {
         Nothing,
+        Mass,
         Sequence,
+        SequenceILRemoved,
         SequenceAndMass,
         SequenceAndModifactions
     }

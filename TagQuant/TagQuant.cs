@@ -181,7 +181,7 @@ namespace Coon.Compass.TagQuant
         private void Normalize(IEnumerable<QuantFile> quantFiles)
         {
             double maxSignal =
-                (from TagInformation tag in UsedTags.Values where tag.IsUsed select tag.TotalSignal).Concat(
+                (from TagInformation tag in UsedTags.Values select tag.TotalSignal).Concat(
                     new double[] {0}).Max();
 
             Log("\n== Normalization Data ==");
@@ -348,6 +348,8 @@ namespace Coon.Compass.TagQuant
             foreach (TagInformation tag in UsedTags.Values)
             {
                 tag.UniqueTagNumber = i++;
+                tag.TotalSignal = 0;
+                tag.NormalizedTotalSignal = 0;
             }
             int largestQuantPeak = i-1;
             //int largestQuantPeak = UsedTags.Values.Select(tag => tag.UniqueTagNumber).Concat(new[] {0}).Max();
@@ -367,6 +369,7 @@ namespace Coon.Compass.TagQuant
                         int scanNumber = int.Parse(reader["Spectrum number"]);
                         string filenameID = reader["Filename/id"];
                         string rawFileName = filenameID.Split('.')[0];
+                        bool isDecoy = reader["DEFLINE"].StartsWith("DECOY_");
                         ThermoRawFile rawFile;
                         if (!RawFiles.TryGetValue(rawFileName, out rawFile))
                         {
@@ -457,10 +460,9 @@ namespace Coon.Compass.TagQuant
                                 peak == null && NoisebandCap);
 
                             peaks[tag.UniqueTagNumber] = qPeak;
-                            //peaks.Add(tag, qPeak);
                         }
 
-                        PurityCorrect(peaks);
+                        PurityCorrect(peaks, isDecoy);
 
                         PSM psm = new PSM(filenameID, scanNumber, peaks);
                         quantFile.AddPSM(psm);
@@ -478,7 +480,7 @@ namespace Coon.Compass.TagQuant
             }
         }
 
-        private void PurityCorrect(IEnumerable<QuantPeak> peaks)
+        private void PurityCorrect(IEnumerable<QuantPeak> peaks, bool isDecoy)
         {
             List<QuantPeak> quantPeaks = peaks.ToList();
 
@@ -517,8 +519,9 @@ namespace Coon.Compass.TagQuant
                     var qpeak = finalArray[i];
                     if (qpeak == null || qpeak.IsNoisedCapped)
                         continue;
-
-                    qpeak.Tag.TotalSignal += qpeak.PurityCorrectedIntensity = correctedData[i];
+                    qpeak.PurityCorrectedIntensity = correctedData[i];
+                    if(!isDecoy)
+                        qpeak.Tag.TotalSignal += qpeak.PurityCorrectedIntensity;
                 }
             }
         }

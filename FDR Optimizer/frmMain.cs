@@ -232,8 +232,8 @@ namespace Coon.Compass.FdrOptimizer
             List<string> csvFilepaths = new List<string>(lstOmssaCsvFiles.Items.Cast<string>());
             List<Modification> fixedModifications = new List<Modification>(from ListViewItem checkedItem in lstSelectedFixedModifications.Items select (Modification)checkedItem.Tag);
 
-            double maxPrecursorMassError = (double)numMaximumPrecursorMassError.Value;
-            double precursorMassErrorIncrement = (double)numPrecursorMassErrorIncrement.Value;
+           // double maxPrecursorMassError = (double)numMaximumPrecursorMassError.Value;
+           // double precursorMassErrorIncrement = (double)numPrecursorMassErrorIncrement.Value;
             bool higherScoresAreBetter = chkHigherScoresAreBetter.Checked;
             double maxFalseDiscoveryRate = (double)numMaximumFalseDiscoveryRate.Value;
             bool overallOutputs = chkOverallOutputs.Checked;
@@ -244,11 +244,11 @@ namespace Coon.Compass.FdrOptimizer
             string outputFolder = txtOutputFolder.Text;
             UniquePeptideType uniquePeptideType = (UniquePeptideType)comboBox1.SelectedValue;
 
-            if (precursorMassErrorIncrement > maxPrecursorMassError)
-            {
-                MessageBox.Show("Precursor mass error increment (" + precursorMassErrorIncrement.ToString() + " ppm) must not be greater than maximum precursor mass error (" + maxPrecursorMassError.ToString() + " ppm)");
-                return;
-            }
+            //if (precursorMassErrorIncrement > maxPrecursorMassError)
+            //{
+            //    MessageBox.Show("Precursor mass error increment (" + precursorMassErrorIncrement.ToString() + " ppm) must not be greater than maximum precursor mass error (" + maxPrecursorMassError.ToString() + " ppm)");
+            //    return;
+            //}
 
             if (string.IsNullOrEmpty(outputFolder))
             {
@@ -259,7 +259,6 @@ namespace Coon.Compass.FdrOptimizer
 
             FdrOptimizer fdrOptimizer = new FdrOptimizer(csvFilepaths, rawFolder,
                 fixedModifications,
-                maxPrecursorMassError, precursorMassErrorIncrement,
                 higherScoresAreBetter,
                 maxFalseDiscoveryRate, uniquePeptideType,
                 overallOutputs, phosphopeptideOutputs, outputFolder, isBatched, is2DFDR, includeFixedMods);
@@ -386,14 +385,14 @@ namespace Coon.Compass.FdrOptimizer
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
         {
-            numMaximumPrecursorMassError.Enabled = true;
-            numPrecursorMassErrorIncrement.Enabled = true;
+           // numMaximumPrecursorMassError.Enabled = true;
+           // numPrecursorMassErrorIncrement.Enabled = true;
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
-            numMaximumPrecursorMassError.Enabled = false;
-            numPrecursorMassErrorIncrement.Enabled = false;
+            //numMaximumPrecursorMassError.Enabled = false;
+           // numPrecursorMassErrorIncrement.Enabled = false;
         }
 
         private void btnOK_Click_1(object sender, EventArgs e)

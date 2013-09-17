@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -105,8 +106,6 @@ namespace Coon.Compass.FdrOptimizer
         private IList<string> csvFilepaths;
         private string rawFolder;
         private IList<Modification> fixedModifications;
-        private double maximumPrecursorMassError;
-        private double precursorMassErrorIncrement;
         private bool higherScoresAreBetter;
         private double maximumFalseDiscoveryRate;
         private bool UseUniqueSequence;
@@ -190,7 +189,6 @@ namespace Coon.Compass.FdrOptimizer
 
         public FdrOptimizer(IList<string> csvFilepaths, string rawFolder, 
             IList<Modification> fixedModifications, 
-            double maximumPrecursorMassError, double precursorMassErrorIncrement, 
             bool higherScoresAreBetter, 
             double maximumFalseDiscoveryRate,
             UniquePeptideType uniquePeptideType, 
@@ -199,8 +197,6 @@ namespace Coon.Compass.FdrOptimizer
             this.csvFilepaths = csvFilepaths;
             this.rawFolder = rawFolder;
             this.fixedModifications = fixedModifications;
-            this.maximumPrecursorMassError = maximumPrecursorMassError;
-            this.precursorMassErrorIncrement = precursorMassErrorIncrement;
             this.higherScoresAreBetter = higherScoresAreBetter;
             this.maximumFalseDiscoveryRate = maximumFalseDiscoveryRate / 100;
             this.uniquePeptideType = uniquePeptideType;
@@ -334,8 +330,6 @@ namespace Coon.Compass.FdrOptimizer
                 _overallLog.AutoFlush = true;
                 WriteToOverallLog("FDR Optimizer PARAMETERS");
                 WriteToOverallLog("Fixed Modifications: " + GetModificationString());
-                WriteToOverallLog("Maximum Precursor Mass Error (ppm): ±" + maximumPrecursorMassError.ToString());
-                WriteToOverallLog("Precursor Mass Error Increment (ppm): " + precursorMassErrorIncrement.ToString());
                 WriteToOverallLog("Higher Scores are Better: " + higherScoresAreBetter.ToString());
                 WriteToOverallLog("Maximum False Discovery Rate (%): " + maximumFalseDiscoveryRate.ToString());
                 WriteToOverallLog("FDR Calculation and Optimization Based on Unique Peptide Sequences: " + UseUniqueSequence.ToString());
@@ -354,7 +348,7 @@ namespace Coon.Compass.FdrOptimizer
                 Setup();
 
                 // Read in each CSV File
-                List<CsvFile> csvFiles = ReadInCSVFiles(csvFilepaths, fixedModifications).ToList();
+                List<InputFile> csvFiles = ReadInCSVFiles(csvFilepaths, fixedModifications, 1).ToList();
 
                 // Get precursor mass accuracy data if requested
                 if (Is2DFDR)
@@ -380,33 +374,20 @@ namespace Coon.Compass.FdrOptimizer
                     Calculate2dFdr(csvFiles);
                 }
 
-                
-
-                //foreach(RawFile rawFile in _inputFiles.Values)
-                //{
-                //    AnalyzeRawFile(rawFile);
-                //}
-
-                //if(overallOutputs)
-                //{
-                //    WriteOverallOutputs();
-                //}
-
-                //}
-                //catch(Exception ex)
-                //{
-                //    onThrowException(new ExceptionEventArgs(ex));
             }
+            //catch(Exception ex)
+            //{
+            //    onThrowException(new ExceptionEventArgs(ex));
+            //}
             finally
             {
                 Cleanup();
             }
         }
 
-        private void ReducePsms(IList<CsvFile> csvFiles, UniquePeptideType uniquePeptideType)
+        private void ReducePsms(IList<InputFile> csvFiles, UniquePeptideType uniquePeptideType)
         {
-            string msg = "Converting PSMs into unique peptides based on ";
-            
+            string msg = "Converting PSMs into unique peptides based ";
             IEqualityComparer<Peptide> comparer;
             switch (uniquePeptideType)
             {
@@ -414,6 +395,14 @@ namespace Coon.Compass.FdrOptimizer
                 case UniquePeptideType.Sequence:
                     msg += "on sequence only";
                     comparer = new SequenceComparer();
+                    break;
+                case UniquePeptideType.SequenceILRemoved:
+                    msg += "on sequence (I/L ambiguity removed)";
+                    comparer = new SequenceILComparer();
+                    break;
+                case UniquePeptideType.Mass:
+                    msg += "on mass";
+                    comparer = new MassComparer();
                     break;
                 case UniquePeptideType.SequenceAndModifactions:
                     msg += "on sequence and positional modifications";
@@ -424,113 +413,137 @@ namespace Coon.Compass.FdrOptimizer
                     comparer = new SequenceMassComparer();
                     break;
                 case UniquePeptideType.Nothing:
-                    msg += "Nothing (no reduction)";
-                    comparer = null;
+                    msg += "on nothing (no reduction)";
+                    comparer = new IdentityComparer<Peptide>();
                     break;
             }
             Log(msg);
-            foreach (CsvFile csvFile in csvFiles)
+
+            foreach (InputFile csvFile in csvFiles)
             {
                 csvFile.ReducePsms(comparer);
                 Log(string.Format("{0:N0} unique peptides remain from {1:N0} PSMs from {2}", csvFile.Peptides.Count, csvFile.PeptideSpectralMatches.Count, csvFile.FilePath));
             }
         }
 
-        private void Calculate2dFdr(List<CsvFile> csvFiles)
+        private void Calculate2dFdr(IList<InputFile> csvFiles, int steps = 20, double minimumIncrement = 0.1)
         {
             Log("Calculating second order FDR levels...");
-            foreach (CsvFile csvFile in csvFiles)
+            foreach (InputFile csvFile in csvFiles)
             {
                 double bestppmError = 0;
-                double bestScoreThreshold = 0;
                 int bestTargets = 0;
-                List<Peptide> peptides = new List<Peptide>(csvFile.Peptides);
+
+                List<Peptide> peptides = csvFile.Peptides.OrderBy(pep => Math.Abs(pep.CorrectedPrecursorErrorPPM)).ToList();
+                double[] precursorPPMs = peptides.Select(pep => Math.Abs(pep.CorrectedPrecursorErrorPPM)).ToArray();
+             
                 double maxPrecursorError = csvFile.MaximumPrecursorMassError;
-                double systematicPrecursorError = csvFile.SystematicPrecursorMassError;
-                for (double ppmError = maxPrecursorError; ppmError > 0; ppmError -= precursorMassErrorIncrement)
+                double minPrecursorError = 0;
+                double increment = (maxPrecursorError - minPrecursorError)/steps;
+                while (increment > minimumIncrement)
                 {
-                    peptides = peptides.Where(pep => Math.Abs(pep.PrecursorErrorPPM - systematicPrecursorError) <= ppmError).ToList();
-                    double threshold = FalseDiscoveryRate<Peptide, double>.CalculateThreshold(peptides, maximumFalseDiscoveryRate);
-                    int targets = csvFile.PeptideSpectralMatches.Count(psm => psm.Score <= threshold && Math.Abs(psm.PrecursorMassError.Value - systematicPrecursorError) <= ppmError);
-                    if (targets >= bestTargets)
+                    for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
                     {
-                        bestTargets = targets;
-                        bestppmError = ppmError;
-                        bestScoreThreshold = threshold;
+                        int index = Array.BinarySearch(precursorPPMs, ppmError);
+                        if(index < 0)
+                            index = ~index;
+                    
+                        int targets =
+                            FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index),
+                                maximumFalseDiscoveryRate);
+                        if (targets > bestTargets)
+                        {
+                            bestTargets = targets;
+                            bestppmError = ppmError;
+                        }
                     }
+                    minPrecursorError = Math.Max(bestppmError - increment, 0);
+                    maxPrecursorError = Math.Min(bestppmError + increment, csvFile.MaximumPrecursorMassError);
+                    increment = (maxPrecursorError - minPrecursorError) / steps;
                 }
-                csvFile.ScoreThreshold = bestScoreThreshold;
+                // 2d Threshold
+                List<Peptide> peptides2 = new List<Peptide>(csvFile.Peptides.Where(pep => Math.Abs(pep.CorrectedPrecursorErrorPPM) <= bestppmError));
+                double threshold = FalseDiscoveryRate<Peptide, double>.CalculateThreshold(peptides2, maximumFalseDiscoveryRate);
+
+                double threshold1d = csvFile.ScoreThreshold;
+                
+                bestTargets = csvFile.PeptideSpectralMatches.Count(psm =>  psm.Score <= threshold && Math.Abs(psm.CorrectedPrecursorMassError.Value) <= bestppmError);
+                List<Peptide> unique = new List<Peptide>(csvFile.Peptides.Where(pep =>  pep.FdrScoreMetric < threshold && Math.Abs(pep.CorrectedPrecursorErrorPPM) <= bestppmError));
+                
+                csvFile.ScoreThreshold = threshold;
                 csvFile.PrecursorMassToleranceThreshold = MassTolerance.FromPPM(bestppmError);
-                Log(string.Format("{0:N0} PSMs were found at {1:g2} PPM and score threshold {2:g3}", bestTargets,
-                    bestppmError, bestScoreThreshold));
+                Log(string.Format("{0:N0} PSMs ({1:N0} unique) were found at {2:g2} PPM and score threshold {3:g5}", bestTargets, unique.Count, bestppmError, threshold));
             }
         }
 
-        private void CalculateBasicFDR(IList<CsvFile> csvFiles)
+        private void CalculateBasicFDR(IList<InputFile> csvFiles)
         {
             Log("Calculating first order FDR threshold...");
 
-            foreach (CsvFile csvFile in csvFiles)
+            foreach (InputFile csvFile in csvFiles)
             {
                 csvFile.ScoreThreshold = FalseDiscoveryRate<Peptide, double>.CalculateThreshold(csvFile.Peptides,
                     maximumFalseDiscoveryRate);
                 List<PeptideSpectralMatch> passingPSMs = csvFile.PeptideSpectralMatches.Where(psm => psm.Score <= csvFile.ScoreThreshold).ToList();
-                Log(string.Format("{0:N0} PSMs ({1:N0} decoys) pass the threshold of {2:G3} for {3}",
-                    passingPSMs.Count, 
-                    passingPSMs.Count(psm => psm.IsDecoy), csvFile.ScoreThreshold,
+                List<Peptide> passingPeptides =
+                    csvFile.Peptides.Where(pep => pep.FdrScoreMetric < csvFile.ScoreThreshold).ToList();
+                int total = passingPSMs.Count;
+                int decoys = passingPSMs.Count(psm => psm.IsDecoy);
+                int targets = total - decoys;
+                Log(string.Format("{0:N0} PSMs ({1:N0} decoys) {2:N0} unique pass the threshold of {3:G4} for {4}",
+                    targets,
+                    decoys,passingPeptides.Count, csvFile.ScoreThreshold,
                     csvFile.FilePath));
             }
         }
 
-        private IEnumerable<CsvFile> BatchFiles(IList<CsvFile> csvFiles)
+        private IEnumerable<InputFile> BatchFiles(IList<InputFile> csvFiles)
         {
             Log("Combining similiar csv files...");
-            foreach (CsvFile csvFile in csvFiles)
+            foreach (InputFile csvFile in csvFiles)
             {
                 yield return csvFile;
             }
         }
 
-        private void UpdatePsmInformation(IList<CsvFile> csvFiles, string folder)
+        private void UpdatePsmInformation(IList<InputFile> csvFiles, string folder, bool useMedian = true)
         {
             Log("Determining Precursor Mass Error...");
-
-            HashSet<string> rawFileNames = new HashSet<string>(csvFiles.Select(csvFile => csvFile.RawFileName));
             Dictionary<string, MSDataFile> files = new Dictionary<string, MSDataFile>();
             foreach (string file in Directory.EnumerateFiles(folder, "*.raw", SearchOption.AllDirectories))
             {
                 string name = Path.GetFileNameWithoutExtension(file);
-                if (rawFileNames.Contains(name))
+                foreach (InputFile csvFile in csvFiles)
                 {
-                    files.Add(name, new ThermoRawFile(file));
+                    string csvName = Path.GetFileNameWithoutExtension(csvFile.FilePath);
+                    if (csvName.StartsWith(name))
+                    {
+                        files.Add(name, new ThermoRawFile(file));
+                        csvFile.RawFileName = name;
+                    }
                 }
             }
-            double avgMassError = 0;
-            // update the precursor mass error
-            foreach (CsvFile csvFile in csvFiles)
-            {
-                MSDataFile dataFile = files[csvFile.RawFileName];
-                dataFile.Open();
-                csvFile.UpdatePsmInformation(dataFile);
-                avgMassError += csvFile.SystematicPrecursorMassError;
-                Log(string.Format("{0:F2} ppm systematic precursor mass error from {1}", csvFile.SystematicPrecursorMassError, csvFile.FilePath));
-            }
-            Log(string.Format("[{0:F2} average ppm systematic preucrsor mass error]", avgMassError / csvFiles.Count));
 
-            // Close all ms data files to save memory
-            foreach (MSDataFile dataFile in files.Values)
+            // update the precursor mass error
+            foreach (InputFile csvFile in csvFiles)
             {
-                dataFile.Dispose();
+                using (MSDataFile dataFile = files[csvFile.RawFileName])
+                {
+                    dataFile.Open();
+                    csvFile.UpdatePsmInformation(dataFile, useMedian);
+                    Log(string.Format("{0:F2} ppm {1} precursor mass error from {2}",
+                        csvFile.SystematicPrecursorMassError, useMedian ? "median" : "average", dataFile.FilePath));
+                }
             }
         }
 
-        private IEnumerable<CsvFile> ReadInCSVFiles(IEnumerable<string> csvFilePaths, IList<Modification> fixedModifications, int numberOfTopHits = 1)
+        private IEnumerable<InputFile> ReadInCSVFiles(IEnumerable<string> csvFilePaths, IList<Modification> fixedModifications, int numberOfTopHits = 1)
         {
             Log("Reading in Peptide Spectral Matches...");
             int totalPSMs = 0;
             int totalDecoyPSM = 0;
             int files = 0;
-            foreach (var csvFile in csvFilePaths.Select(csvFilePath => new CsvFile(csvFilePath)))
+            foreach (var csvFile in csvFilePaths.Select(csvFilePath => new InputFile(csvFilePath)))
             {
                 files++;
                 csvFile.Read(fixedModifications, numberOfTopHits);
@@ -542,7 +555,7 @@ namespace Coon.Compass.FdrOptimizer
                     100*(double)decoys/psms, csvFile.FilePath));
                 yield return csvFile;
             }
-            Log(string.Format("[{0:N0} PSMs ({1:N0} decoys {2:F1}%) in total from {3:N0} files]", totalPSMs, totalDecoyPSM, 100 * (double)totalDecoyPSM / totalPSMs, files));
+            Log(string.Format("{0:N0} PSMs ({1:N0} decoys {2:F1}%) in total from {3:N0} files", totalPSMs, totalDecoyPSM, 100 * (double)totalDecoyPSM / totalPSMs, files));
         }
 
         //private void AnalyzeRawFile(RawFile rawFile)

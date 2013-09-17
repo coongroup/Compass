@@ -16,13 +16,13 @@ using LumenWorks.Framework.IO.Csv;
 
 namespace Coon.Compass.FdrOptimizer
 {
-    public class CsvFile
+    public class InputFile
     {
-        public string FilePath { get; set; }
+        public string FilePath { get; private set; }
 
         public string RawFileName { get; set; }
 
-        public CsvFile(string filePath)
+        public InputFile(string filePath)
         {
             FilePath = filePath;
             _data = new Dictionary<int, SortedMaxSizedContainer<PeptideSpectralMatch>>();
@@ -58,15 +58,9 @@ namespace Coon.Compass.FdrOptimizer
             using(OmssaCsvPsmReader reader = new OmssaCsvPsmReader(FilePath))
             {
                 reader.AddFixedModifications(fixedModifications);
-                bool first = true;
+              
                 foreach (PeptideSpectralMatch psm in reader.ReadNextPsm())
                 {
-                    if (first)
-                    {
-                        RawFileName = psm.FileName.Split('.')[0];
-                        first = false;
-                    }
-
                     // Have we already processed a peptide for this scan number?
                     int scanNumber = psm.SpectrumNumber;
                     SortedMaxSizedContainer<PeptideSpectralMatch> peptides;
@@ -84,7 +78,6 @@ namespace Coon.Compass.FdrOptimizer
             {
                 PeptideSpectralMatches.AddRange(set);
             }
-
         }
 
         public void UpdatePsmInformation(MSDataFile dataFile, bool useMedian = true)
@@ -92,32 +85,31 @@ namespace Coon.Compass.FdrOptimizer
             List<double> errors = new List<double>();
             MaximumPrecursorMassError = 0;
             int count = 0;
-            using (StreamWriter writer = new StreamWriter(FilePath.Replace(".csv", "_precursor_errors.csv")))
+            
+            foreach (KeyValuePair<int, SortedMaxSizedContainer<PeptideSpectralMatch>> kvp in _data)
             {
-                writer.WriteLine("Precursor Mass Error(ppm),e-value,Decoy");
-                foreach (KeyValuePair<int, SortedMaxSizedContainer<PeptideSpectralMatch>> kvp in _data)
-                {
-                    int scanNumber = kvp.Key;
-                    SortedMaxSizedContainer<PeptideSpectralMatch> psms = kvp.Value;
+                int scanNumber = kvp.Key;
+                SortedMaxSizedContainer<PeptideSpectralMatch> psms = kvp.Value;
 
-                    double observedMZ = dataFile.GetPrecusorMz(scanNumber);
-                    foreach (PeptideSpectralMatch psm in psms)
+                double observedMZ = dataFile.GetPrecusorMz(scanNumber);
+                foreach (PeptideSpectralMatch psm in psms)
+                {
+                    //observedMZ = dataFile.GetPrecusorMz(scanNumber, psm.PrecursorMz);
+                    psm.IsolationMz = observedMZ;
+                    double theoMass = Mass.MassFromMz(observedMZ, psm.Charge);
+                    MassTolerance tolerancePPM = MassTolerance.CalculatePrecursorMassError(psm.MonoisotopicMass, theoMass);
+                  
+                    psm.PrecursorMassError = tolerancePPM;
+                    errors.Add(tolerancePPM.Value);
+                    double positive = Math.Abs(tolerancePPM.Value);
+                    if (positive > MaximumPrecursorMassError)
                     {
-                        psm.IsolationMz = observedMZ;
-                        double theoMass = Mass.MassFromMz(observedMZ, psm.Charge);
-                        MassTolerance tolerancePPM = MassTolerance.CalculatePrecursorMassError(psm.MonoisotopicMass, theoMass);
-                        writer.WriteLine(tolerancePPM.Value+","+ -Math.Log10(psm.Score) +","+ (psm.IsDecoy ? "1":"0"));
-                        psm.PrecursorMassError = tolerancePPM;
-                        errors.Add(tolerancePPM.Value);
-                        double positive = Math.Abs(tolerancePPM.Value);
-                        if (positive > MaximumPrecursorMassError)
-                        {
-                            MaximumPrecursorMassError = positive;
-                        }
-                        count++;
+                        MaximumPrecursorMassError = positive;
                     }
+                    count++;
                 }
             }
+            
             if (useMedian)
             {
                 int midIndex = count/2;
@@ -141,15 +133,22 @@ namespace Coon.Compass.FdrOptimizer
             {
                 SystematicPrecursorMassError = errors.Average();
             }
+
+            // Adjust all psms to 
+            using (StreamWriter writer = new StreamWriter(FilePath.Replace(".csv", "_precursor_errors.csv")))
+            {
+                writer.WriteLine("Precursor Mass Error(ppm),e-value,Decoy");
+                foreach (PeptideSpectralMatch psm in PeptideSpectralMatches)
+                {
+                    psm.CorrectedPrecursorMassError =
+                        MassTolerance.FromPPM(psm.PrecursorMassError.Value - SystematicPrecursorMassError);
+                    writer.WriteLine(psm.CorrectedPrecursorMassError.Value + "," + psm.Score + "," + (psm.IsDecoy ? "1" : "0"));
+                }
+            }
         }
 
         public void ReducePsms(IEqualityComparer<Peptide> comparer)
         {
-            if (comparer == null)
-            {
-                Peptides = PeptideSpectralMatches.Select(psm => new Peptide(psm)).ToList();
-                return;
-            }
             Dictionary<Peptide, Peptide> peptides = new Dictionary<Peptide, Peptide>(comparer);
             foreach (PeptideSpectralMatch psm in PeptideSpectralMatches)
             {

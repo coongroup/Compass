@@ -39,11 +39,6 @@ namespace Coon.Compass.FdrOptimizer
             this.lstSelectedFixedModifications = new System.Windows.Forms.ListBox();
             this.lstAllModifications = new System.Windows.Forms.ListBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.numPrecursorMassErrorIncrement = new System.Windows.Forms.NumericUpDown();
-            this.label14 = new System.Windows.Forms.Label();
-            this.numMaximumPrecursorMassError = new System.Windows.Forms.NumericUpDown();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
             this.btnBrowseOutputFolder = new System.Windows.Forms.Button();
             this.txtOutputFolder = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -65,17 +60,15 @@ namespace Coon.Compass.FdrOptimizer
             this.fbdOutputFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdModsXml = new System.Windows.Forms.OpenFileDialog();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.radioButton1 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.btnOK = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.grpFixedModifications.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numPrecursorMassErrorIncrement)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numMaximumPrecursorMassError)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -181,78 +174,6 @@ namespace Coon.Compass.FdrOptimizer
             this.label4.Size = new System.Drawing.Size(18, 13);
             this.label4.TabIndex = 166;
             this.label4.Text = "All";
-            // 
-            // numPrecursorMassErrorIncrement
-            // 
-            this.numPrecursorMassErrorIncrement.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.numPrecursorMassErrorIncrement.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "precursorMassErrorIncrement", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.numPrecursorMassErrorIncrement.DecimalPlaces = 2;
-            this.numPrecursorMassErrorIncrement.Location = new System.Drawing.Point(281, 128);
-            this.numPrecursorMassErrorIncrement.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numPrecursorMassErrorIncrement.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numPrecursorMassErrorIncrement.Name = "numPrecursorMassErrorIncrement";
-            this.numPrecursorMassErrorIncrement.Size = new System.Drawing.Size(46, 20);
-            this.numPrecursorMassErrorIncrement.TabIndex = 137;
-            this.numPrecursorMassErrorIncrement.Value = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.precursorMassErrorIncrement;
-            // 
-            // label14
-            // 
-            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(6, 130);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(152, 13);
-            this.label14.TabIndex = 141;
-            this.label14.Text = "Maximum Precursor Mass Error";
-            // 
-            // numMaximumPrecursorMassError
-            // 
-            this.numMaximumPrecursorMassError.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.numMaximumPrecursorMassError.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "maximumPrecursorMassError", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.numMaximumPrecursorMassError.DecimalPlaces = 2;
-            this.numMaximumPrecursorMassError.Location = new System.Drawing.Point(179, 126);
-            this.numMaximumPrecursorMassError.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.numMaximumPrecursorMassError.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.numMaximumPrecursorMassError.Name = "numMaximumPrecursorMassError";
-            this.numMaximumPrecursorMassError.Size = new System.Drawing.Size(63, 20);
-            this.numMaximumPrecursorMassError.TabIndex = 140;
-            this.numMaximumPrecursorMassError.Value = global::Coon.Compass.FdrOptimizer.Properties.Settings.Default.maximumPrecursorMassError;
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(166, 128);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(13, 13);
-            this.label2.TabIndex = 154;
-            this.label2.Text = "±";
-            // 
-            // label12
-            // 
-            this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(248, 128);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(27, 13);
-            this.label12.TabIndex = 142;
-            this.label12.Text = "ppm";
             // 
             // btnBrowseOutputFolder
             // 
@@ -455,16 +376,11 @@ namespace Coon.Compass.FdrOptimizer
             this.groupBox1.Controls.Add(this.comboBox1);
             this.groupBox1.Controls.Add(this.checkBox1);
             this.groupBox1.Controls.Add(this.chkHigherScoresAreBetter);
-            this.groupBox1.Controls.Add(this.numPrecursorMassErrorIncrement);
             this.groupBox1.Controls.Add(this.chkOverallOutputs);
-            this.groupBox1.Controls.Add(this.label14);
-            this.groupBox1.Controls.Add(this.numMaximumPrecursorMassError);
             this.groupBox1.Controls.Add(this.chkPhosphopeptideOutputs);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.numMaximumFalseDiscoveryRate);
-            this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.label12);
             this.groupBox1.Controls.Add(this.radioButton1);
             this.groupBox1.Controls.Add(this.radioButton2);
             this.groupBox1.Location = new System.Drawing.Point(10, 190);
@@ -473,6 +389,23 @@ namespace Coon.Compass.FdrOptimizer
             this.groupBox1.TabIndex = 174;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Global Options";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 43);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(123, 13);
+            this.label6.TabIndex = 179;
+            this.label6.Text = "Reduce PSMs based on";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(135, 39);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(166, 21);
+            this.comboBox1.TabIndex = 178;
             // 
             // checkBox1
             // 
@@ -562,23 +495,6 @@ namespace Coon.Compass.FdrOptimizer
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
-            // comboBox1
-            // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(135, 39);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(166, 21);
-            this.comboBox1.TabIndex = 178;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 43);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(123, 13);
-            this.label6.TabIndex = 179;
-            this.label6.Text = "Reduce PSMs based on";
-            // 
             // frmMain
             // 
             this.AllowDrop = true;
@@ -598,8 +514,6 @@ namespace Coon.Compass.FdrOptimizer
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.frmMain_KeyPress);
             this.grpFixedModifications.ResumeLayout(false);
             this.grpFixedModifications.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numPrecursorMassErrorIncrement)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numMaximumPrecursorMassError)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -631,11 +545,6 @@ namespace Coon.Compass.FdrOptimizer
         private System.Windows.Forms.CheckBox chkHigherScoresAreBetter;
         private System.Windows.Forms.CheckBox chkPhosphopeptideOutputs;
         private System.Windows.Forms.CheckBox chkOverallOutputs;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label label14;
-        private System.Windows.Forms.NumericUpDown numMaximumPrecursorMassError;
-        private System.Windows.Forms.NumericUpDown numPrecursorMassErrorIncrement;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button btnBrowseOutputFolder;
         private System.Windows.Forms.TextBox txtOutputFolder;
         private System.Windows.Forms.Label label3;

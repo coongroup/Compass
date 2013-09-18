@@ -6,6 +6,13 @@ Wenger CD, Phanstiel DH, Lee MV, Bailey DJ, Coon JJ.
 software tools for OMSSA," Proteomics 11:1074–1084 
 (2011)
 
+1.2.8.0 (Wednesday, August 18, 2013)
+- TagQuant -> 1.4.0.0
+  Fixed noise band cap bug in which noise band PC values were 100 times to large
+
+- Phosphinator -> 1.0.0.0
+  Made compatible with new TagQuant outputs.
+
 1.2.7.0 (Thursday, August 8, 2013)
 - TagQuant -> 1.1.0.0
   Completely reworked tag quant

@@ -5,8 +5,7 @@
         Nothing,
         Mass,
         Sequence,
-        SequenceILRemoved,
         SequenceAndMass,
-        SequenceAndModifactions
+        SequenceAndModifactions,
     }
 }

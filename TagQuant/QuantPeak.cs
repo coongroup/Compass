@@ -52,7 +52,9 @@ namespace Coon.Compass.TagQuant
             get
             {
                 if (IsNoisedCapped)
-                    return DeNormalizedIntensity;
+                {
+                    return DeNormalizedIntensity/100;
+                }
                 return _purityCorrectIntensity;
             }
             set { _purityCorrectIntensity = value; }

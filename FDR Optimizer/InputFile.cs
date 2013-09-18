@@ -20,7 +20,7 @@ namespace Coon.Compass.FdrOptimizer
     {
         public string FilePath { get; private set; }
 
-        public string RawFileName { get; set; }
+        public string RawFilePath { get; set; }
 
         public InputFile(string filePath)
         {

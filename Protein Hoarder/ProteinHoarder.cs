@@ -89,48 +89,45 @@ namespace Coon.Compass.ProteinHoarder
                 // 1) Get the unique peptides from all csv files
                 Peptides = GetAllUniquePeptides(CsvFiles);
 
-                //using (StreamWriter writer = new StreamWriter(Path.Combine(OutputDirectory, "proteins_per_second.csv")))
-                //{
+                    //using (StreamWriter writer = new StreamWriter(Path.Combine(OutputDirectory, Path.GetFileNameWithoutExtension(file.Name) + "_proteins_per_second.csv")))
+                    //{
+                    //    for (int i = 0; i <= 264*60; i += 60)
+                    //    {
+                    //        Dictionary<string, Peptide> peptides2 = new Dictionary<string, Peptide>();
+                    //        foreach (KeyValuePair<string, Peptide> pep in Peptides)
+                    //        {
+                    //            if (pep.Value.PSMs.Any(psm => psm.ScanNumber < i))
+                    //            {
+                    //                peptides2.Add(pep.Key, pep.Value);
+                    //                pep.Value.IsMapped = false;
+                    //                pep.Value.ProteinGroups.Clear();
+                    //            }
+                    //        }
 
-                //    for (int i = 0; i < 100 * 60; i += 60)
-                //    {
-                //        Dictionary<string, Peptide> peptides2 = new Dictionary<string, Peptide>();
-                //        foreach (KeyValuePair<string, Peptide> pep in Peptides)
-                //        {
-                //            if (pep.Value.PSMs.Any(psm => psm.ScanNumber < i))
-                //            {
-                //                peptides2.Add(pep.Key, pep.Value);
-                //                pep.Value.IsMapped = false;
-                //                pep.Value.ProteinGroups.Clear();
-                //            }
+                            // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
+                            List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases,
+                                SemiDigestion);
+
+                            // 3) Construct the protein groups from the isMapped proteins
+                            List<ProteinGroup> groups = GroupProteins(proteins);
+
+                //            writer.WriteLine((i/60) + "," + peptides2.Count + "," +
+                //                             groups.Count(group => group.PassesFDR));
                 //        }
-
-                //        if (peptides2.Count == 0) continue;
-
-                        // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
-                        List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases,
-                            SemiDigestion);
-
-                        // 3) Construct the protein groups from the isMapped proteins
-                        List<ProteinGroup> groups = GroupProteins(proteins);
-
-                //        writer.WriteLine(i + "," + peptides2.Count + "," +
-                //                         groups.Count(group => group.PassesFDR).ToString());
                 //    }
-
                 //}
 
                 // 4) Write out the data
                 Dictionary<char, ExperimentGroup> expgroups = GroupExperiments(CsvFiles, UseQuant);
-                
+
                 WritePeptides(expgroups, OutputDirectory);
 
                 WriteGroups(expgroups, OutputDirectory);
             }
-            //catch (Exception e)
-            //{
-            //    Log("[ERROR]\t{0}", e.Message);
-            //}
+            catch (Exception e)
+            {
+                Log("[ERROR]\t{0}", e.Message);
+            }
             finally
             {               
                 CleanUp();
@@ -816,11 +813,13 @@ namespace Coon.Compass.ProteinHoarder
                     // Open up the csvfile and read it's contents, skipping the header
                     using (CsvReader reader = new CsvReader(new StreamReader(csvfile.FilePath), true))
                     {
+                        bool pdOutput = false;
                         if (reader.GetFieldHeaders().Contains("XCorr"))
                         {
                             sequenceString = "Sequence";
                             spectrumNumberString = "RT [min]";
                             pvalueString = "PEP";
+                            pdOutput = true;
                         }
 
                         int deflineIndex = reader.GetFieldIndex("Defline");
@@ -940,19 +939,27 @@ namespace Coon.Compass.ProteinHoarder
                                 for (int i = 0; i < reader.FieldCount; i++)
                                 {
                                     data[i] = reader[i];
-                                    if (i == deflineIndex)
+                                    if (!pdOutput)
                                     {
-                                        data[i] = pep.BestPG.RepresentativeProtein.Description;
+                                        if (i == deflineIndex)
+                                        {
+                                            data[i] = pep.BestPG.RepresentativeProtein.Description;
+                                        }
+                                        else if (i == startRes)
+                                        {
+                                            data[i] =
+                                                pep.BestPG.RepresentativeProtein.FindStartResidue(pep.LeucineSequence)
+                                                    .ToString();
+                                        }
+                                        else if (i == stopRes)
+                                        {
+                                            data[i] =
+                                                pep.BestPG.RepresentativeProtein.FindStopResidue(pep.LeucineSequence)
+                                                    .ToString();
+                                        }
                                     }
-                                    else if (i == startRes)
-                                    {
-                                        data[i] = pep.BestPG.RepresentativeProtein.FindStartResidue(pep.LeucineSequence).ToString();
-                                    }
-                                    else if (i == stopRes)
-                                    {
-                                        data[i] = pep.BestPG.RepresentativeProtein.FindStopResidue(pep.LeucineSequence).ToString();
-                                    }
-                                    data[i] = "\"" + data[i] + "\"";
+                                    if(data[i].Contains(','))
+                                        data[i] = "\"" + data[i] + "\"";
                                     sb.Append(data[i]);
                                     sb.Append(',');
                                 }
@@ -977,7 +984,7 @@ namespace Coon.Compass.ProteinHoarder
                             }
                             else
                             {
-                                throw new Exception("Read in a PSM that isn't isMapped! Did an input CSV's contents change?");
+                                throw new Exception("Read in a PSM that isn't mapped! Did an input CSV's contents change?");
                             }
                         }                    
                     }

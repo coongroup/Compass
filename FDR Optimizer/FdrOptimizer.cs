@@ -385,10 +385,10 @@ namespace Coon.Compass.FdrOptimizer
                 WriteFiles(csvFiles);
 
             }
-            //catch(Exception ex)
-            //{
-            //    onThrowException(new ExceptionEventArgs(ex));
-            //}
+            catch(Exception ex)
+            {
+                onThrowException(new ExceptionEventArgs(ex));
+            }
             finally
             {
                 Cleanup();
@@ -525,10 +525,6 @@ namespace Coon.Compass.FdrOptimizer
                     msg += "on sequence only";
                     comparer = new SequenceComparer();
                     break;
-                case UniquePeptideType.SequenceILRemoved:
-                    msg += "on sequence (I/L ambiguity removed)";
-                    comparer = new SequenceILComparer();
-                    break;
                 case UniquePeptideType.Mass:
                     msg += "on mass";
                     comparer = new MassComparer();
@@ -593,8 +589,6 @@ namespace Coon.Compass.FdrOptimizer
                 // 2d Threshold
                 List<Peptide> peptides2 = new List<Peptide>(csvFile.Peptides.Where(pep => Math.Abs(pep.CorrectedPrecursorErrorPPM) <= bestppmError));
                 double threshold = FalseDiscoveryRate<Peptide, double>.CalculateThreshold(peptides2, maximumFalseDiscoveryRate);
-
-                double threshold1d = csvFile.ScoreThreshold;
                 
                 bestTargets = csvFile.PeptideSpectralMatches.Count(psm =>  psm.Score <= threshold && Math.Abs(psm.CorrectedPrecursorMassError.Value) <= bestppmError);
                 List<Peptide> unique = new List<Peptide>(csvFile.Peptides.Where(pep =>  pep.FdrScoreMetric < threshold && Math.Abs(pep.CorrectedPrecursorErrorPPM) <= bestppmError));
@@ -638,25 +632,33 @@ namespace Coon.Compass.FdrOptimizer
         private void UpdatePsmInformation(IList<InputFile> csvFiles, string folder, bool useMedian = true)
         {
             Log("Determining Precursor Mass Error...");
-            Dictionary<string, MSDataFile> files = new Dictionary<string, MSDataFile>();
-            foreach (string file in Directory.EnumerateFiles(folder, "*.raw", SearchOption.AllDirectories))
+
+            List<string> rawFileNames = Directory.EnumerateFiles(folder, "*.raw", SearchOption.AllDirectories).ToList();
+       
+            foreach (InputFile csvFile in csvFiles)
             {
-                string name = Path.GetFileNameWithoutExtension(file);
-                foreach (InputFile csvFile in csvFiles)
+                string csvName = Path.GetFileNameWithoutExtension(csvFile.FilePath);
+                csvFile.RawFilePath = "";
+                foreach (string file in rawFileNames)
                 {
-                    string csvName = Path.GetFileNameWithoutExtension(csvFile.FilePath);
-                    if (csvName.StartsWith(name))
-                    {
-                        files.Add(name, new ThermoRawFile(file));
-                        csvFile.RawFileName = name;
-                    }
+                    string name = Path.GetFileNameWithoutExtension(file);
+
+                    if (!csvName.StartsWith(name))
+                        continue;
+                    csvFile.RawFilePath = file;
+                    break;
+                }
+                if (string.IsNullOrEmpty(csvFile.RawFilePath))
+                {
+                    throw new ArgumentException("Cannot find the associated raw file for: "+csvFile.FilePath);
                 }
             }
+            
 
             // update the precursor mass error
             foreach (InputFile csvFile in csvFiles)
             {
-                using (MSDataFile dataFile = files[csvFile.RawFileName])
+                using (MSDataFile dataFile = new ThermoRawFile(csvFile.RawFilePath))
                 {
                     dataFile.Open();
                     csvFile.UpdatePsmInformation(dataFile, useMedian);

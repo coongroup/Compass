@@ -6,6 +6,7 @@ using Coon.Compass.DatabaseMaker;
 using Coon.Compass.Lotor;
 using Coon.Compass.ProteinHoarder;
 using Coon.Compass.TagQuant;
+using Phosphinator;
 
 namespace Coon.Compass
 {
@@ -132,6 +133,12 @@ namespace Coon.Compass
         {
             var lotorForm = new lotorForm {MdiParent = this};
             lotorForm.Show();
+        }
+
+        private void toolStripButton3_Click(object sender, EventArgs e)
+        {
+            var phosphintaorForm = new phosphinatorForm {MdiParent = this};
+            phosphintaorForm.Show();
         }
     }
 }

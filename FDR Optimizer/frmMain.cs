@@ -18,10 +18,6 @@ namespace Coon.Compass.FdrOptimizer
             comboBox1.DataSource = Enum.GetValues(typeof (UniquePeptideType));
             comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifactions;
         }
-        private void frmMain_Load(object sender, EventArgs e)
-        {
-            
-        }
 
         private void UpdateModsListboxes()
         {
@@ -30,10 +26,15 @@ namespace Coon.Compass.FdrOptimizer
 
             lstAllModifications.DisplayMember = "Text";
             lstSelectedFixedModifications.DisplayMember = "Text";
-            foreach (OmssaModification modification in OmssaModification.GetAllModifications())
+            List<OmssaModification> allMods = OmssaModification.GetAllModifications().ToList();
+            //foreach (OmssaModification modification in allMods.Where(mod => mod.Name.Contains("*")))
+            //{
+            //    ListViewItem list_view_item = new ListViewItem(modification.ToString()) { Tag = modification };
+            //    lstAllModifications.Items.Add(list_view_item);
+            //}
+            foreach (OmssaModification modification in allMods.OrderByDescending(mod => mod.Name.Contains("*")).ThenBy(mod => mod.Name))
             {
-                ListViewItem list_view_item = new ListViewItem(modification.ToString());
-                list_view_item.Tag = modification;
+                ListViewItem list_view_item = new ListViewItem(modification.ToString()) {Tag = modification};
                 if(modification.Name == "carbamidomethyl C")
                 {
                     lstSelectedFixedModifications.Items.Add(list_view_item);
@@ -165,15 +166,6 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
-        private void btnBrowseMods_Click(object sender, EventArgs e)
-        {
-            if(ofdModsXml.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-            {
-                OmssaModification.LoadOmssaModifications(ofdModsXml.FileName,true);
-                UpdateModsListboxes();
-            }
-        }
-
         private void frmMain_KeyPress(object sender, KeyPressEventArgs e)
         {
             if(!txtRawFolder.Focused && !txtOutputFolder.Focused)
@@ -234,10 +226,10 @@ namespace Coon.Compass.FdrOptimizer
 
            // double maxPrecursorMassError = (double)numMaximumPrecursorMassError.Value;
            // double precursorMassErrorIncrement = (double)numPrecursorMassErrorIncrement.Value;
-            bool higherScoresAreBetter = chkHigherScoresAreBetter.Checked;
+            bool higherScoresAreBetter = false;//chkHigherScoresAreBetter.Checked;
             double maxFalseDiscoveryRate = (double)numMaximumFalseDiscoveryRate.Value;
-            bool overallOutputs = chkOverallOutputs.Checked;
-            bool phosphopeptideOutputs = chkPhosphopeptideOutputs.Checked;
+            bool overallOutputs = true;//chkOverallOutputs.Checked;
+            bool phosphopeptideOutputs = false;//chkPhosphopeptideOutputs.Checked;
             bool isBatched = checkBox1.Checked;
             bool is2DFDR = radioButton2.Checked;
             bool includeFixedMods = checkBox2.Checked;
@@ -398,6 +390,15 @@ namespace Coon.Compass.FdrOptimizer
         private void btnOK_Click_1(object sender, EventArgs e)
         {
             Run();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (ofdModsXml.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                OmssaModification.LoadOmssaModifications(ofdModsXml.FileName, true);
+                UpdateModsListboxes();
+            }
         }
 
    

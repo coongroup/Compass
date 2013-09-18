@@ -520,7 +520,7 @@ namespace Coon.Compass.TagQuant
                     if (qpeak == null || qpeak.IsNoisedCapped)
                         continue;
                     qpeak.PurityCorrectedIntensity = correctedData[i];
-                    if(!isDecoy)
+                    if (!isDecoy)
                         qpeak.Tag.TotalSignal += qpeak.PurityCorrectedIntensity;
                 }
             }

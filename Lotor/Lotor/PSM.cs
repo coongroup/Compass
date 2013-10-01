@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using CSMSL;
+using CSMSL.Chemistry;
 using CSMSL.IO;
 using CSMSL.Proteomics;
 using CSMSL.Spectral;
+using CSMSL.Util;
 
 namespace Coon.Compass.Lotor
 {
@@ -14,43 +16,33 @@ namespace Coon.Compass.Lotor
         public int Charge;
         public Peptide BasePeptide;
         public HashSet<PeptideIsoform> PeptideIsoforms;
-        public double IsolationMZ { get; set; }
+        public double IsolationMZ {
+            get { return DataScan.IsolationRange.Mean; }
+        }
         public double[,] LocalizationResult;
-
+        public int[,] NumSiteDeterminingFragments;
+        public int[,] BestSiteDeterminingFragments;
+        public int[,] SecondBestSiteDeterminingFragments;
 
         public MassSpectrum Spectrum
         {
             get { return DataScan.MassSpectrum; }
         }
-
-        private MsnDataScan _dataScan = null;
+        
         public MsnDataScan DataScan
         {
-            get
-            {
-                if (_dataScan == null)
-                {
-                    _dataScan = DataFile[ScanNumber] as MsnDataScan;
-                    if (_dataScan == null)
-                    {
-                        throw new ArgumentException("Not an MS/MS spectrum!");
-                    }
-                    IsolationMZ = _dataScan.IsolationRange.Mean;
-                }
-                return _dataScan;
-            }
-            set
-            {
-                _dataScan = value;
-            }
+            get; private set;
         }
-             
 
         public int StartResidue = 1;
 
+        public int NumberOfSharingProteinGroups { get; set; }
+
         public string Filename = "";
 
-        public string ProteinGroup = "";
+        public string ProteinGroup { get; set; }
+
+        public string Defline { get; set; }
 
         public bool IsProteinNTerm
         {
@@ -60,71 +52,42 @@ namespace Coon.Compass.Lotor
             }
         }
 
-        public MSDataFile DataFile { get; set; }
-
         public PSM(int scannumber, MSDataFile dataFile) 
         {
             ScanNumber = scannumber;
-            DataFile = dataFile;
+            DataScan = dataFile[scannumber] as MsnDataScan;
         }
 
+        /// <summary>
+        /// The number of isoforms this PSM has
+        /// </summary>
         public int Isoforms
         {
             get
             {
-                if (PeptideIsoforms != null)
-                {
-                    return PeptideIsoforms.Count;
-                }
-                else
-                {
-                    return 0;
-                }
+                return PeptideIsoforms != null ? PeptideIsoforms.Count : 0;
             }
         }
 
-        public List<Modification> Modifications;
+        public List<Modification> VariabledModifications;
      
-        public double CalculateAScore()
-        {           
-            switch (this.Isoforms)
-            {
-                case 0: // no isoforms, no ascore
-                    return 0;
-                case 1: // one isoform, localized, no ascore calculated
-                    return double.MaxValue;
-                case 2: // two isoforms, skip finding best isoforms, make sure value is positive
-                    return 0;
-                default:
-                    return _calcAscore();
-            }
-        }
-
-        public double[,] Calc(FragmentTypes type, double pvalue) 
+        public double[,] Calc(double pvalue)
         {
-            LocalizationResult = Calc(type, pvalue, this.PeptideIsoforms.ToArray());
-            return LocalizationResult;
+            return LocalizationResult = Calc(pvalue, PeptideIsoforms.ToArray());
         }
 
-        public void DeleteScan()
-        {
-            if (_dataScan != null)
-            {
-                _dataScan = null;
-            }
-        }
-
-        private double[,] Calc(FragmentTypes type, double pvalue, params PeptideIsoform[] isoforms)
+        private double[,] Calc(double pvalue, params PeptideIsoform[] isoforms)
         {
             int count = isoforms.Count();
-            double[,] res = new double[count, count];  
+            double[,] res = new double[count, count];
+            NumSiteDeterminingFragments = new int[count, count];
+            BestSiteDeterminingFragments = new int[count,count];
             for (int i = 0; i < count; i++)
             {
                 for (int j = i; j < count; j++)
                 {
                     if (i == j)
                     {
-                        res[i, j] = double.PositiveInfinity;
                         continue;
                     }                        
               
@@ -132,16 +95,22 @@ namespace Coon.Compass.Lotor
                     int j_count = 0;
                     int num_sdfs = 0;
 
-                    foreach (Fragment sdf in isoforms[i].GetSiteDeterminingFragments(isoforms[j], type))
-                    {                        
-                        if (isoforms[i].SpectralMatch.Contains(sdf)) i_count++; 
-                        if (isoforms[j].SpectralMatch.Contains(sdf)) j_count++;                         
+                    foreach (Fragment sdf in GetSiteDeterminingFragments(isoforms[i], isoforms[j]))
+                    {    
+                        if (sdf.Parent == isoforms[i] && isoforms[i].SpectralMatch.Contains(sdf)) i_count++; 
+                        if (sdf.Parent == isoforms[j] && isoforms[j].SpectralMatch.Contains(sdf)) j_count++;                         
                         num_sdfs++;
                     }
+                    num_sdfs /= 2;
+                    BestSiteDeterminingFragments[i, j] = i_count;
+                    BestSiteDeterminingFragments[j, i] = j_count;
+                  
+                    NumSiteDeterminingFragments[i, j] = num_sdfs;
+                    NumSiteDeterminingFragments[j, i] = num_sdfs;
+
+                    double ascore = Combinatorics.AScore(i_count, j_count, pvalue, num_sdfs);
                     
-                    double ascore = CSMSL.Util.Combinatorics.AScore(i_count, j_count, pvalue, num_sdfs);
-                    
-                    // Symmerty Rules
+                    // Symmetry Rules
                     res[i, j] = ascore;
                     res[j, i] = -ascore;
                 }
@@ -149,25 +118,42 @@ namespace Coon.Compass.Lotor
             return res;
         }
 
-        private double _calcAscore()
+        private IEnumerable<Fragment> GetSiteDeterminingFragments(PeptideIsoform pep1, PeptideIsoform pep2)
         {
-            return 0;
+            HashSet<Fragment> aFrags = new HashSet<Fragment>(pep1.Fragments);
+            aFrags.SymmetricExceptWith(pep2.Fragments);
+            return aFrags;
         }
 
-        public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance)
+        public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance, double cutoffThreshold, params int[] chargeStates)
         {
             foreach (PeptideIsoform isoform in PeptideIsoforms)
             {
-                isoform.MatchSpectrum(type, tolerance);
+                isoform.MatchSpectrum(type, tolerance, cutoffThreshold, chargeStates);
             }
         }
 
-        public int GenerateIsoforms()
+        public int GenerateIsoforms(bool ignoreCTerminalMods = false)
         {
             PeptideIsoforms = new HashSet<PeptideIsoform>();
-            foreach (Peptide pep in BasePeptide.GenerateIsoforms(Modifications.ToArray()))
+            foreach (PeptideIsoform isoform in BasePeptide.GenerateIsoforms(VariabledModifications.ToArray()).Select(pep => new PeptideIsoform(pep, Spectrum, Charge)))
             {
-                PeptideIsoform isoform = new PeptideIsoform(pep, Spectrum, Charge);
+                if (ignoreCTerminalMods)
+                {
+                    IMass[] mods = isoform.GetModifications();
+                    var cTerminalMod = mods[mods.Length - 2];
+                    if (cTerminalMod is ModificationCollection)
+                    {
+                        var modCollection = cTerminalMod as ModificationCollection;
+                        if (modCollection.Any(mod => Lotor.QuantifiedModifications.Contains(mod)))
+                            continue;
+                    }
+                    else
+                    {
+                        if (Lotor.QuantifiedModifications.Contains(cTerminalMod))
+                            continue;
+                    }
+                }
                 PeptideIsoforms.Add(isoform);
             }
             return Isoforms;

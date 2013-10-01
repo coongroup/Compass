@@ -93,7 +93,7 @@ namespace Coon.Compass.TagQuant
             dataGridView2.Columns.Add(p1Column);
 
             DataGridViewTextBoxColumn p2Column = new DataGridViewTextBoxColumn();
-            p2Column.DataPropertyName = "M1";
+            p2Column.DataPropertyName = "P2";
             p2Column.HeaderText = "+2";
             dataGridView2.Columns.Add(p2Column);
 

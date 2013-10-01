@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using CSMSL.Analysis.Identification;
 using CSMSL.IO;
 using CSMSL.Proteomics;
@@ -31,6 +32,8 @@ namespace Coon.Compass.ProteinHoarder
         public HashSet<Protease> Proteases;
         public HashSet<Modification> ModificationsToIgnore;
 
+        private static Regex omssaRTRegex = new Regex(@"RT_([0-9.]+)_min", RegexOptions.Compiled);
+
         /// <summary>
         /// Represents all the unique peptide sequences isMapped to all occurances (PSMs) of that sequence.
         /// </summary>
@@ -44,6 +47,7 @@ namespace Coon.Compass.ProteinHoarder
         public static bool IncludeNonFilteredResults = false;    
         public static bool IgnorePeptideWithMissingData = false;
         public static bool SemiDigestion = false;
+        public static bool ProteinsPerMinute = false;
 
         public ProteinHoarder(IEnumerable<CsvFile> csvFiles,
             string fastaFile,
@@ -58,7 +62,8 @@ namespace Coon.Compass.ProteinHoarder
             double quantInterferenceCutoff = 0.25,
             bool includeUnfilteredResults = false,
             bool ignorePeptideWithMissingData = false,
-            bool semiDigestion = false)
+            bool semiDigestion = false,
+            bool proteinPerMinute = false)
         {
             CsvFiles = new List<CsvFile>(csvFiles);
             FastaFile = fastaFile;
@@ -74,6 +79,7 @@ namespace Coon.Compass.ProteinHoarder
             IncludeNonFilteredResults = includeUnfilteredResults;
             IgnorePeptideWithMissingData = ignorePeptideWithMissingData;
             SemiDigestion = semiDigestion;
+            ProteinsPerMinute = proteinPerMinute;
         }
         
         /// <summary>
@@ -89,49 +95,76 @@ namespace Coon.Compass.ProteinHoarder
                 // 1) Get the unique peptides from all csv files
                 Peptides = GetAllUniquePeptides(CsvFiles);
 
-                    //using (StreamWriter writer = new StreamWriter(Path.Combine(OutputDirectory, Path.GetFileNameWithoutExtension(file.Name) + "_proteins_per_second.csv")))
-                    //{
-                    //    for (int i = 0; i <= 264*60; i += 60)
-                    //    {
-                    //        Dictionary<string, Peptide> peptides2 = new Dictionary<string, Peptide>();
-                    //        foreach (KeyValuePair<string, Peptide> pep in Peptides)
-                    //        {
-                    //            if (pep.Value.PSMs.Any(psm => psm.ScanNumber < i))
-                    //            {
-                    //                peptides2.Add(pep.Key, pep.Value);
-                    //                pep.Value.IsMapped = false;
-                    //                pep.Value.ProteinGroups.Clear();
-                    //            }
-                    //        }
-
-                            // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
-                            List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases,
-                                SemiDigestion);
-
-                            // 3) Construct the protein groups from the isMapped proteins
-                            List<ProteinGroup> groups = GroupProteins(proteins);
-
-                //            writer.WriteLine((i/60) + "," + peptides2.Count + "," +
-                //                             groups.Count(group => group.PassesFDR));
-                //        }
-                //    }
-                //}
-
+                // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
+                List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases,
+                    SemiDigestion);
+                
+                if (ProteinsPerMinute)
+                {
+                    WriteProteinsPerMinute(Peptides.Values.ToList(), proteins, OutputDirectory);
+                }
+                else
+                {
+                    GroupProteins(proteins);
+                }
+   
                 // 4) Write out the data
                 Dictionary<char, ExperimentGroup> expgroups = GroupExperiments(CsvFiles, UseQuant);
 
                 WritePeptides(expgroups, OutputDirectory);
 
                 WriteGroups(expgroups, OutputDirectory);
+              
             }
-            catch (Exception e)
-            {
-                Log("[ERROR]\t{0}", e.Message);
-            }
+            //catch (Exception e)
+            //{
+            //    Log("[ERROR]\t{0}", e.Message);
+            //}
             finally
             {               
                 CleanUp();
             }
+        }
+
+        private void WriteProteinsPerMinute(List<Peptide> allPeptides, List<Protein> proteins, string outputDirectory)
+        {
+            Log("Writing proteins per minute file...");
+            double maxPeptides = allPeptides.Count;
+            using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, "proteins_per_minute.csv")))
+            {
+                writer.WriteLine("Time (min),Unique Peptides,Protein Groups");
+
+                double i = 0;
+                while(i < 1000000)
+                {
+                    List<Peptide> currentPeptides =
+                        allPeptides.Where(pep => pep.PSMs.Any(psm => psm.RetentionTime <= i)).ToList();
+                    HashSet<Protein> currentProteins = new HashSet<Protein>();
+                    foreach (Peptide peptide in currentPeptides)
+                    {
+                        peptide.ProteinGroups.Clear();
+                       
+                        foreach (Protein protein in proteins)
+                        {
+                            if (protein.Peptides.Contains(peptide))
+                            {
+                                currentProteins.Add(protein);
+                                break;
+                            }
+                        }
+                    }
+                    List<ProteinGroup> groups = GroupProteins(currentProteins.ToList(), false);
+
+                    int fdrGroups = groups.Count(g => g.PassesFDR);
+
+                    writer.WriteLine(i + "," + currentPeptides.Count + "," + fdrGroups);
+                    ProgressUpdate(currentPeptides.Count / maxPeptides);
+                    if (currentPeptides.Count >= maxPeptides)
+                        break;
+                    i++;
+                }
+            }
+
         }
 
         /// <summary>
@@ -143,7 +176,6 @@ namespace Coon.Compass.ProteinHoarder
         private Dictionary<string, Peptide> GetAllUniquePeptides(IEnumerable<CsvFile> csvFiles)
         {
             Log("Reading in unique peptides sequences from all .csv files...");
-            ProgressUpdate(0.0); //force the progressbar to go into marquee mode
             Dictionary<string, Peptide> peptides = new Dictionary<string, Peptide>();
             Proteases = new HashSet<Protease>();
             int psmCount = 0;
@@ -158,8 +190,8 @@ namespace Coon.Compass.ProteinHoarder
                 int csvPsmCount = 0;
 
                 string sequenceString = "Peptide";
-                string spectrumNumberString = "Spectrum number";
                 string pvalueString = "P-value";
+                bool proteomeDiscover = false;
 
                 // Open up the csvfile and read its contents, skipping the header
                 using (CsvReader reader = new CsvReader(new StreamReader(csvfile.FilePath), true))
@@ -167,8 +199,8 @@ namespace Coon.Compass.ProteinHoarder
                     if (reader.GetFieldHeaders().Contains("XCorr"))
                     {
                         sequenceString = "Sequence";
-                        spectrumNumberString = "RT [min]";
                         pvalueString = "PEP";
+                        proteomeDiscover = true;
                     }
 
                     // Read each line of the csv
@@ -177,13 +209,22 @@ namespace Coon.Compass.ProteinHoarder
                         // Remove leucine / isoleucine ambiguity                      
                         string leuSeq = reader[sequenceString].ToUpper().Replace('I', 'L');
 
-                        // Read in the basic stats from the file
-                        int specNum = (int)double.Parse(reader[spectrumNumberString]);
+                        double rt = 0;
+                        int specNum = 0;
+                        if (proteomeDiscover)
+                        {
+                            rt = double.Parse(reader["RT [min]"]);
+                        }
+                        else
+                        {
+                            specNum = int.Parse(reader["Spectrum number"]);
+                            rt = double.Parse(omssaRTRegex.Match(reader["Filename/id"]).Groups[1].Value);
+                        }
 
                         double pvalue = double.Parse(reader[pvalueString]);
 
                         // Create a new peptide spectral match
-                        PSM psm = new PSM(csvfile, specNum, pvalue);
+                        PSM psm = new PSM(csvfile, specNum, rt, pvalue);
 
                         // Add to the list of the all the unique peptides
                         Peptide realPep;
@@ -404,14 +445,15 @@ namespace Coon.Compass.ProteinHoarder
         /// discovery.
         /// </summary>
         /// <param name="proteins">A list of unique proteins to group together</param>
-        private List<ProteinGroup> GroupProteins(List<Protein> proteins)
+        private List<ProteinGroup> GroupProteins(List<Protein> proteins, bool printMessages = true)
         {
-            Log("Grouping proteins into protein groups...");
-            ProgressUpdate(0.0);
-
+            if (printMessages)
+                Log("Grouping proteins into protein groups...");
+           
             // A list of protein groups that, at the end of this method, will have distinct protein groups.
             List<ProteinGroup> proteinGroups = new List<ProteinGroup>();
-            Log("{0:N0} original proteins (maximum proteins identified)", proteins.Count);
+            if (printMessages)
+                Log("{0:N0} original proteins (maximum proteins identified)", proteins.Count);
 
             // 1) Find Indistinguishable Proteins and group them together into Protein Groups
             // If they are not indistinguishable, then they are still converted to Protein Groups
@@ -473,7 +515,8 @@ namespace Coon.Compass.ProteinHoarder
                 proteinGroups.Add(pg);
                 p1++;
             }
-            Log("{0:N0} protein groups are left after combining indistinguishable proteins (having the exact same set of peptides)", proteinGroups.Count);
+            if (printMessages)
+                Log("{0:N0} protein groups are left after combining indistinguishable proteins (having the exact same set of peptides)", proteinGroups.Count);
 
             #endregion Indistinguishable
 
@@ -501,55 +544,7 @@ namespace Coon.Compass.ProteinHoarder
 
             // Then sort the groups on decreasing p-values
             proteinGroups.Sort(ProteinGroup.CompareDecreasing);
-
-            // Loop over each protein group
-            //p1 = 0;
-            //while (p1 < proteinGroups.Count)
-            //{
-            //    // Get the peptides in the protein group
-            //    ProteinGroup proteinGroup = proteinGroups[p1];
-            //    HashSet<Peptide> referencePeptides = new HashSet<Peptide>(proteinGroup.Peptides);
-
-            //    bool subsumableProteinGroup = false;
-
-            //    // Loop over each protein group again
-            //    for (int p2 = 0; p2 < proteinGroups.Count; p2++)
-            //    {
-            //        // Don't compare the same protein group to each other, move to the next protein group then
-            //        if (p1 == p2)
-            //        {
-            //            continue;
-            //        }
-
-            //        // Remove all the peptides that are in the second protein group (p2) from the peptides in the first protein group (p1, reference_peptides);
-            //        referencePeptides.ExceptWith(proteinGroups[p2].Peptides);
-
-            //        // If the first protein group (p1) has no peptides left, it is subsumable (e.g. Protein A in above example, Peptides 1 and 2 are found in other groups)
-            //        if (referencePeptides.Count != 0) 
-            //            continue;
-
-            //        subsumableProteinGroup = true;
-            //        break;
-            //    }
-
-            //    // Remove the group since it was subsumable and has a worst p-value then the other groups.
-            //    if (subsumableProteinGroup)
-            //    {
-            //        // Since this protein group is being eliminated, remove its reference from all the peptides
-            //        foreach (Peptide pep in proteinGroup.Peptides)
-            //        {
-            //            pep.ProteinGroups.Remove(proteinGroup);
-            //        }
-
-            //        // Remove the protein group from the master list
-            //        proteinGroups.RemoveAt(p1);
-            //    }
-            //    else
-            //    {
-            //        p1++;
-            //    }
-            //}
-
+            
             p1 = 0;
             while (p1 < proteinGroups.Count)
             {
@@ -575,7 +570,8 @@ namespace Coon.Compass.ProteinHoarder
                 }
             }
 
-            Log("{0:N0} protein groups are left after removing subsumable groups (peptides can be explain by other groups)", proteinGroups.Count);
+            if (printMessages)
+                Log("{0:N0} protein groups are left after removing subsumable groups (peptides can be explain by other groups)", proteinGroups.Count);
 
             #endregion Subsumable
 
@@ -607,7 +603,8 @@ namespace Coon.Compass.ProteinHoarder
                         p1++;
                     }
                 }
-                Log("{0:N0} protein groups are left after removing groups with < {1:N0} peptides [parsimonious proteins]", proteinGroups.Count, MinPeptidesPerGroup);
+                if (printMessages)
+                    Log("{0:N0} protein groups are left after removing groups with < {1:N0} peptides [parsimonious proteins]", proteinGroups.Count, MinPeptidesPerGroup);
             }
 
             #endregion
@@ -624,7 +621,8 @@ namespace Coon.Compass.ProteinHoarder
                 count++;
             }
 
-            Log("{0:N0} protein groups are left after applying FDR of {1:N2}% [parsimonious proteins filtered]", count, MaxFdr);
+            if (printMessages)
+                Log("{0:N0} protein groups are left after applying FDR of {1:N2}% [parsimonious proteins filtered]", count, MaxFdr);
 
             #endregion FDR filtering
 

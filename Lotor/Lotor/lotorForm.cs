@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Security.Policy;
 using System.Threading;
 using System.Windows.Forms;
 using CSMSL;
+using CSMSL.Chemistry;
 using CSMSL.IO;
 using CSMSL.IO.OMSSA;
 using CSMSL.IO.Thermo;
@@ -25,9 +28,6 @@ namespace Coon.Compass.Lotor
         public Lotor Lotor = null;
         public Thread MainThread = null;
 
-        public BindingList<PTM> activePTMs;
-        public HashSet<PTM> activePTMsHashSet;
-
         public lotorForm()
         {
             InitializeComponent();
@@ -39,74 +39,14 @@ namespace Coon.Compass.Lotor
             Text = string.Format("Lotor ({0})", GetRunningVersion());
 
             comboBox1.DataSource = Enum.GetValues(typeof(MassToleranceType));
-            comboBox1.SelectedItem = MassToleranceType.PPM;
+            comboBox1.SelectedItem = MassToleranceType.DA;
 
             foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
-                comboBox2.Items.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));
-            }
-            activePTMsHashSet = new HashSet<PTM>();
-            activePTMs = new BindingList<PTM>();
-            activePTMs.RaiseListChangedEvents = true;
-            activePTMs.ListChanged += new ListChangedEventHandler(activePTMs_ListChanged);
-            dataGridView1.AutoGenerateColumns = false;
-            dataGridView1.DataSource = activePTMs;
-
-            DataGridViewTextBoxColumn nameCol = new DataGridViewTextBoxColumn();
-            nameCol.HeaderText = "Name";
-            nameCol.DataPropertyName = "Name";
-            nameCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(nameCol);
-
-            DataGridViewTextBoxColumn massCol = new DataGridViewTextBoxColumn();
-            massCol.HeaderText = "Mass";
-            massCol.DataPropertyName = "MonoisotopicMass";
-            massCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(massCol);
-
-            DataGridViewCheckBoxColumn isfixedCol = new DataGridViewCheckBoxColumn();
-            isfixedCol.HeaderText = "Fixed Mod";
-            isfixedCol.DataPropertyName = "IsFixed";
-            isfixedCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(isfixedCol);
-
-            DataGridViewCheckBoxColumn isQuantCol = new DataGridViewCheckBoxColumn();
-            isQuantCol.HeaderText = "Use for Quantification";
-            isQuantCol.DataPropertyName = "Quantify";
-            isQuantCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(isQuantCol);
-
-            DataGridViewTextBoxColumn modCol = new DataGridViewTextBoxColumn();
-            modCol.HeaderText = "Modified Sites";
-            modCol.DataPropertyName = "ModificationSites";
-            modCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(modCol);
-
-            DataGridViewCheckBoxColumn isprotnCol = new DataGridViewCheckBoxColumn();
-            isprotnCol.HeaderText = "Protein N-Term";
-            isprotnCol.DataPropertyName = "IsProteinNTerm";
-            isprotnCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(isprotnCol);
-
-            DataGridViewCheckBoxColumn isprotcCol = new DataGridViewCheckBoxColumn();
-            isprotcCol.HeaderText = "Protein C-Term";
-            isprotcCol.DataPropertyName = "IsProteinCTerm";
-            isprotcCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            dataGridView1.Columns.Add(isprotcCol);
-
-            dataGridView1.CellClick += new DataGridViewCellEventHandler(DGV_CellClick);
-
-        }
-
-        void activePTMs_ListChanged(object sender, ListChangedEventArgs e)
-        {
-            if (e.ListChangedType == ListChangedType.ItemDeleted)
-            {
-                activePTMsHashSet.Clear();
-                foreach (PTM ptm in activePTMs)
-                {
-                    activePTMsHashSet.Add(ptm);
-                }
+                if (mod.Name == "carbamidomethyl C")
+                    listBox2.Items.Add(mod);
+                else
+                    listBox1.Items.Add(mod);
             }
         }
 
@@ -114,7 +54,8 @@ namespace Coon.Compass.Lotor
         {
             logTB.Clear();
             logTB.BackColor = Color.White;
-            Dictionary<string, MSDataFile> rawFiles = GetRawFiles();
+
+            string rawFileDirectory = textBox3.Text;
             string inputcsvfile = textBox1.Text;
             if (!System.IO.File.Exists(inputcsvfile))
             {
@@ -132,19 +73,36 @@ namespace Coon.Compass.Lotor
                 UpdateLog("Output directory " + outputDirectory + " doesn't exist, creating it...");
                 System.IO.Directory.CreateDirectory(outputDirectory);
             }
-            Dictionary<string, PTM> ptms = new Dictionary<string, PTM>();
-            foreach (PTM ptm in activePTMs)
+
+            List<Modification> fixedModifications = listBox2.Items.OfType<Modification>().ToList();
+
+            List<string> modNames = checkedListBox1.CheckedItems.OfType<string>().ToList();
+            List<Modification> quantifiedModifications = new List<Modification>();
+            foreach (string modName in modNames)
             {
-                ptms.Add(ptm.Name, ptm);
+                OmssaModification mod;
+                if (!OmssaModification.TryGetModification(modName, out mod))
+                {
+                    UpdateLog("Unable to load mod "+modName+". Did you load the correct modification file?");
+                    return;
+                }
+                quantifiedModifications.Add(mod);
             }
+           
+            double ascoreThreshold = (double)numericUpDown2.Value;
+            double prodThreshold = (double)numericUpDown3.Value / 100.0;
+            bool ignoreCTerminal = checkBox2.Checked;
+
+
             MassTolerance prodTolerance = GetProductTolerance();
-            Lotor = new Lotor(rawFiles, inputcsvfile, outputDirectory, ptms, prodTolerance, 13, FragmentTypes.b | FragmentTypes.y);
-            Lotor.UpdateLog += new EventHandler<StatusEventArgs>(lotor_UpdateLog);
-            Lotor.UpdateProgress += new EventHandler<ProgressEventArgs>(lotor_UpdateProgress);
-            MainThread = new Thread(Lotor.Localize);
-            MainThread.IsBackground = true;
-            MainThread.Start();
+            Lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
+                quantifiedModifications, prodTolerance, ascoreThreshold, prodThreshold, ignoreCTerminal,
+                FragmentTypes.b | FragmentTypes.y);
+            Lotor.UpdateLog += lotor_UpdateLog;
+            Lotor.UpdateProgress += lotor_UpdateProgress;
             localizeB.Enabled = false;
+            MainThread = new Thread(Lotor.Localize) {IsBackground = true};
+            MainThread.Start();
         }
 
         public MassTolerance GetProductTolerance()
@@ -153,92 +111,62 @@ namespace Coon.Compass.Lotor
             MassToleranceType type = (MassToleranceType)comboBox1.SelectedItem;
             return new MassTolerance(type, value);
         }
-
-        private Dictionary<string, MSDataFile> GetRawFiles()
-        {
-            Dictionary<string, MSDataFile> dict = new Dictionary<string, MSDataFile>();
-            foreach (string rawFileName in listBox1.Items)
-            {
-                MSDataFile rawFile = new ThermoRawFile(rawFileName);
-                dict.Add(rawFile.Name, rawFile);
-            }
-            return dict;
-        }
-
+        
         public void LoadUserMods(string userModFile)
         {
             OmssaModification.LoadOmssaModifications(userModFile, true);
-
-            comboBox2.Items.Clear();
+           
+            listBox1.Items.Clear();
+            listBox2.Items.Clear();
             foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
-                comboBox2.Items.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));
+                if (mod.Name == "carbamidomethyl C")
+                    listBox2.Items.Add(mod);
+                else
+                    listBox1.Items.Add(mod);
             }
-            ReadMods(textBox1.Text);
         }
 
-        public void LoadRawFiles(IEnumerable<string> rawFiles)
+        private HashSet<string> _variableModifications = new HashSet<string>();
+
+        private void UpdateVariableMods()
         {
-            foreach (string rawfile in rawFiles)
+            if (string.IsNullOrEmpty(textBox1.Text))
+                return;
+            _variableModifications.Clear();
+            using (CsvReader reader = new CsvReader(new StreamReader(textBox1.Text), true))
             {
-                listBox1.Items.Add(rawfile);               
+                while (reader.ReadNextRecord())
+                {
+                    foreach (
+                        string modName in
+                            OmssaModification.SplitModificationLine(reader["Mods"]))
+                    {
+                        _variableModifications.Add(modName);
+                    }
+                }
+            }
+            checkedListBox1.Items.Clear();
+            foreach (string modName in _variableModifications)
+            {
+                checkedListBox1.Items.Add(modName);
             }
         }
 
         public void LoadPeptides(string filename)
         {
             textBox1.Text = filename;
-            ReadMods(filename);
-        }
-
-        public void ReadMods(string filename)
-        {
-            if (string.IsNullOrEmpty(filename)) return;
-            HashSet<PTM> mods = new HashSet<PTM>();
-            using (CsvReader reader = new CsvReader(new StreamReader(filename), true))
-            {
-                while (reader.ReadNextRecord())
-                {
-                    try
-                    {
-                        string modstring = reader["Mods"];
-                        foreach (OmssaModification mod in OmssaModification.ParseModificationLine(modstring))
-                        {
-                            mods.Add(new PTM(mod.Name, mod.MonoisotopicMass, ModificationSites.None, false));                           
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        UpdateLog( e.Message);
-                        return;
-                    }
-
-                }
-            }
-            foreach (PTM ptm in mods)
-            {
-                AddMod(ptm);
-            }
+            if (string.IsNullOrEmpty(textBox2.Text))
+                textBox2.Text = Path.GetDirectoryName(filename);
+            if(string.IsNullOrEmpty(textBox3.Text))
+                textBox3.Text = Path.GetDirectoryName(filename);
+            UpdateVariableMods();
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
             Run();
         }
-
-        public void AddMod(PTM mod) 
-        {
-            if (activePTMsHashSet.Contains(mod))
-            {
-                return;
-            }
-            else
-            {
-                activePTMs.Add(mod);
-                activePTMsHashSet.Add(mod);
-            }
-        }
-
 
         #region CallBacks       
 
@@ -289,6 +217,7 @@ namespace Coon.Compass.Lotor
                     progressBar1.Style = ProgressBarStyle.Continuous;
                     progressBar1.Value = 0;                 
                     Lotor = null;
+                    MainThread = null;
                     localizeB.Enabled = true;
                 }
                 else if (percent == 0.0)
@@ -305,31 +234,6 @@ namespace Coon.Compass.Lotor
         }
 
         #endregion
-
-        private void DGV_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            DataGridView dgv = ((DataGridView)sender);
-            if (e.ColumnIndex < 0)
-            {
-                dgv.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
-                dgv.Focus();
-                dgv.EndEdit();
-            }
-            else
-            {
-                dgv.EditMode = DataGridViewEditMode.EditOnEnter;
-                if (dgv.CurrentCell != null)
-                {
-                    dgv.BeginEdit(false);
-                }
-            }
-        }
-
-        private void button6_Click(object sender, EventArgs e)
-        {
-            PTM mod = (PTM)comboBox2.SelectedItem;
-            AddMod(mod);
-        }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -351,7 +255,7 @@ namespace Coon.Compass.Lotor
         {
             if (rawD.ShowDialog() == DialogResult.OK)
             {
-                LoadRawFiles(rawD.FileNames);
+                textBox3.Text = rawD.SelectedPath;
             }
         }
 
@@ -360,6 +264,55 @@ namespace Coon.Compass.Lotor
             if (outputD.ShowDialog() == DialogResult.OK)
             {
                 textBox2.Text = outputD.SelectedPath;
+            }
+        }
+
+        private void LoadFiles(IEnumerable<string> files)
+        {
+            foreach (string file in files)
+            {
+                switch (Path.GetExtension(file))
+                {
+                    case ".csv":
+                        LoadPeptides(file);
+                        break;
+                    case ".xml":
+                        LoadUserMods(file);
+                        break;
+                }
+            }
+        }
+
+        private void lotorForm_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.All;
+        }
+
+        private void lotorForm_DragDrop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+                return;
+            string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            LoadFiles(files);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            for (int i = listBox1.SelectedIndices.Count - 1; i >= 0; i--)
+            {
+                int index = listBox1.SelectedIndices[i];
+                listBox2.Items.Add(listBox1.Items[index]);
+                listBox1.Items.RemoveAt(index);
+            }
+        }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            for (int i = listBox2.SelectedIndices.Count - 1; i >= 0; i--)
+            {
+                int index = listBox2.SelectedIndices[i];
+                listBox1.Items.Add(listBox2.Items[index]);
+                listBox2.Items.RemoveAt(index);
             }
         }
      

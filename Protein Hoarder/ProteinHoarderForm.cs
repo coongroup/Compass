@@ -118,6 +118,7 @@ namespace Coon.Compass.ProteinHoarder
             bool includeUnfiltereedResults = includeUnfliterCB.Checked;
             bool ignorePeptidesWithMissingData = ignorePepMissingCB.Checked;
             bool semiDigestion = semiCB.Checked;
+            bool proteinPerMin = proteinsPerMinCB.Checked;
             //double interferencecutoff = (double)quantintferenceUD.Value;
             
             HashSet<Modification> modstoignore = new HashSet<Modification>();
@@ -131,7 +132,7 @@ namespace Coon.Compass.ProteinHoarder
                 }
             }           
             logTB.Clear();
-            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion);
+            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion, proteinPerMin);
             Hoarder.UpdateLog += new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
             Hoarder.UpdateProgress += new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
             MainThread = new Thread(Hoarder.Herd);

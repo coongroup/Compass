@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CSMSL;
 using CSMSL.Analysis.Identification;
 using CSMSL.Proteomics;
@@ -12,6 +13,7 @@ namespace Coon.Compass.Lotor
         public MassSpectrum Spectrum;
         public int Charge;
         public SpectrumFragmentsMatch SpectralMatch;
+        public int SiteDeterminingFragments;
 
         public PeptideIsoform(Peptide peptide, MassSpectrum spectrum, int charge)
             : base(peptide) 
@@ -20,13 +22,13 @@ namespace Coon.Compass.Lotor
             Charge = charge;
         }
 
-        private IEnumerable<Fragment> fragments;
+        public List<Fragment> Fragments;
 
-        public void MatchSpectrum(FragmentTypes fragmentTypes, MassTolerance tolerance)
+        public void MatchSpectrum(FragmentTypes fragmentTypes, MassTolerance tolerance, double cutoffThreshold, params int[] chargeStates)
         {
-            fragments = Fragment(fragmentTypes);
+            Fragments = Fragment(fragmentTypes).ToList();
             SpectralMatch = new SpectrumFragmentsMatch(Spectrum);
-            SpectralMatch.MatchFragments(fragments, tolerance, 1);
+            SpectralMatch.MatchFragments(Fragments, tolerance, cutoffThreshold, chargeStates);
         }
 
         public int CompareTo(PeptideIsoform other)

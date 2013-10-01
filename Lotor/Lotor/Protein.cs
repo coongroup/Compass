@@ -1,27 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using CSMSL.Chemistry;
 
 namespace Coon.Compass.Lotor
 {
     public class Protein
     {
-        public string Name { get; set; }
         public string Defline { get; set; }
+        public string ProteinGroup { get; set; }
 
-        public List<SiteIsoform> Isoforms { get; set; }
         public Dictionary<string, List<LocalizedHit>> Hits { get; private set; }
 
-        public Protein(string name)
+        public Protein(string group, string defline)
         {
-            Name = name;
-            Isoforms = new List<SiteIsoform>();
+            ProteinGroup = group;
+            Defline = defline;
             Hits = new Dictionary<string, List<LocalizedHit>>();
         }
 
-        public void AddHit(LocalizedHit hit, List<IMass> localazingPTMs) 
+        public void AddHit(LocalizedHit hit)
         {
-            string localizedString = GetLocalizedString(hit, localazingPTMs);
+            string localizedString = GetLocalizedString(hit);
             List<LocalizedHit> hits = null;
             if (Hits.TryGetValue(localizedString, out hits))
             {
@@ -34,46 +34,55 @@ namespace Coon.Compass.Lotor
                 Hits.Add(localizedString, hits);
             }
         }
-
         public string Print(int quantStart, int quantEnd)
         {
+            bool quant = quantStart >= 0;
             StringBuilder sb = new StringBuilder();
             foreach (KeyValuePair<string, List<LocalizedHit>> kvp in Hits)
             {
-
+                if (string.IsNullOrEmpty(kvp.Key))
+                    continue;
+                sb.Append(ProteinGroup);
+                sb.Append(',');
                 sb.Append(Defline);
                 sb.Append(',');
                 sb.Append(kvp.Key); // Isoform
-                int forms = kvp.Key.Length - kvp.Key.Replace("|", "").Length + 1;
+                int ptms = kvp.Key.Length - kvp.Key.Replace("|", "").Length + 1;
                 sb.Append(',');
-                sb.Append(forms);
+                sb.Append(ptms);
                 sb.Append(',');
                 sb.Append(kvp.Value.Count);
                 sb.Append(',');
-
+                sb.Append(kvp.Value.Count(hit => hit.IsLocalized));
                 // quant
-                double[] quantInfo = new double[quantEnd - quantStart + 1];
-                for (int i = 0; i < quantInfo.Length; i++)
+                if (quant)
                 {
-                    quantInfo[i] = 0;
-                }
-                foreach (LocalizedHit hit in kvp.Value)
-                {
-                    if (!hit.isCTermModified)
+                    
+                    double[] quantInfo = new double[quantEnd - quantStart + 1];
+
+                    int numLocalized = 0;
+                    foreach (LocalizedHit hit in kvp.Value)
                     {
-                        for (int i = quantStart; i <= quantEnd; i++)
+                        if (hit.IsLocalized)
                         {
-                            quantInfo[i - quantStart] += double.Parse(hit.omssapsm[i]);
+                            numLocalized++;
+                            for (int i = quantStart; i <= quantEnd; i++)
+                            {
+                                quantInfo[i - quantStart] += double.Parse(hit.omssapsm[i]);
+                            }
                         }
                     }
-                }
-                for (int i = 0; i < quantInfo.Length; i++)
-                {
-                    sb.Append(quantInfo[i]);
                     sb.Append(',');
+                    for (int i = 0; i < quantInfo.Length; i++)
+                    {
+                        double data = quantInfo[i];
+                        sb.Append(data);
+                        sb.Append(',');
+                    }
+                    sb.Remove(sb.Length - 1, 1);
                 }
-                sb.Remove(sb.Length - 1, 1);
                 sb.Append('\n');
+
             }
             if (sb.Length > 0)
             {
@@ -82,21 +91,21 @@ namespace Coon.Compass.Lotor
             return sb.ToString();
         }
 
-        private static string GetLocalizedString(LocalizedHit hit, List<IMass> localizingPTMs)
+        private static string GetLocalizedString(LocalizedHit hit)
         {
             StringBuilder sb = new StringBuilder();
             IMass[] mods = hit.LocalizedIsoform.GetModifications();
-            for(int resNumber = 0; resNumber < mods.Length; resNumber++)
+            for(int resNumber = 1; resNumber < mods.Length-1; resNumber++)
             {
                 IMass mod = mods[resNumber];
-                if (mod != null && localizingPTMs.Contains(mod))
-                {
-                    int fullResidueNumber = hit.PSM.StartResidue + resNumber + 1;
-                    char res = hit.LocalizedIsoform.Sequence[resNumber + 1];
-                    sb.Append(res);
-                    sb.Append(fullResidueNumber);
-                    sb.Append("|");
-                }
+                if (mod == null || Lotor.FixedModifications.Contains(mod)) 
+                    continue;
+                int fullResidueNumber = hit.PSM.StartResidue + resNumber + 1;
+                char res = hit.LocalizedIsoform.Sequence[resNumber-1];
+                sb.Append(res);
+                sb.Append(fullResidueNumber);
+                sb.Append(" [" + mod + "] ");
+                sb.Append("|");
             }
             if (sb.Length > 0)
             {

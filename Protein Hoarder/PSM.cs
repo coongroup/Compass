@@ -6,12 +6,15 @@
 
         public int ScanNumber { get; set; }
 
+        public double RetentionTime { get; set; }
+
         public double PValue { get; set; }
 
-        public PSM(CsvFile csvFile, int scanNumber, double pvalue)
+        public PSM(CsvFile csvFile, int scanNumber, double retentionTime, double pvalue)
         {
             CsvFile = csvFile;
             ScanNumber = scanNumber;
+            RetentionTime = retentionTime;
             PValue = pvalue;
         }
 

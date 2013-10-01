@@ -385,10 +385,10 @@ namespace Coon.Compass.FdrOptimizer
                 WriteFiles(csvFiles);
 
             }
-            catch(Exception ex)
-            {
-                onThrowException(new ExceptionEventArgs(ex));
-            }
+            //catch(Exception ex)
+            //{
+            //    onThrowException(new ExceptionEventArgs(ex));
+            //}
             finally
             {
                 Cleanup();
@@ -551,7 +551,7 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
-        private void Calculate2dFdr(IList<InputFile> csvFiles, int steps = 20, double minimumIncrement = 0.1)
+        private void Calculate2dFdr(IList<InputFile> csvFiles, int steps = 10, double minimumIncrement = 0.1)
         {
             Log("Calculating second order FDR levels...");
             foreach (InputFile csvFile in csvFiles)
@@ -567,6 +567,7 @@ namespace Coon.Compass.FdrOptimizer
                 double increment = (maxPrecursorError - minPrecursorError)/steps;
                 while (increment > minimumIncrement)
                 {
+                    bestTargets = 0;
                     for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
                     {
                         int index = Array.BinarySearch(precursorPPMs, ppmError);

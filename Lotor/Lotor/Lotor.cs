@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using CSMSL;
 using CSMSL.Chemistry;
 using CSMSL.IO;
 using CSMSL.IO.OMSSA;
+using CSMSL.IO.Thermo;
 using CSMSL.Proteomics;
 using LumenWorks.Framework.IO.Csv;
 
@@ -14,68 +16,58 @@ namespace Coon.Compass.Lotor
 {
     public class Lotor
     {
-        private MassTolerance PROD_TOLERANCE;
-        private Dictionary<string, MSDataFile> RAW_FILES;
-        private string CSV_FILE;
-        private string OUTPUT_DIRECTORY;
-        private Dictionary<string, PTM> PTMS;
-        private DateTime startTime;
-        private double ASCORE_THRESHOLD;
-        private FragmentTypes FRAG_TYPE;
+        private readonly MassTolerance _prodTolerance;
+        private readonly string _rawFileDirectory;
+        private readonly string _csvFile;
+        private readonly string _outputDirectory;
+        public static List<IMass> FixedModifications;
+        private readonly List<Modification> _fixedModifications;
+        public static List<Modification> QuantifiedModifications; 
+        private DateTime _startTime;
+        private readonly double _ascoreThreshold;
+        private readonly double _productThreshold;
+        private readonly FragmentTypes _fragType;
+        private readonly bool _ignoreCTerminal;
+        private HashSet<MSDataFile> _dataFiles; 
 
         private int FirstQuantColumn = -1;
         private int LastQuantColumn = -1;
         private string[] headerInfo = null;
 
-        public Lotor(Dictionary<string, MSDataFile> rawFiles, string inputcsvFile, string outputDirectory, Dictionary<string, PTM> ptms, MassTolerance prod_Tolerance, double ascore_threshold, FragmentTypes fragType)
+        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, double ascore_threshold, double productThreshold,bool ignoreCTerminal, FragmentTypes fragType)
         {
-            RAW_FILES = rawFiles;
-            CSV_FILE = inputcsvFile;
-            OUTPUT_DIRECTORY = outputDirectory;
-            PTMS = ptms;
-            PROD_TOLERANCE = prod_Tolerance;
-            ASCORE_THRESHOLD = ascore_threshold;
-            FRAG_TYPE = fragType;
+            _rawFileDirectory = rawFileDirectory;
+            _csvFile = inputcsvFile;
+            _outputDirectory = outputDirectory;
+            _fixedModifications = fixedModifications;
+            FixedModifications = fixedModifications.OfType<IMass>().ToList();
+            QuantifiedModifications = quantifiedModifications;
+            _prodTolerance = prod_Tolerance;
+            _ascoreThreshold = ascore_threshold;
+            _productThreshold = productThreshold;
+            _fragType = fragType;
+            _ignoreCTerminal = ignoreCTerminal;
+            LocalizedHit.AScoreThreshold = ascore_threshold;
         }
 
         public void Localize()
         {
-            startTime = DateTime.Now;
+            _startTime = DateTime.Now;
             Log("Localization Started...");
-
-            List<PTM> fixedMods = new List<PTM>();
-            List<PTM> varMods = new List<PTM>();
-            List<PTM> quantMods = new List<PTM>();
-            foreach (PTM ptm in PTMS.Values)
-            {
-                if (ptm.IsFixed)
-                {
-                    fixedMods.Add(ptm);
-                }
-                else
-                {
-                    varMods.Add(ptm);
-                    if (ptm.Quantify)
-                    {
-                        quantMods.Add(ptm);
-                    }
-                }
-            }
-
+            
             try
             {
-
                 // 1) Read in all the psms and map them to their respective spectra
-                List<PSM> psms = LoadAllPSMs(CSV_FILE, RAW_FILES, fixedMods);
+                List<PSM> psms = LoadAllPSMs(_csvFile, _rawFileDirectory, _fixedModifications);
 
                 // 2) Calculate all the best isoforms for all the psms
-                List<LocalizedHit> hits = CalculateBestIsoforms(psms, ASCORE_THRESHOLD, FRAG_TYPE, PROD_TOLERANCE);
+                List<LocalizedHit> hits = CalculateBestIsoforms(psms, _ascoreThreshold, _fragType, _prodTolerance, _productThreshold);
 
                 // 3) Compile Results
-                List<Protein> proteins = CompileResults(hits, CSV_FILE, OUTPUT_DIRECTORY, quantMods);
+                List<Protein> proteins = CompileResults(hits, _csvFile, _outputDirectory);
 
                 // 4) Write out the results
-                WriteResults(proteins, CSV_FILE, OUTPUT_DIRECTORY, FirstQuantColumn, LastQuantColumn);
+                WriteResults(proteins, _csvFile, _outputDirectory, FirstQuantColumn, LastQuantColumn);
             }
             catch (Exception e)
             {
@@ -83,7 +75,11 @@ namespace Coon.Compass.Lotor
             }
             finally
             {
-                TimeSpan diff = DateTime.Now - startTime;
+                foreach (MSDataFile dataFile in _dataFiles)
+                {
+                    dataFile.Dispose();
+                }
+                TimeSpan diff = DateTime.Now - _startTime;
                 Log(string.Format("Finished [{0:D2} hrs, {1:D2} mins, {2:D2} secs]", diff.Hours, diff.Minutes, diff.Seconds));
                 Log(string.Format("Lotor v{0}", lotorForm.GetRunningVersion()));
                 ProgressUpdate(-1);
@@ -95,13 +91,12 @@ namespace Coon.Compass.Lotor
             using (StreamWriter localizeWriter = new StreamWriter(Path.Combine(outDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_localized_reduced.csv")))                
             {
                 StringBuilder sb = new StringBuilder();
-                sb.Append("Protein,Isoform,Sites,PSMs Identified,");
+                sb.Append("Protein Group,Defline,Isoform,Sites,PSMs Identified,PSMs Localized");
                 for (int i = firstQuant; i <= lastQuant; i++)
                 {
-                    sb.Append(headerInfo[i]);
                     sb.Append(',');
+                    sb.Append(headerInfo[i]);
                 }
-                sb.Remove(sb.Length - 1, 1);
                 localizeWriter.WriteLine(sb.ToString());
                 foreach (Protein prot in proteins)
                 {
@@ -110,32 +105,33 @@ namespace Coon.Compass.Lotor
             }
         }
 
-        private List<Protein> CompileResults(List<LocalizedHit> hits, string csvFile, string outputDirectory, List<PTM> quantMods)
+        private List<Protein> CompileResults(List<LocalizedHit> hits, string csvFile, string outputDirectory)
         {
             Dictionary<string, LocalizedHit> hitsdict = new Dictionary<string, LocalizedHit>();
-            List<IMass> localizingMods = new List<IMass>();
-            foreach (IMass ptm in quantMods)
-            {
-                localizingMods.Add(ptm);
-            }
+ 
             // Group all the localized Hits into proteins
             Dictionary<string, Protein> proteins = new Dictionary<string, Protein>();
-            Protein prot = null;
+            
             foreach (LocalizedHit hit in hits)
             {
                 hitsdict.Add(hit.PSM.Filename, hit);
-                if (proteins.TryGetValue(hit.PSM.ProteinGroup, out prot))
+                
+                string[] groups = hit.PSM.ProteinGroup.Split('|');
+                string defline = hit.PSM.Defline;
+
+                foreach (string group in groups)
                 {
-                    prot.AddHit(hit, localizingMods);                  
-                }
-                else
-                {
-                    prot = new Protein(hit.PSM.ProteinGroup);
-                    prot.AddHit(hit, localizingMods);  
-                    proteins.Add(hit.PSM.ProteinGroup, prot);
+                    Protein prot;
+                    if (!proteins.TryGetValue(group, out prot))
+                    {
+                        prot = new Protein(group, defline);
+                        proteins.Add(group, prot);
+                    }
+                    prot.AddHit(hit);
                 }
             }
-            using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_localized.csv")))
+            using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_all.csv")),
+                 localizedWriter = new StreamWriter(Path.Combine(outputDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_localized.csv")))
             {
                 using (CsvReader reader = new CsvReader(new StreamReader(csvFile), true))
                 {
@@ -144,43 +140,80 @@ namespace Coon.Compass.Lotor
                     bool tqFound = false;
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
-                        if (headerInfo[i].StartsWith("TQ"))
+                        if (headerInfo[i].EndsWith("NL)"))
                         {
                             if (!tqFound)
                             {
                                 FirstQuantColumn = i;
                                 tqFound = true;
                             }
-                            LastQuantColumn = i;
                         }
+                        if(headerInfo[i] == "Channels Detected")
+                            LastQuantColumn = i-1;
                     }
-                    writer.WriteLine(string.Join(",", headerInfo)+ ",Localized?,Best Isoform,AScore");
+                    string header = string.Join(",", headerInfo) + ",# Isoforms,Localized?,AScore,p-Value,# of Site Determining Fragments,Best Isoform,Spectral Matches,Site Determining Matches,Second Best Isoform,Second Spectral Matches,Second Site Determining Matches";
+                    writer.WriteLine(header);
+                    localizedWriter.WriteLine(header);
                     while (reader.ReadNextRecord())
-                    {                       
+                    {
+                        string mods = reader["Mods"];
+                        if (string.IsNullOrEmpty(mods))
+                            continue;
+
+                        List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).OfType<Modification>().ToList();
+
+                        // Only keep things with quantified Modifications
+                        if (!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))
+                            continue;
+
                         string filename = reader["Filename/id"];
-                        bool localized = false;
-                        if (localized = hitsdict.TryGetValue(filename, out hit))
-                        {
-                            prot = proteins[hit.PSM.ProteinGroup];
-                            prot.Defline = reader["Defline"];
-                            hit.omssapsm = new string[reader.FieldCount];
-                            reader.CopyCurrentRecordTo(hit.omssapsm);
-                        }                        
+                        if(!hitsdict.TryGetValue(filename, out hit))
+                            continue;
+                     
                         string[] data = new string[reader.FieldCount];
                         reader.CopyCurrentRecordTo(data);
+                  
+                        hit.omssapsm = data;
+                                 
+                        StringBuilder sb = new StringBuilder();
+
                         foreach (string datum in data)
-                        {                            
-                            writer.Write(datum.Replace(",","."));
-                            writer.Write(',');
-                        }
-                        if (localized)
                         {
-                            writer.Write(string.Format("{0},{1},{2}\n", localized, hit.LocalizedIsoform.SequenceWithModifications, hit.AScore));
+                            if (datum.Contains(','))
+                            {
+                                sb.Append("\"");
+                                sb.Append(datum);
+                                sb.Append("\"");
+                            }
+                            else
+                                sb.Append(datum);
+                            sb.Append(',');
                         }
-                        else
-                        {
-                            writer.Write(string.Format("{0},{1},{2}\n", localized, "n/a", "0"));
-                        }
+                        sb.Append(hit.PSM.Isoforms);
+                        sb.Append(',');
+                        sb.Append(hit.IsLocalized);
+                        sb.Append(',');
+                        sb.Append(hit.AScore);
+                        sb.Append(',');
+                        sb.Append(hit.PValue);
+                        sb.Append(',');
+                        sb.Append(hit.NumberOfSiteDeterminingFragments);
+                        sb.Append(',');
+                        sb.Append(hit.LocalizedIsoform.SequenceWithModifications);
+                        sb.Append(',');
+                        sb.Append(hit.LocalizedIsoform.SpectralMatch.Matches);
+                        sb.Append(',');
+                        sb.Append(hit.BestPeptideSDFCount);
+                        sb.Append(',');
+                        sb.Append(hit.SecondBestPeptideIsoform.SequenceWithModifications);
+                        sb.Append(',');
+                        sb.Append(hit.SecondBestPeptideIsoform.SpectralMatch.Matches);
+                        sb.Append(',');
+                        sb.Append(hit.SecondBestPeptideSDFCount);
+                      
+                        if(hit.IsLocalized)
+                            localizedWriter.WriteLine(sb.ToString());
+                        writer.WriteLine(sb.ToString());
                     }
                 }
             }
@@ -188,50 +221,55 @@ namespace Coon.Compass.Lotor
             return proteins.Values.ToList();
         }
 
-        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, double ascoreThreshold, FragmentTypes fragType, MassTolerance prod_tolerance)
+        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, double ascoreThreshold, FragmentTypes fragType, MassTolerance prod_tolerance, double productThreshold)
         {
             Log("Localizing Best Isoforms...");
             int totalisofromscount = 0;
             int count = 0;
             int psm_count = 0;
             int localized_psm = 0;
-            double ascore = 0;
             List<LocalizedHit> hits = new List<LocalizedHit>();
             foreach (PSM psm in psms)
             {
                 // Generate all the isoforms for the PSM
-                totalisofromscount += psm.GenerateIsoforms();   
-
+                int isoformCount = psm.GenerateIsoforms(_ignoreCTerminal);
+                if(isoformCount == 0)
+                    continue;
+                
+                totalisofromscount += isoformCount;
+                
                 // Calculate the probability of success for random matches
-                double pvalue = GetPValue(psm, prod_tolerance);
+                double pvalue = GetPValue(psm, prod_tolerance, productThreshold);
 
                 // Match all the isoforms to the spectrum and log the results
-                psm.MatchIsofroms(fragType, prod_tolerance);      
-        
+                psm.MatchIsofroms(fragType, prod_tolerance, productThreshold, 1);
+
                 // Perform the localization for all combinations of isoforms
-                double[,] res = psm.Calc(fragType, pvalue);
+                double[,] res = psm.Calc(pvalue);
 
                 // Check if the localization is above some threshold               
-                int bestIsoform = LocalizedIsoform(res, ascoreThreshold, out ascore);
-
-                // If there is a positive match, record and save it as a LocalizedHit
-                if (bestIsoform >= 0)
-                {              
-                    List<PeptideIsoform> isoforms = psm.PeptideIsoforms.ToList();            
-                    hits.Add(new LocalizedHit(psm,  isoforms[bestIsoform], ascore));
+                Tuple<int, int, double> scores = LocalizedIsoform(res);
+                int bestIsoform = scores.Item1;
+                int secondBestIsoform = scores.Item2;
+                double ascore = scores.Item3;
+                int numSDFs = psm.NumSiteDeterminingFragments[bestIsoform, secondBestIsoform];
+                          
+                List<PeptideIsoform> isoforms = psm.PeptideIsoforms.ToList();
+                LocalizedHit hit = new LocalizedHit(psm, isoforms[bestIsoform], isoforms[secondBestIsoform], numSDFs,
+                    psm.BestSiteDeterminingFragments[bestIsoform, secondBestIsoform],
+                    psm.BestSiteDeterminingFragments[secondBestIsoform, bestIsoform], pvalue, ascore);
+                hits.Add(hit);
+                if (hit.IsLocalized)
+                {
                     localized_psm++;
                 }
-
-                // No more need for the spectra
-                psm.DeleteScan();
-
                 // Progress Bar Stuff
                 count++;
                 psm_count++;
-                if (count > 50) {
-                    count = 0;
-                    ProgressUpdate((double)psm_count / psms.Count);
-                }
+                if (count <= 50) 
+                    continue;
+                count = 0;
+                ProgressUpdate((double)psm_count / psms.Count);
             }
             Log(string.Format("Total Number of Possible Isoforms Considered: {0:N0}",totalisofromscount));
             Log(string.Format("Total Number of PSMs Considered: {0:N0}", psm_count));
@@ -240,38 +278,59 @@ namespace Coon.Compass.Lotor
             return hits;
         }
            
-        private List<PSM> LoadAllPSMs(string csvFile, Dictionary<string, MSDataFile> rawFiles, List<PTM> fixedMods)
+        private List<PSM> LoadAllPSMs(string csvFile, string rawFileDirectory, List<Modification> fixedMods)
         {
             ProgressUpdate(0.0); //force the progressbar to go into marquee mode  
             Log("Reading PSMs from " + csvFile);
+
+            Dictionary<string, ThermoRawFile> rawFiles =
+                Directory.EnumerateFiles(rawFileDirectory, "*.raw", SearchOption.AllDirectories)
+                    .ToDictionary(Path.GetFileNameWithoutExtension, file => new ThermoRawFile(file));
+
+            _dataFiles = new HashSet<MSDataFile>();
+
             List<PSM> psms = new List<PSM>();
-            MSDataFile rawFile = null;
+            ThermoRawFile rawFile = null;
             using (CsvReader reader = new CsvReader(new StreamReader(csvFile), true))
             {               
                 while (reader.ReadNextRecord())
                 {
+                    string mods = reader["Mods"];
+
+                    // Skip no modifications
+                    if (string.IsNullOrEmpty(mods))
+                        continue;
+
+                    List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).OfType<Modification>().ToList();
+
+                    // Only keep things with quantified Modifications
+                    if(!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))
+                        continue;
+
                     string filename = reader["Filename/id"];
-                    string[] data = filename.Split('.');
-                    string rawname = data[0];                                       
+                    string rawname =  filename.Split('.')[0];                                       
                     if (rawFiles.TryGetValue(rawname, out rawFile))
                     {
-                        int scan_number = int.Parse(reader["Spectrum number"]);                      
+                        if(_dataFiles.Add(rawFile))
+                            rawFile.Open();
+
+                        int scan_number = int.Parse(reader["Spectrum number"]);       
+               
                         PSM psm = new PSM(scan_number, rawFile);
                         psm.StartResidue = int.Parse(reader["Start"]);
                         psm.Charge = int.Parse(reader["Charge"]);      
-                        psm.BasePeptide = new Peptide(reader["Peptide"]);
-                        psm.ProteinGroup = reader["Defline"];
-                        psm.Filename = filename;  
-                   
+                        psm.BasePeptide = new Peptide(reader["Peptide"].ToUpper());
+                        psm.Defline = reader["Defline"];
+                        psm.ProteinGroup = reader["Best PG Name"];
+                        psm.NumberOfSharingProteinGroups = int.Parse(reader["# of Sharing PGs"]);
+                        psm.Filename = filename;
+
                         // Apply all the fix modifications
-                        foreach (PTM fixMod in fixedMods)
-                        {
-                            psm.BasePeptide.SetModification(fixMod, fixMod.ModificationSites);
-                            //psm.BasePeptide.SetFixedModification(fixMod, psm.IsProteinNTerm);
-                        }
-                        
+                        psm.BasePeptide.SetModifications(fixedMods);
+
                         // Save all the variable mod types             
-                        psm.Modifications = OmssaModification.ParseModificationLine(reader["Mods"]).OfType<Modification>().ToList(); 
+                        psm.VariabledModifications = variableMods;
+
                         psms.Add(psm);
                     }
                     else
@@ -280,44 +339,64 @@ namespace Coon.Compass.Lotor
                     }     
                 }               
             }
+
             Log(string.Format("{0:N0} PSMs were loaded.", psms.Count));
             return psms;
         }
              
         #region Statics
 
-        public static double GetPValue(PSM psm, MassTolerance prod_tolerance)
+        public static double GetPValue(PSM psm, MassTolerance prod_tolerance, double cutoff)
         {
-            double mzTol = prod_tolerance.GetMassRange(psm.IsolationMZ).Width;
-            return psm.Spectrum.Count*2*mzTol/psm.DataScan.MzRange.Width;
+            // Get the width of the product ion tolerance at the isolation mz;
+            double productToleranceWidth = prod_tolerance.GetMassRange(psm.IsolationMZ).Width;
+            double cutoffThreshold = psm.Spectrum.BasePeak.Intensity*cutoff;
+            return Math.Min(1.0, psm.Spectrum.Count(peak => peak.Intensity >= cutoffThreshold)*2*productToleranceWidth/psm.DataScan.MzRange.Width);
         }
 
-        public static int LocalizedIsoform(double[,] data, double threshold, out double lowestAscore)
+        public static Tuple<int,int, double> LocalizedIsoform(double[,] data)
         {
-            lowestAscore = 0;
-            for (int i = 0; i < data.GetLength(0); i++)
+            double lowestAscore = 0;
+            int length = data.GetLength(0);
+
+            if (length == 1)
+                return new Tuple<int, int, double>(0, 0, double.PositiveInfinity);
+
+            int bestIsoform = 0;
+            int secondBestIsoform = 0;
+            int bestJ = 0;
+            for (int i = 0; i < length; i++)
             {
+                // Find the minimum value >= 0 in the column (i)
                 double minvalue = double.MaxValue;
-                for (int j = 0; j < data.GetLength(0); j++)
+                for (int j = 0; j < length; j++)
                 {
                     if (i == j) continue;
+                    
                     if (data[i, j] < 0)
                     {
-                        minvalue = 0;
+                        // Contains a negative value, meaning some isoforms beats this one (i) so just skip
+                        minvalue = -1;
                         break;
                     }
+
                     if (data[i, j] <= minvalue) 
                     {
                         minvalue = data[i, j];
+                        bestJ = j;
                     }
                 }
-                if (minvalue >= threshold)
+
+                // If this is the global minimum, save both isoforms (i,j) and the score
+                if (minvalue >= lowestAscore)
                 {
                     lowestAscore = minvalue;
-                    return i;
+                    bestIsoform = i;
+                    secondBestIsoform = bestJ;
                 }
             }
-            return -1;
+           
+            return new Tuple<int, int, double>(bestIsoform,secondBestIsoform,lowestAscore);
         }
         
         #endregion

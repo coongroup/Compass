@@ -142,5 +142,17 @@ namespace Coon.Compass.ProteinHoarder.Properties {
                 this["semiDigestion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool proteinsPerMinute {
+            get {
+                return ((bool)(this["proteinsPerMinute"]));
+            }
+            set {
+                this["proteinsPerMinute"] = value;
+            }
+        }
     }
 }

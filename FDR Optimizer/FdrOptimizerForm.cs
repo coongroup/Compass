@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using CSMSL.IO.OMSSA;
@@ -9,16 +10,13 @@ using CSMSL.Proteomics;
 
 namespace Coon.Compass.FdrOptimizer
 {
-    public partial class frmMain : Form
+    public partial class FdrOptimizerForm : Form
     {
-        public frmMain()
+        public FdrOptimizerForm()
         {
             InitializeComponent();
-            UpdateModsListboxes();
-            comboBox1.DataSource = Enum.GetValues(typeof (UniquePeptideType));
-            comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifactions;
         }
-
+    
         private void UpdateModsListboxes()
         {
             lstAllModifications.Items.Clear();
@@ -27,11 +25,6 @@ namespace Coon.Compass.FdrOptimizer
             lstAllModifications.DisplayMember = "Text";
             lstSelectedFixedModifications.DisplayMember = "Text";
             List<OmssaModification> allMods = OmssaModification.GetAllModifications().ToList();
-            //foreach (OmssaModification modification in allMods.Where(mod => mod.Name.Contains("*")))
-            //{
-            //    ListViewItem list_view_item = new ListViewItem(modification.ToString()) { Tag = modification };
-            //    lstAllModifications.Items.Add(list_view_item);
-            //}
             foreach (OmssaModification modification in allMods.OrderByDescending(mod => mod.Name.Contains("*")).ThenBy(mod => mod.Name))
             {
                 ListViewItem list_view_item = new ListViewItem(modification.ToString()) {Tag = modification};
@@ -165,49 +158,7 @@ namespace Coon.Compass.FdrOptimizer
                 lstSelectedFixedModifications.Items.Remove(lstSelectedFixedModifications.SelectedItem);
             }
         }
-
-        private void frmMain_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if(!txtRawFolder.Focused && !txtOutputFolder.Focused)
-            {
-                int index1 = -1;
-                int index2 = -1;
-                switch(e.KeyChar)
-                {
-                    case 'i':
-                        index1 = lstAllModifications.FindString("iTRAQ 4-plex on n-term peptide");
-                        index2 = lstAllModifications.FindString("iTRAQ 4-plex on K");
-                        e.Handled = true;
-                        break;
-                    case 'I':
-                        index1 = lstAllModifications.FindString("iTRAQ 8-plex on n-term peptide");
-                        index2 = lstAllModifications.FindString("iTRAQ 8-plex on K");
-                        e.Handled = true;
-                        break;
-                    case 't':
-                        index1 = lstAllModifications.FindString("TMT duplex on n-term peptide");
-                        index2 = lstAllModifications.FindString("TMT duplex on K");
-                        e.Handled = true;
-                        break;
-                    case 'T':
-                        index1 = lstAllModifications.FindString("TMT 6-plex on n-term peptide");
-                        index2 = lstAllModifications.FindString("TMT 6-plex on K");
-                        e.Handled = true;
-                        break;
-                }
-                if(index1 >= 0)
-                {
-                    lstSelectedFixedModifications.Items.Add(lstAllModifications.Items[index1]);
-                    lstAllModifications.Items.RemoveAt(index1);
-                }
-                if(index2 >= 0)
-                {
-                    lstSelectedFixedModifications.Items.Add(lstAllModifications.Items[index2]);
-                    lstAllModifications.Items.RemoveAt(index2);
-                }
-            }
-        }
-
+        
         private void btnBrowseOverallOutputFolder_Click(object sender, EventArgs e)
         {
             if(fbdOutputFolder.ShowDialog() == DialogResult.OK)
@@ -224,23 +175,12 @@ namespace Coon.Compass.FdrOptimizer
             List<string> csvFilepaths = new List<string>(lstOmssaCsvFiles.Items.Cast<string>());
             List<Modification> fixedModifications = new List<Modification>(from ListViewItem checkedItem in lstSelectedFixedModifications.Items select (Modification)checkedItem.Tag);
 
-           // double maxPrecursorMassError = (double)numMaximumPrecursorMassError.Value;
-           // double precursorMassErrorIncrement = (double)numPrecursorMassErrorIncrement.Value;
-            bool higherScoresAreBetter = false;//chkHigherScoresAreBetter.Checked;
             double maxFalseDiscoveryRate = (double)numMaximumFalseDiscoveryRate.Value;
-            bool overallOutputs = true;//chkOverallOutputs.Checked;
-            bool phosphopeptideOutputs = false;//chkPhosphopeptideOutputs.Checked;
             bool isBatched = checkBox1.Checked;
-            bool is2DFDR = radioButton2.Checked;
+            bool is2DFDR = twoDCB.Checked;
             bool includeFixedMods = checkBox2.Checked;
             string outputFolder = txtOutputFolder.Text;
             UniquePeptideType uniquePeptideType = (UniquePeptideType)comboBox1.SelectedValue;
-
-            //if (precursorMassErrorIncrement > maxPrecursorMassError)
-            //{
-            //    MessageBox.Show("Precursor mass error increment (" + precursorMassErrorIncrement.ToString() + " ppm) must not be greater than maximum precursor mass error (" + maxPrecursorMassError.ToString() + " ppm)");
-            //    return;
-            //}
 
             if (string.IsNullOrEmpty(outputFolder))
             {
@@ -251,24 +191,37 @@ namespace Coon.Compass.FdrOptimizer
 
             FdrOptimizer fdrOptimizer = new FdrOptimizer(csvFilepaths, rawFolder,
                 fixedModifications,
-                higherScoresAreBetter,
                 maxFalseDiscoveryRate, uniquePeptideType,
-                overallOutputs, phosphopeptideOutputs, outputFolder, isBatched, is2DFDR, includeFixedMods);
+                  outputFolder, isBatched, is2DFDR, includeFixedMods);
 
-            fdrOptimizer.Starting += handleStarting;
-            fdrOptimizer.StartingFile += handleStartingFile;
-            fdrOptimizer.UpdateProgress += handleUpdateProgress;
-            fdrOptimizer.ThrowException += handleThrowException;
-            fdrOptimizer.FinishedFile += handleFinishedFile;
-            fdrOptimizer.Finished += handleFinished;
+            fdrOptimizer.Starting += fdrOptimizer_Starting;
+            fdrOptimizer.UpdateProgress += HandleUpdateProgress;
+            fdrOptimizer.Finished += fdrOptimizer_Finished;
             fdrOptimizer.UpdateLog += fdrOptimizer_UpdateLog;
 
             lstOmssaCsvFiles.SelectedItem = null;
             prgProgress.Value = prgProgress.Minimum;
 
-
+            btnOK.Enabled = false;
             Thread thread = new Thread(fdrOptimizer.Optimize) {IsBackground = true};
             thread.Start();
+
+        }
+
+        void fdrOptimizer_Starting(object sender, EventArgs e)
+        {
+      
+        }
+
+        void fdrOptimizer_Finished(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, EventArgs>(fdrOptimizer_Finished), sender, e);
+                return;
+            }
+
+            btnOK.Enabled = true;
         }
 
         void fdrOptimizer_UpdateLog(object sender, StatusEventArgs e)
@@ -276,117 +229,40 @@ namespace Coon.Compass.FdrOptimizer
             UpdateLog(e.Message);
         }
    
-        private delegate void UpdateLogDelegate(string msg);
-
         public void UpdateLog(string msg)
         {
             if (InvokeRequired)
             {
-                Invoke(new UpdateLogDelegate(UpdateLog), new object[] { msg });
+                Invoke(new Action<string>(UpdateLog), msg);
+                return;
             }
-            else
-            {
-                richTextBox1.AppendText(string.Format("[{0}]\t{1}\n", DateTime.Now.ToLongTimeString(), msg));
-                richTextBox1.SelectionStart = richTextBox1.Text.Length;
-                richTextBox1.ScrollToCaret();
-            }
+            
+            richTextBox1.AppendText(string.Format("[{0}]\t{1}\n", DateTime.Now.ToLongTimeString(), msg));
+            richTextBox1.SelectionStart = richTextBox1.Text.Length;
+            richTextBox1.ScrollToCaret();
         }
- 
-        private delegate void changeMainPanelEnabledCallback(bool enabled);
-
-        private void changeMainPanelEnabled(bool enabled)
-        {
-            //if(pnlMain.InvokeRequired)
-            //{
-            //    pnlMain.Invoke(new changeMainPanelEnabledCallback(changeMainPanelEnabled),
-            //        new object[] { enabled });
-            //}
-            //else
-            //{
-            //    pnlMain.Enabled = enabled;
-            //}
-        }
-
-        private void handleStarting(object sender, EventArgs e)
-        {
-            changeMainPanelEnabled(false);
-        }
-
-        private delegate void changeCurrentFileCallback(string filepath);
-
-        private void changeCurrentFile(string filepath)
-        {
-            if(lstOmssaCsvFiles.InvokeRequired)
-            {
-                lstOmssaCsvFiles.Invoke(new changeCurrentFileCallback(changeCurrentFile),
-                    new object[] { filepath });
-            }
-            else
-            {
-                lstOmssaCsvFiles.SelectedItem = filepath;
-            }
-        }
-
-        private void handleStartingFile(object sender, FilepathEventArgs e)
-        {
-            changeCurrentFile(e.Filepath);
-        }
-
-        private delegate void changeProgressBarValueCallback(int progressValue);
-
-        private void changeProgressBarValue(int progressValue)
+    
+        private void ChangeProgressBarValue(int progressValue)
         {
             if(prgProgress.InvokeRequired)
             {
-                prgProgress.Invoke(new changeProgressBarValueCallback(changeProgressBarValue),
-                    new object[] { progressValue });
+                prgProgress.Invoke(new Action<int>(ChangeProgressBarValue), progressValue);
+                return;
             }
-            else
-            {
-                prgProgress.Value = progressValue;
-            }
+            
+            prgProgress.Value = progressValue;
         }
 
-        private void handleUpdateProgress(object sender, ProgressEventArgs e)
+        private void HandleUpdateProgress(object sender, ProgressEventArgs e)
         {
-            changeProgressBarValue(e.Progress);
+            ChangeProgressBarValue(e.Progress);
         }
-
-        private void handleThrowException(object sender, ExceptionEventArgs e)
-        {
-            MessageBox.Show(e.Exception.ToString());
-            changeCurrentFile(null);
-            changeMainPanelEnabled(true);
-        }
-
-        private void handleFinishedFile(object sender, FilepathEventArgs e)
-        {
-            changeCurrentFile(null);
-        }
-
-        private void handleFinished(object sender, EventArgs e)
-        {
-            changeCurrentFile(null);
-            changeMainPanelEnabled(true);
-        }
-
+        
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             Properties.Settings.Default.Save();
         }
-
-        private void radioButton2_CheckedChanged(object sender, EventArgs e)
-        {
-           // numMaximumPrecursorMassError.Enabled = true;
-           // numPrecursorMassErrorIncrement.Enabled = true;
-        }
-
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
-        {
-            //numMaximumPrecursorMassError.Enabled = false;
-           // numPrecursorMassErrorIncrement.Enabled = false;
-        }
-
+        
         private void btnOK_Click_1(object sender, EventArgs e)
         {
             Run();
@@ -401,6 +277,14 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            Text += " (" + Assembly.GetExecutingAssembly().GetName().Version + ")";
+            UpdateModsListboxes();
+            comboBox1.DataSource = Enum.GetValues(typeof(UniquePeptideType));
+            comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifactions;
+            base.OnLoad(e);
+        }
    
     }
 }

@@ -7,11 +7,6 @@ namespace Coon.Compass
 {
     partial class frmAbout : Form
     {
-        private string AssemblyVersion
-        {
-            get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
-        }
-
         private DateTime AssemblyDateTime
         {
             get
@@ -36,7 +31,7 @@ namespace Coon.Compass
             label4.Parent = pictureBox1;
             btnOK.Parent = pictureBox1;
 
-            label2.Text = "Version " + AssemblyVersion + Environment.NewLine + AssemblyDateTime.ToLongDateString();
+            label2.Text = "Version " + CompassForm.GetRunningVersion() + Environment.NewLine + AssemblyDateTime.ToLongDateString();
         }
 
         private void btnOK_Click(object sender, EventArgs e)

@@ -1,6 +1,6 @@
 ﻿namespace Coon.Compass
 {
-    partial class frmMain
+    partial class CompassForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CompassForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.windowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cascadeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,17 +46,17 @@
             this.tsbDatabaseMaker = new System.Windows.Forms.ToolStripButton();
             this.tsbDtaGenerator = new System.Windows.Forms.ToolStripButton();
             this.tsbCoondornator = new System.Windows.Forms.ToolStripButton();
-            this.tsddbFdrOptimizer = new System.Windows.Forms.ToolStripDropDownButton();
-            this.tsmiNonBatchFdrOptimizers = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiLowResFdrOptimizer = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiFdrOptimizer = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiBatchFdrOptimizers = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsmiBatchLowResFdrOptimizer = new System.Windows.Forms.ToolStripMenuItem();
-            this.highresolutionMS1ToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbTagQuant = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
+            this.nonbatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.batchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lowResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lowResToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.highResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -173,11 +173,12 @@
             this.tsbDatabaseMaker,
             this.tsbDtaGenerator,
             this.tsbCoondornator,
-            this.tsddbFdrOptimizer,
+            this.toolStripButton4,
             this.tsbTagQuant,
             this.toolStripButton1,
             this.toolStripButton2,
-            this.toolStripButton3});
+            this.toolStripButton3,
+            this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(984, 25);
@@ -210,63 +211,6 @@
             this.tsbCoondornator.Size = new System.Drawing.Size(102, 22);
             this.tsbCoondornator.Text = "Coondornator";
             this.tsbCoondornator.Click += new System.EventHandler(this.tsbCoondornator_Click);
-            // 
-            // tsddbFdrOptimizer
-            // 
-            this.tsddbFdrOptimizer.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiNonBatchFdrOptimizers,
-            this.tsmiBatchFdrOptimizers});
-            this.tsddbFdrOptimizer.Image = ((System.Drawing.Image)(resources.GetObject("tsddbFdrOptimizer.Image")));
-            this.tsddbFdrOptimizer.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsddbFdrOptimizer.Name = "tsddbFdrOptimizer";
-            this.tsddbFdrOptimizer.Size = new System.Drawing.Size(112, 22);
-            this.tsddbFdrOptimizer.Text = "FDR Optimizer";
-            // 
-            // tsmiNonBatchFdrOptimizers
-            // 
-            this.tsmiNonBatchFdrOptimizers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiLowResFdrOptimizer,
-            this.tsmiFdrOptimizer});
-            this.tsmiNonBatchFdrOptimizers.Name = "tsmiNonBatchFdrOptimizers";
-            this.tsmiNonBatchFdrOptimizers.Size = new System.Drawing.Size(130, 22);
-            this.tsmiNonBatchFdrOptimizers.Text = "non-batch";
-            // 
-            // tsmiLowResFdrOptimizer
-            // 
-            this.tsmiLowResFdrOptimizer.Name = "tsmiLowResFdrOptimizer";
-            this.tsmiLowResFdrOptimizer.Size = new System.Drawing.Size(147, 22);
-            this.tsmiLowResFdrOptimizer.Text = "non-FT MS^1";
-            this.tsmiLowResFdrOptimizer.Click += new System.EventHandler(this.tsmiLowResFdrOptimizer_Click);
-            // 
-            // tsmiFdrOptimizer
-            // 
-            this.tsmiFdrOptimizer.Name = "tsmiFdrOptimizer";
-            this.tsmiFdrOptimizer.Size = new System.Drawing.Size(147, 22);
-            this.tsmiFdrOptimizer.Text = "FT MS^1";
-            this.tsmiFdrOptimizer.Click += new System.EventHandler(this.tsmiFdrOptimizer_Click);
-            // 
-            // tsmiBatchFdrOptimizers
-            // 
-            this.tsmiBatchFdrOptimizers.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsmiBatchLowResFdrOptimizer,
-            this.highresolutionMS1ToolStripMenuItem1});
-            this.tsmiBatchFdrOptimizers.Name = "tsmiBatchFdrOptimizers";
-            this.tsmiBatchFdrOptimizers.Size = new System.Drawing.Size(130, 22);
-            this.tsmiBatchFdrOptimizers.Text = "batch";
-            // 
-            // tsmiBatchLowResFdrOptimizer
-            // 
-            this.tsmiBatchLowResFdrOptimizer.Name = "tsmiBatchLowResFdrOptimizer";
-            this.tsmiBatchLowResFdrOptimizer.Size = new System.Drawing.Size(147, 22);
-            this.tsmiBatchLowResFdrOptimizer.Text = "non-FT MS^1";
-            this.tsmiBatchLowResFdrOptimizer.Click += new System.EventHandler(this.tsmiBatchLowResFdrOptimizer_Click);
-            // 
-            // highresolutionMS1ToolStripMenuItem1
-            // 
-            this.highresolutionMS1ToolStripMenuItem1.Name = "highresolutionMS1ToolStripMenuItem1";
-            this.highresolutionMS1ToolStripMenuItem1.Size = new System.Drawing.Size(147, 22);
-            this.highresolutionMS1ToolStripMenuItem1.Text = "FT MS^1";
-            this.highresolutionMS1ToolStripMenuItem1.Click += new System.EventHandler(this.tsmiBatchFdrOptimizer_Click);
             // 
             // tsbTagQuant
             // 
@@ -304,7 +248,66 @@
             this.toolStripButton3.Text = "Phosphinator";
             this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
             // 
-            // frmMain
+            // toolStripDropDownButton1
+            // 
+            this.toolStripDropDownButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.nonbatchToolStripMenuItem,
+            this.batchToolStripMenuItem});
+            this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
+            this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(93, 22);
+            this.toolStripDropDownButton1.Text = "Old Programs";
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Image = global::Coon.Compass.Properties.Resources.coon_blue;
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(99, 22);
+            this.toolStripButton4.Text = "Fdr Optimizer";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
+            // 
+            // nonbatchToolStripMenuItem
+            // 
+            this.nonbatchToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lowResToolStripMenuItem});
+            this.nonbatchToolStripMenuItem.Name = "nonbatchToolStripMenuItem";
+            this.nonbatchToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.nonbatchToolStripMenuItem.Text = "non-batch FDR";
+            // 
+            // batchToolStripMenuItem
+            // 
+            this.batchToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lowResToolStripMenuItem1,
+            this.highResToolStripMenuItem});
+            this.batchToolStripMenuItem.Name = "batchToolStripMenuItem";
+            this.batchToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
+            this.batchToolStripMenuItem.Text = "batch FDR";
+            // 
+            // lowResToolStripMenuItem
+            // 
+            this.lowResToolStripMenuItem.Name = "lowResToolStripMenuItem";
+            this.lowResToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.lowResToolStripMenuItem.Text = "low res";
+            this.lowResToolStripMenuItem.Click += new System.EventHandler(this.lowResToolStripMenuItem_Click);
+            // 
+            // lowResToolStripMenuItem1
+            // 
+            this.lowResToolStripMenuItem1.Name = "lowResToolStripMenuItem1";
+            this.lowResToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.lowResToolStripMenuItem1.Text = "low res";
+            this.lowResToolStripMenuItem1.Click += new System.EventHandler(this.lowResToolStripMenuItem1_Click);
+            // 
+            // highResToolStripMenuItem
+            // 
+            this.highResToolStripMenuItem.Name = "highResToolStripMenuItem";
+            this.highResToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.highResToolStripMenuItem.Text = "high res";
+            this.highResToolStripMenuItem.Click += new System.EventHandler(this.highResToolStripMenuItem_Click);
+            // 
+            // CompassForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -313,7 +316,7 @@
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.IsMdiContainer = true;
-            this.Name = "frmMain";
+            this.Name = "CompassForm";
             this.Text = "COMPASS (internal)";
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -332,15 +335,8 @@
         private System.Windows.Forms.ToolStripButton tsbDatabaseMaker;
         private System.Windows.Forms.ToolStripButton tsbDtaGenerator;
         private System.Windows.Forms.ToolStripButton tsbCoondornator;
-        private System.Windows.Forms.ToolStripDropDownButton tsddbFdrOptimizer;
-        private System.Windows.Forms.ToolStripMenuItem tsmiNonBatchFdrOptimizers;
-        private System.Windows.Forms.ToolStripMenuItem tsmiBatchFdrOptimizers;
         private System.Windows.Forms.ToolStripButton tsbTagQuant;
         private System.Windows.Forms.ToolStripMenuItem linksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem tsmiLowResFdrOptimizer;
-        private System.Windows.Forms.ToolStripMenuItem tsmiFdrOptimizer;
-        private System.Windows.Forms.ToolStripMenuItem tsmiBatchLowResFdrOptimizer;
-        private System.Windows.Forms.ToolStripMenuItem highresolutionMS1ToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem coonResearchGroupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem universityOfWisconsinMadisonToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem crgSoftwareToolStripMenuItem;
@@ -354,6 +350,13 @@
         private System.Windows.Forms.ToolStripButton toolStripButton1;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
+        private System.Windows.Forms.ToolStripButton toolStripButton4;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButton1;
+        private System.Windows.Forms.ToolStripMenuItem nonbatchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem lowResToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem batchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem lowResToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem highResToolStripMenuItem;
 
     }
 }

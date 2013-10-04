@@ -8,10 +8,11 @@ namespace Coon.Compass.FdrOptimizer
 {
     public class Peptide : IFalseDiscovery<double>, IComparable<Peptide>, IMass
     {
-        private List<PeptideSpectralMatch> PSMs;
+        public List<PSM> PSMs;
 
-        private PeptideSpectralMatch _bestMatch;
-        public PeptideSpectralMatch BestMatch {
+        private PSM _bestMatch;
+        public PSM BestMatch
+        {
             get
             {
                 return _bestMatch;
@@ -21,8 +22,11 @@ namespace Coon.Compass.FdrOptimizer
                 _bestMatch = value;
                 LeucineSequence = value.Peptide.GetLeucineSequence();
                 MonoisotopicMass = value.Peptide.MonoisotopicMass;
+                CorrectedPrecursorErrorPPM = Math.Abs(_bestMatch.CorrectedPrecursorMassError);
             }
         }
+
+      
 
         public double MonoisotopicMass { get; private set; }
 
@@ -33,14 +37,24 @@ namespace Coon.Compass.FdrOptimizer
             get { return PSMs.Count; }
         }
 
-        public Peptide(PeptideSpectralMatch psm)
+        public Peptide(Peptide peptide)
         {
-            PSMs = new List<PeptideSpectralMatch>();
+            PSMs = new List<PSM>();
+            IsDecoy = peptide.IsDecoy;
+            foreach (PSM psm in peptide.PSMs)
+            {
+                AddPsm(psm);
+            }
+        }
+
+        public Peptide(PSM psm)
+        {
+            PSMs = new List<PSM>();
             IsDecoy = false;
             AddPsm(psm);
         }
 
-        public void AddPsm(PeptideSpectralMatch psm)
+        public void AddPsm(PSM psm)
         {
             if (BestMatch == null)
             {
@@ -51,25 +65,22 @@ namespace Coon.Compass.FdrOptimizer
                 if (psm.Score < BestMatch.Score)
                 {
                     BestMatch = psm;
-                } else if (psm.Score == BestMatch.Score)
+                }
+                else if (psm.Score == BestMatch.Score)
                 {
-                    if (psm.CorrectedPrecursorMassError.Value < BestMatch.CorrectedPrecursorMassError.Value)
+                    if (Math.Abs(psm.CorrectedPrecursorMassError) < CorrectedPrecursorErrorPPM)
                         BestMatch = psm;
                 }
             }
+
+            // Be conservative, if the peptide sequence is both forward and decoy, favor decoy
             if (psm.IsDecoy)
                 IsDecoy = true;
             PSMs.Add(psm);
         }
 
-        public double CorrectedPrecursorErrorPPM
-        {
-            get
-            {
-                return BestMatch.CorrectedPrecursorMassError.Value;
-            }
-        }
-
+        public double CorrectedPrecursorErrorPPM { get; private set; }
+        
         public override string ToString()
         {
             return string.Format("{0} (e-Value: {1:g4}{2})", BestMatch.Peptide, FdrScoreMetric, IsDecoy ? " Decoy" : "");
@@ -151,6 +162,19 @@ namespace Coon.Compass.FdrOptimizer
         public int GetHashCode(Peptide obj)
         {
             return obj.LeucineSequence.GetHashCode();
+        }
+    }
+
+    public class ExcelSequenceComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            return x.BestMatch.Peptide.Sequence.Equals(y.BestMatch.Peptide.Sequence) && x.BestMatch.Modificationstring.Equals(y.BestMatch.Modificationstring);
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.BestMatch.Peptide.Sequence.GetHashCode() + obj.BestMatch.Modificationstring.GetHashCode();
         }
     }
 

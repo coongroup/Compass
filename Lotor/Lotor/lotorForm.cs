@@ -139,10 +139,10 @@ namespace Coon.Compass.Lotor
                 while (reader.ReadNextRecord())
                 {
                     foreach (
-                        string modName in
+                        Tuple<string,int> modName in
                             OmssaModification.SplitModificationLine(reader["Mods"]))
                     {
-                        _variableModifications.Add(modName);
+                        _variableModifications.Add(modName.Item1);
                     }
                 }
             }

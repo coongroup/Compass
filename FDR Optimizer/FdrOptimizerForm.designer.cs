@@ -1,6 +1,6 @@
 namespace Coon.Compass.FdrOptimizer
 {
-    partial class frmMain
+    partial class FdrOptimizerForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@ namespace Coon.Compass.FdrOptimizer
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FdrOptimizerForm));
             this.fbdRawFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdOmssaCsvFiles = new System.Windows.Forms.OpenFileDialog();
             this.grpFixedModifications = new System.Windows.Forms.GroupBox();
@@ -57,18 +57,15 @@ namespace Coon.Compass.FdrOptimizer
             this.prgProgress = new System.Windows.Forms.ProgressBar();
             this.fbdOutputFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdModsXml = new System.Windows.Forms.OpenFileDialog();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
-            this.radioButton2 = new System.Windows.Forms.RadioButton();
             this.btnOK = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.twoDCB = new System.Windows.Forms.CheckBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.grpFixedModifications.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).BeginInit();
-            this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -92,9 +89,9 @@ namespace Coon.Compass.FdrOptimizer
             this.grpFixedModifications.Controls.Add(this.lstSelectedFixedModifications);
             this.grpFixedModifications.Controls.Add(this.lstAllModifications);
             this.grpFixedModifications.Controls.Add(this.label4);
-            this.grpFixedModifications.Location = new System.Drawing.Point(11, 252);
+            this.grpFixedModifications.Location = new System.Drawing.Point(10, 228);
             this.grpFixedModifications.Name = "grpFixedModifications";
-            this.grpFixedModifications.Size = new System.Drawing.Size(580, 154);
+            this.grpFixedModifications.Size = new System.Drawing.Size(551, 154);
             this.grpFixedModifications.TabIndex = 173;
             this.grpFixedModifications.TabStop = false;
             this.grpFixedModifications.Text = "Fixed Modifications (* = user modification)";
@@ -102,7 +99,7 @@ namespace Coon.Compass.FdrOptimizer
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(499, 125);
+            this.button1.Location = new System.Drawing.Point(470, 125);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 173;
@@ -126,7 +123,7 @@ namespace Coon.Compass.FdrOptimizer
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(244, 17);
+            this.label5.Location = new System.Drawing.Point(282, 17);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(49, 13);
             this.label5.TabIndex = 171;
@@ -135,7 +132,7 @@ namespace Coon.Compass.FdrOptimizer
             // btnMoveLeft
             // 
             this.btnMoveLeft.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnMoveLeft.Location = new System.Drawing.Point(217, 95);
+            this.btnMoveLeft.Location = new System.Drawing.Point(250, 95);
             this.btnMoveLeft.Name = "btnMoveLeft";
             this.btnMoveLeft.Size = new System.Drawing.Size(21, 23);
             this.btnMoveLeft.TabIndex = 170;
@@ -146,7 +143,7 @@ namespace Coon.Compass.FdrOptimizer
             // btnMoveRight
             // 
             this.btnMoveRight.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnMoveRight.Location = new System.Drawing.Point(217, 30);
+            this.btnMoveRight.Location = new System.Drawing.Point(250, 30);
             this.btnMoveRight.Name = "btnMoveRight";
             this.btnMoveRight.Size = new System.Drawing.Size(21, 23);
             this.btnMoveRight.TabIndex = 169;
@@ -160,10 +157,10 @@ namespace Coon.Compass.FdrOptimizer
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lstSelectedFixedModifications.FormattingEnabled = true;
-            this.lstSelectedFixedModifications.Location = new System.Drawing.Point(244, 33);
+            this.lstSelectedFixedModifications.Location = new System.Drawing.Point(282, 33);
             this.lstSelectedFixedModifications.Name = "lstSelectedFixedModifications";
             this.lstSelectedFixedModifications.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstSelectedFixedModifications.Size = new System.Drawing.Size(330, 82);
+            this.lstSelectedFixedModifications.Size = new System.Drawing.Size(263, 82);
             this.lstSelectedFixedModifications.TabIndex = 168;
             // 
             // lstAllModifications
@@ -174,7 +171,7 @@ namespace Coon.Compass.FdrOptimizer
             this.lstAllModifications.Location = new System.Drawing.Point(11, 33);
             this.lstAllModifications.Name = "lstAllModifications";
             this.lstAllModifications.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstAllModifications.Size = new System.Drawing.Size(200, 82);
+            this.lstAllModifications.Size = new System.Drawing.Size(230, 82);
             this.lstAllModifications.TabIndex = 167;
             // 
             // label4
@@ -189,7 +186,7 @@ namespace Coon.Compass.FdrOptimizer
             // btnBrowseOutputFolder
             // 
             this.btnBrowseOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(506, 147);
+            this.btnBrowseOutputFolder.Location = new System.Drawing.Point(476, 115);
             this.btnBrowseOutputFolder.Name = "btnBrowseOutputFolder";
             this.btnBrowseOutputFolder.Size = new System.Drawing.Size(75, 23);
             this.btnBrowseOutputFolder.TabIndex = 159;
@@ -201,16 +198,16 @@ namespace Coon.Compass.FdrOptimizer
             // 
             this.txtOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputFolder.Location = new System.Drawing.Point(122, 147);
+            this.txtOutputFolder.Location = new System.Drawing.Point(87, 117);
             this.txtOutputFolder.Name = "txtOutputFolder";
-            this.txtOutputFolder.Size = new System.Drawing.Size(378, 20);
+            this.txtOutputFolder.Size = new System.Drawing.Size(383, 20);
             this.txtOutputFolder.TabIndex = 158;
             // 
             // label3
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(13, 152);
+            this.label3.Location = new System.Drawing.Point(10, 120);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(71, 13);
             this.label3.TabIndex = 157;
@@ -218,8 +215,9 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // label10
             // 
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(544, 43);
+            this.label10.Location = new System.Drawing.Point(252, 184);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(15, 13);
             this.label10.TabIndex = 97;
@@ -228,9 +226,9 @@ namespace Coon.Compass.FdrOptimizer
             // btnBrowse
             // 
             this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowse.Location = new System.Drawing.Point(506, 121);
+            this.btnBrowse.Location = new System.Drawing.Point(479, 177);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(75, 23);
+            this.btnBrowse.Size = new System.Drawing.Size(75, 24);
             this.btnBrowse.TabIndex = 111;
             this.btnBrowse.Text = "Browse";
             this.btnBrowse.UseVisualStyleBackColor = true;
@@ -240,26 +238,27 @@ namespace Coon.Compass.FdrOptimizer
             // 
             this.txtRawFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtRawFolder.Location = new System.Drawing.Point(122, 121);
+            this.txtRawFolder.Location = new System.Drawing.Point(119, 180);
             this.txtRawFolder.Name = "txtRawFolder";
-            this.txtRawFolder.Size = new System.Drawing.Size(378, 20);
+            this.txtRawFolder.Size = new System.Drawing.Size(351, 20);
             this.txtRawFolder.TabIndex = 110;
             // 
             // label17
             // 
             this.label17.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(13, 126);
+            this.label17.Location = new System.Drawing.Point(10, 183);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(103, 13);
+            this.label17.Size = new System.Drawing.Size(98, 13);
             this.label17.TabIndex = 71;
-            this.label17.Text = "Thermo .Raw Folder";
+            this.label17.Text = "Thermo .raw Folder";
             // 
             // numMaximumFalseDiscoveryRate
             // 
+            this.numMaximumFalseDiscoveryRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.numMaximumFalseDiscoveryRate.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "maximumFalseDiscoveryRate", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numMaximumFalseDiscoveryRate.DecimalPlaces = 2;
-            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(499, 39);
+            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(202, 202);
             this.numMaximumFalseDiscoveryRate.Name = "numMaximumFalseDiscoveryRate";
             this.numMaximumFalseDiscoveryRate.Size = new System.Drawing.Size(44, 20);
             this.numMaximumFalseDiscoveryRate.TabIndex = 96;
@@ -267,8 +266,9 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // label8
             // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(307, 42);
+            this.label8.Location = new System.Drawing.Point(10, 204);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(186, 13);
             this.label8.TabIndex = 95;
@@ -276,8 +276,8 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // btnClear
             // 
-            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClear.Location = new System.Drawing.Point(505, 83);
+            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnClear.Location = new System.Drawing.Point(477, 86);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 23);
             this.btnClear.TabIndex = 70;
@@ -288,7 +288,7 @@ namespace Coon.Compass.FdrOptimizer
             // btnRemove
             // 
             this.btnRemove.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemove.Location = new System.Drawing.Point(505, 54);
+            this.btnRemove.Location = new System.Drawing.Point(476, 51);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(75, 23);
             this.btnRemove.TabIndex = 69;
@@ -299,7 +299,7 @@ namespace Coon.Compass.FdrOptimizer
             // btnAdd
             // 
             this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.Location = new System.Drawing.Point(505, 25);
+            this.btnAdd.Location = new System.Drawing.Point(476, 25);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 23);
             this.btnAdd.TabIndex = 68;
@@ -317,7 +317,7 @@ namespace Coon.Compass.FdrOptimizer
             this.lstOmssaCsvFiles.Location = new System.Drawing.Point(10, 25);
             this.lstOmssaCsvFiles.Name = "lstOmssaCsvFiles";
             this.lstOmssaCsvFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstOmssaCsvFiles.Size = new System.Drawing.Size(489, 82);
+            this.lstOmssaCsvFiles.Size = new System.Drawing.Size(460, 82);
             this.lstOmssaCsvFiles.TabIndex = 69;
             // 
             // label1
@@ -333,38 +333,20 @@ namespace Coon.Compass.FdrOptimizer
             // 
             this.prgProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.prgProgress.Location = new System.Drawing.Point(10, 412);
+            this.prgProgress.Location = new System.Drawing.Point(10, 388);
             this.prgProgress.Name = "prgProgress";
-            this.prgProgress.Size = new System.Drawing.Size(489, 23);
+            this.prgProgress.Size = new System.Drawing.Size(460, 23);
             this.prgProgress.TabIndex = 70;
             // 
             // ofdModsXml
             // 
             this.ofdModsXml.Filter = "OMSSA mods files (.xml)|*.xml";
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.label6);
-            this.groupBox1.Controls.Add(this.comboBox1);
-            this.groupBox1.Controls.Add(this.checkBox1);
-            this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.numMaximumFalseDiscoveryRate);
-            this.groupBox1.Controls.Add(this.label10);
-            this.groupBox1.Controls.Add(this.radioButton1);
-            this.groupBox1.Controls.Add(this.radioButton2);
-            this.groupBox1.Location = new System.Drawing.Point(13, 176);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(577, 70);
-            this.groupBox1.TabIndex = 174;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Global Options";
-            // 
             // label6
             // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 43);
+            this.label6.Location = new System.Drawing.Point(255, 149);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(123, 13);
             this.label6.TabIndex = 179;
@@ -372,51 +354,29 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // comboBox1
             // 
+            this.comboBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(135, 39);
+            this.comboBox1.Location = new System.Drawing.Point(384, 146);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(166, 21);
+            this.comboBox1.Size = new System.Drawing.Size(167, 21);
             this.comboBox1.TabIndex = 178;
             // 
             // checkBox1
             // 
+            this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Enabled = false;
-            this.checkBox1.Location = new System.Drawing.Point(307, 20);
+            this.checkBox1.Location = new System.Drawing.Point(168, 148);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(84, 17);
             this.checkBox1.TabIndex = 177;
             this.checkBox1.Text = "Batch Mode";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
-            // radioButton1
-            // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(6, 19);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(146, 17);
-            this.radioButton1.TabIndex = 175;
-            this.radioButton1.Text = "Low Resolution (1D FDR)";
-            this.radioButton1.UseVisualStyleBackColor = true;
-            this.radioButton1.CheckedChanged += new System.EventHandler(this.radioButton1_CheckedChanged);
-            // 
-            // radioButton2
-            // 
-            this.radioButton2.AutoSize = true;
-            this.radioButton2.Checked = true;
-            this.radioButton2.Location = new System.Drawing.Point(158, 19);
-            this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(143, 17);
-            this.radioButton2.TabIndex = 176;
-            this.radioButton2.TabStop = true;
-            this.radioButton2.Text = "High resolution (2D FDR)";
-            this.radioButton2.UseVisualStyleBackColor = true;
-            this.radioButton2.CheckedChanged += new System.EventHandler(this.radioButton2_CheckedChanged);
-            // 
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(512, 412);
+            this.btnOK.Location = new System.Drawing.Point(477, 388);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(78, 23);
             this.btnOK.TabIndex = 178;
@@ -434,28 +394,48 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.label17);
+            this.splitContainer1.Panel1.Controls.Add(this.txtRawFolder);
+            this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
+            this.splitContainer1.Panel1.Controls.Add(this.comboBox1);
+            this.splitContainer1.Panel1.Controls.Add(this.label6);
+            this.splitContainer1.Panel1.Controls.Add(this.twoDCB);
+            this.splitContainer1.Panel1.Controls.Add(this.label10);
+            this.splitContainer1.Panel1.Controls.Add(this.numMaximumFalseDiscoveryRate);
+            this.splitContainer1.Panel1.Controls.Add(this.label8);
+            this.splitContainer1.Panel1.Controls.Add(this.checkBox1);
             this.splitContainer1.Panel1.Controls.Add(this.grpFixedModifications);
             this.splitContainer1.Panel1.Controls.Add(this.prgProgress);
             this.splitContainer1.Panel1.Controls.Add(this.lstOmssaCsvFiles);
             this.splitContainer1.Panel1.Controls.Add(this.label1);
-            this.splitContainer1.Panel1.Controls.Add(this.txtRawFolder);
             this.splitContainer1.Panel1.Controls.Add(this.label3);
-            this.splitContainer1.Panel1.Controls.Add(this.groupBox1);
-            this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
             this.splitContainer1.Panel1.Controls.Add(this.btnClear);
             this.splitContainer1.Panel1.Controls.Add(this.btnBrowseOutputFolder);
             this.splitContainer1.Panel1.Controls.Add(this.txtOutputFolder);
-            this.splitContainer1.Panel1.Controls.Add(this.label17);
             this.splitContainer1.Panel1.Controls.Add(this.btnOK);
             this.splitContainer1.Panel1.Controls.Add(this.btnAdd);
             this.splitContainer1.Panel1.Controls.Add(this.btnRemove);
+            this.splitContainer1.Panel1MinSize = 420;
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(597, 579);
-            this.splitContainer1.SplitterDistance = 442;
+            this.splitContainer1.Size = new System.Drawing.Size(568, 617);
+            this.splitContainer1.SplitterDistance = 420;
             this.splitContainer1.TabIndex = 179;
+            // 
+            // twoDCB
+            // 
+            this.twoDCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.twoDCB.AutoSize = true;
+            this.twoDCB.Checked = true;
+            this.twoDCB.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.twoDCB.Location = new System.Drawing.Point(13, 148);
+            this.twoDCB.Name = "twoDCB";
+            this.twoDCB.Size = new System.Drawing.Size(149, 17);
+            this.twoDCB.TabIndex = 180;
+            this.twoDCB.Text = "High Resolution (2D FDR)";
+            this.twoDCB.UseVisualStyleBackColor = true;
             // 
             // richTextBox1
             // 
@@ -463,7 +443,7 @@ namespace Coon.Compass.FdrOptimizer
             this.richTextBox1.Location = new System.Drawing.Point(0, 0);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(593, 129);
+            this.richTextBox1.Size = new System.Drawing.Size(564, 189);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
@@ -472,22 +452,20 @@ namespace Coon.Compass.FdrOptimizer
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(597, 579);
+            this.ClientSize = new System.Drawing.Size(568, 617);
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(584, 562);
             this.Name = "frmMain";
             this.Text = "FDR Optimizer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmMain_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmMain_DragEnter);
-            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.frmMain_KeyPress);
             this.grpFixedModifications.ResumeLayout(false);
             this.grpFixedModifications.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -525,10 +503,7 @@ namespace Coon.Compass.FdrOptimizer
         private System.Windows.Forms.ListBox lstAllModifications;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.OpenFileDialog ofdModsXml;
-        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.RadioButton radioButton1;
-        private System.Windows.Forms.RadioButton radioButton2;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.RichTextBox richTextBox1;
@@ -536,6 +511,7 @@ namespace Coon.Compass.FdrOptimizer
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.CheckBox twoDCB;
     }
 }
 

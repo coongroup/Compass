@@ -81,28 +81,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AminoAcid.cs" />
-    <Compile Include="AminoAcidDictionary.cs" />
-    <Compile Include="AscendingPeptideHitEValueScoreComparer.cs" />
-    <Compile Include="AscendingPeptideHitQValueComparer.cs" />
     <Compile Include="InputFile.cs" />
-    <Compile Include="enum.RawLabelDataColumn.cs" />
     <Compile Include="ExceptionEventArgs.cs" />
     <Compile Include="FilepathEventArgs.cs" />
-    <Compile Include="frmMain.cs">
+    <Compile Include="FdrOptimizerForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain.designer.cs">
-      <DependentUpon>frmMain.cs</DependentUpon>
+    <Compile Include="FdrOptimizerForm.designer.cs">
+      <DependentUpon>FdrOptimizerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FdrOptimizer.cs" />
     <Compile Include="Modification2.cs" />
     <Compile Include="ModificationDictionary.cs" />
     <Compile Include="ModificationType.cs" />
     <Compile Include="Peptide.cs" />
-    <Compile Include="Peptide2.cs" />
-    <Compile Include="PeptideHit.cs" />
-    <Compile Include="PeptideSpectralMatch2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -110,9 +102,9 @@
     <Compile Include="RawFile.cs" />
     <Compile Include="StatusEventArgs.cs" />
     <Compile Include="UniquePeptideType.cs" />
-    <EmbeddedResource Include="frmMain.resx">
+    <EmbeddedResource Include="FdrOptimizerForm.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>frmMain.cs</DependentUpon>
+      <DependentUpon>FdrOptimizerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

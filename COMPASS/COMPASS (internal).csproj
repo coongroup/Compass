@@ -30,8 +30,8 @@
     <PublisherName>CoonWare</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>9</ApplicationRevision>
-    <ApplicationVersion>1.2.8.%2a</ApplicationVersion>
+    <ApplicationRevision>7</ApplicationRevision>
+    <ApplicationVersion>1.2.9.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -115,19 +115,19 @@
     <Compile Include="frmAbout.Designer.cs">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmMain %28internal%29.cs">
+    <Compile Include="CompassForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain %28internal%29.Designer.cs">
-      <DependentUpon>frmMain %28internal%29.cs</DependentUpon>
+    <Compile Include="CompassForm.Designer.cs">
+      <DependentUpon>CompassForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmAbout.resx">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMain %28internal%29.resx">
-      <DependentUpon>frmMain %28internal%29.cs</DependentUpon>
+    <EmbeddedResource Include="CompassForm.resx">
+      <DependentUpon>CompassForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -220,13 +220,7 @@
     <Content Include="Resources\Elements.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gallop.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="gpl-3.0.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="horse04.wav">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Proteases.xml">

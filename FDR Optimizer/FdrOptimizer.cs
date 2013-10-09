@@ -73,6 +73,9 @@ namespace Coon.Compass.FdrOptimizer
         private readonly IList<Modification> _fixedModifications;
         private readonly double _maximumFalseDiscoveryRate;
         private readonly string _outputFolder;
+        private readonly string _outputPsmFolder;
+        private readonly string _outputScansFolder;
+        private readonly string _outputPeptideFolder;
         private readonly bool _isBatched;
         private readonly bool _is2DFDR;
         private readonly bool _includeFixedMods;
@@ -90,6 +93,9 @@ namespace Coon.Compass.FdrOptimizer
             _maximumFalseDiscoveryRate = maximumFalseDiscoveryRate/100.0;
             _uniquePeptideType = uniquePeptideType;
             _outputFolder = outputFolder;
+            _outputPsmFolder = Path.Combine(outputFolder, "psms");
+            _outputPeptideFolder = Path.Combine(outputFolder, "peptides");
+            _outputScansFolder = Path.Combine(outputFolder, "scans");
             _isBatched = isBatched;
             _is2DFDR = is2DFDR;
             _includeFixedMods = includeFixedMods;
@@ -100,6 +106,9 @@ namespace Coon.Compass.FdrOptimizer
             OnStarting(new EventArgs());
             Log("Starting Fdr Optimizer v" + Assembly.GetExecutingAssembly().GetName().Version);
             Directory.CreateDirectory(_outputFolder);
+            Directory.CreateDirectory(_outputPsmFolder);
+            Directory.CreateDirectory(_outputPeptideFolder);
+            Directory.CreateDirectory(_outputScansFolder);
         }
 
         public void Optimize()
@@ -185,15 +194,15 @@ namespace Coon.Compass.FdrOptimizer
             foreach (InputFile csvFile in csvFiles)
             {
                 summaryStringBuilder.Clear();
-                string outputTargetFile = Path.Combine(_outputFolder,
+                string outputTargetFile = Path.Combine(_outputPsmFolder,
                     Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_psms.csv");
-                string outputDecoyFile = Path.Combine(_outputFolder,
+                string outputDecoyFile = Path.Combine(_outputPsmFolder,
                     Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_decoy_psms.csv");
-                string outputScansFile = Path.Combine(_outputFolder,
+                string outputScansFile = Path.Combine(_outputScansFolder,
                     Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_scans.csv");
-                string outputTargetUniqueFile = Path.Combine(_outputFolder,
+                string outputTargetUniqueFile = Path.Combine(_outputPeptideFolder,
                     Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_peptides.csv");
-                string outputDecoyUniqueFile = Path.Combine(_outputFolder,
+                string outputDecoyUniqueFile = Path.Combine(_outputPeptideFolder,
                     Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_decoy_peptides.csv");
                 Log("Writing output files for " + Path.GetFileNameWithoutExtension(csvFile.Name) + " in " +
                     _outputFolder + "...");
@@ -314,11 +323,14 @@ namespace Coon.Compass.FdrOptimizer
                                         datum = OmssaModification.WriteModificationString(psm.Peptide);
                                     }
 
+                                    if (datum.Contains('"'))
+                                        datum = datum.Replace("\"", "\"\"");
+
                                     if (datum.Contains(','))
                                     {
-                                        sb.Append("\"");
+                                        sb.Append('"');
                                         sb.Append(datum);
-                                        sb.Append("\"");
+                                        sb.Append('"');
                                     }
                                     else
                                     {

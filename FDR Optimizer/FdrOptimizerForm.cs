@@ -179,38 +179,32 @@ namespace Coon.Compass.FdrOptimizer
             bool isBatched = checkBox1.Checked;
             bool is2DFDR = twoDCB.Checked;
             bool includeFixedMods = checkBox2.Checked;
-            string outputFolder = txtOutputFolder.Text;
             UniquePeptideType uniquePeptideType = (UniquePeptideType)comboBox1.SelectedValue;
-
+            string outputFolder = txtOutputFolder.Text;
+           
             if (string.IsNullOrEmpty(outputFolder))
             {
                 MessageBox.Show("Output folder must be specified");
                 return;
             }
+
             Directory.CreateDirectory(outputFolder);
 
             FdrOptimizer fdrOptimizer = new FdrOptimizer(csvFilepaths, rawFolder,
                 fixedModifications,
                 maxFalseDiscoveryRate, uniquePeptideType,
                   outputFolder, isBatched, is2DFDR, includeFixedMods);
-
-            fdrOptimizer.Starting += fdrOptimizer_Starting;
+          
             fdrOptimizer.UpdateProgress += HandleUpdateProgress;
             fdrOptimizer.Finished += fdrOptimizer_Finished;
             fdrOptimizer.UpdateLog += fdrOptimizer_UpdateLog;
 
-            lstOmssaCsvFiles.SelectedItem = null;
             prgProgress.Value = prgProgress.Minimum;
 
             btnOK.Enabled = false;
             Thread thread = new Thread(fdrOptimizer.Optimize) {IsBackground = true};
             thread.Start();
 
-        }
-
-        void fdrOptimizer_Starting(object sender, EventArgs e)
-        {
-      
         }
 
         void fdrOptimizer_Finished(object sender, EventArgs e)
@@ -244,7 +238,7 @@ namespace Coon.Compass.FdrOptimizer
     
         private void ChangeProgressBarValue(int progressValue)
         {
-            if(prgProgress.InvokeRequired)
+            if(InvokeRequired)
             {
                 prgProgress.Invoke(new Action<int>(ChangeProgressBarValue), progressValue);
                 return;

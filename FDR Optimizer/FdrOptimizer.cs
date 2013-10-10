@@ -152,6 +152,7 @@ namespace Coon.Compass.FdrOptimizer
         {
             Log("Writing output files...");
             List<StreamWriter> openWriters = new List<StreamWriter>();
+            const string headerLine = "Spectrum number,Filename/id,Peptide,E-value,Mass,gi,Accession,Start,Stop,Defline,Mods,Charge,Theo Mass,P-value,NIST score,Precursor Isolation m/z (Th),Precursor Theoretical m/z (Th),Precursor Isotope Selected, Adjusted Precursor m/z (Th),Precursor Mass Error (ppm),Adjusted Precursor Mass Error (ppm)";
 
             string outputSummaryFile =
                 Path.Combine(_outputFolder, string.Format("FDR summary_{0:yyyyMMddhhmmss}.csv", DateTime.Now));
@@ -278,11 +279,9 @@ namespace Coon.Compass.FdrOptimizer
                     {
                         string[] headers = reader.GetFieldHeaders();
                         int headerCount = headers.Length;
-                        int modsColumnIndex = reader.GetFieldIndex("Mods");
+                        int modsColumnIndex = 10; //reader.GetFieldIndex("Mods");
                         string[] data = new string[headerCount];
-                        string headerLine = string.Join(",", headers) +
-                                            ",Precursor Isolation m/z (Th),Precursor Theoretical m/z (Th),Precursor Isotope Selected, Adjusted Precursor m/z (Th),Precursor Mass Error (ppm),Adjusted Precursor Mass Error (ppm)";
-
+                        
                         decoyWriter.WriteLine(headerLine);
                         targetWriter.WriteLine(headerLine);
                         scansWriter.WriteLine(headerLine);
@@ -314,7 +313,7 @@ namespace Coon.Compass.FdrOptimizer
                                 scansProcessed.Add(spectralNumber);
                                 sb.Clear();
                                 reader.CopyCurrentRecordTo(data);
-                                for (int i = 0; i < headerCount; i++)
+                                for (int i = 0; i < 15; i++)
                                 {
                                     string datum = data[i];
 
@@ -635,13 +634,17 @@ namespace Coon.Compass.FdrOptimizer
 
             foreach (InputFile csvFile in csvFiles)
             {
-                string csvName = Path.GetFileNameWithoutExtension(csvFile.FilePath);
+                string rawFileName = csvFile.RawFileName;
+                if (string.IsNullOrEmpty(rawFileName))
+                {
+                    throw new ArgumentException("Cannot parse the file name for: " + csvFile.FilePath);
+                }
                 csvFile.RawFilePath = "";
                 foreach (string file in rawFileNames)
                 {
                     string name = Path.GetFileNameWithoutExtension(file);
 
-                    if (name != null && (csvName != null && !csvName.StartsWith(name)))
+                    if (name != null && !rawFileName.Equals(name))
                         continue;
                     csvFile.RawFilePath = file;
                     break;

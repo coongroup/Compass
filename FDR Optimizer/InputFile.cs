@@ -28,6 +28,8 @@ namespace Coon.Compass.FdrOptimizer
 
         public string RawFilePath { get; set; }
 
+        public string RawFileName { get; private set; }
+
         public bool IsBatched { get; set; }
 
         public InputFile(string filePath)
@@ -90,13 +92,19 @@ namespace Coon.Compass.FdrOptimizer
         public void Read(IList<Modification> fixedModifications, int numberOfTopHits = 1, bool higherScoresAreBetter = false)
         {
             _data.Clear();
-
+            bool first = true;
             using (CsvReader reader = new CsvReader(new StreamReader(FilePath), true))
             {
                 string[] headers = reader.GetFieldHeaders();
                 HasPPMInfo = headers.Contains("Precursor Mass Error (ppm)");
                 while (reader.ReadNextRecord())
                 {
+                    if (first)
+                    {
+                        RawFileName = reader["Filename/id"].Split('.')[0];
+                        first = false;
+                    }
+
                     int scanNumber = int.Parse(reader["Spectrum number"]);
 
                     PSM psm = new PSM(scanNumber) {Score = double.Parse(reader["E-value"])};

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -278,6 +279,11 @@ namespace Coon.Compass.FdrOptimizer
             comboBox1.DataSource = Enum.GetValues(typeof(UniquePeptideType));
             comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifactions;
             base.OnLoad(e);
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("changelog.txt");
         }
    
     }

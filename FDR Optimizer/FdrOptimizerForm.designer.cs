@@ -447,7 +447,7 @@ namespace Coon.Compass.FdrOptimizer
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             // 
-            // frmMain
+            // FdrOptimizerForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -458,7 +458,7 @@ namespace Coon.Compass.FdrOptimizer
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(584, 562);
-            this.Name = "frmMain";
+            this.Name = "FdrOptimizerForm";
             this.Text = "FDR Optimizer";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmMain_DragDrop);

@@ -47,7 +47,7 @@ namespace Coon.Compass.Lotor
                 sb.Append(Defline);
                 sb.Append(',');
                 sb.Append(kvp.Key); // Isoform
-                int ptms = kvp.Key.Length - kvp.Key.Replace("|", "").Length + 1;
+                int ptms = kvp.Key.Count(c => c.Equals('&')) + 1; //kvp.Key.Length - kvp.Key.Replace("&", "").Length + 1;
                 sb.Append(',');
                 sb.Append(ptms);
                 sb.Append(',');
@@ -100,12 +100,11 @@ namespace Coon.Compass.Lotor
                 IMass mod = mods[resNumber];
                 if (mod == null || Lotor.FixedModifications.Contains(mod)) 
                     continue;
-                int fullResidueNumber = hit.PSM.StartResidue + resNumber + 1;
+                int fullResidueNumber = hit.PSM.StartResidue + resNumber - 1;
                 char res = hit.LocalizedIsoform.Sequence[resNumber-1];
                 sb.Append(res);
                 sb.Append(fullResidueNumber);
-                sb.Append(" [" + mod + "] ");
-                sb.Append("|");
+                sb.Append(" [" + mod + "] &");
             }
             if (sb.Length > 0)
             {

@@ -160,7 +160,7 @@ namespace Coon.Compass.Lotor
                         if (string.IsNullOrEmpty(mods))
                             continue;
 
-                        List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).OfType<Modification>().ToList();
+                        List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).Select(item => item.Item1).OfType<Modification>().ToList();
 
                         // Only keep things with quantified Modifications
                         if (!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))
@@ -301,7 +301,7 @@ namespace Coon.Compass.Lotor
                     if (string.IsNullOrEmpty(mods))
                         continue;
 
-                    List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).OfType<Modification>().ToList();
+                    List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).Select(item => item.Item1).OfType<Modification>().ToList();
 
                     // Only keep things with quantified Modifications
                     if(!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))

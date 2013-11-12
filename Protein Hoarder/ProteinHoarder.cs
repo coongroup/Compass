@@ -35,7 +35,7 @@ namespace Coon.Compass.ProteinHoarder
         private static Regex omssaRTRegex = new Regex(@"RT_([0-9.]+)_min", RegexOptions.Compiled);
 
         /// <summary>
-        /// Represents all the unique peptide sequences isMapped to all occurances (PSMs) of that sequence.
+        /// Represents all the unique peptide sequences isMapped to all occurrences (PSMs) of that sequence.
         /// </summary>
         internal static Dictionary<string, Peptide> Peptides;
 

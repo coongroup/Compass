@@ -507,11 +507,10 @@ namespace Coon.Compass.FdrOptimizer
             double maxPrecursorError = max;
             double minPrecursorError = 0;
             double bestCount = 0;
-          
-            double increment = (maxPrecursorError - minPrecursorError) / steps;
-            while (increment > minimumIncrement)
+
+            if (false)
             {
-                for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
+                for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += minimumIncrement)
                 {
                     int index = Array.BinarySearch(precursorPPMs, ppmError);
                     if (index < 0)
@@ -524,9 +523,29 @@ namespace Coon.Compass.FdrOptimizer
                     bestCount = count;
                     bestppmError = ppmError;
                 }
-                minPrecursorError = Math.Max(bestppmError - increment, 0);
-                maxPrecursorError = Math.Min(bestppmError + increment, max);
-                increment = (maxPrecursorError - minPrecursorError) / steps;
+            }
+            else
+            {
+                double increment = (maxPrecursorError - minPrecursorError)/steps;
+                while (increment > minimumIncrement)
+                {
+                    for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
+                    {
+                        int index = Array.BinarySearch(precursorPPMs, ppmError);
+                        if (index < 0)
+                            index = ~index;
+
+                        int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index), maximumFalseDisoveryRate);
+
+                        if (count <= bestCount)
+                            continue;
+                        bestCount = count;
+                        bestppmError = ppmError;
+                    }
+                    minPrecursorError = Math.Max(bestppmError - increment, 0);
+                    maxPrecursorError = Math.Min(bestppmError + increment, max);
+                    increment = (maxPrecursorError - minPrecursorError)/steps;
+                }
             }
             List<Peptide> filteredPeptides = new List<Peptide>(peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= bestppmError));
 
@@ -536,7 +555,7 @@ namespace Coon.Compass.FdrOptimizer
             return new Tuple<double, double>(bestppmError, threshold);
         }
 
-        private void Calculate2DFdr(IList<InputFile> csvFiles, bool isBatched = false, int steps = 10, double minimumIncrement = 0.05)
+        private void Calculate2DFdr(IList<InputFile> csvFiles, bool isBatched = false, int steps = 5, double minimumIncrement = 0.05)
         {
             string msg = "Calculating second order FDR threshold";
 

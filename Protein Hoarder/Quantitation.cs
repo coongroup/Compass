@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Coon.Compass.ProteinHoarder
 {
@@ -19,6 +20,7 @@ namespace Coon.Compass.ProteinHoarder
             Peptides = new HashSet<Peptide>();
             this.data = new double[Plex * 4];
             PSMs = 1;
+     
             for (int i = 0; i < data.Length; i++)
             {
                 this.data[i] = data[i];
@@ -27,6 +29,7 @@ namespace Coon.Compass.ProteinHoarder
 
         public void AddData(params double[] data)
         {
+           
             for (int i = 0; i < data.Length; i++)
             {
                 this.data[i] += data[i];
@@ -37,6 +40,7 @@ namespace Coon.Compass.ProteinHoarder
         public string ToOutput()
         {
             StringBuilder sb = new StringBuilder();
+
             foreach (double datum in data)
             {
                 sb.Append(datum);

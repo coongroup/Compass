@@ -42,9 +42,13 @@ namespace Coon.Compass.FdrOptimizer
             {
                 Modification mod = modTuple.Item1;
                 int site = modTuple.Item2;
-                if (site == 1 || site == Peptide.Length && (mod.Sites.HasFlag(ModificationSites.NPep) || mod.Sites.HasFlag(ModificationSites.PepC)))
+                if (site == 1 && (mod.Sites.HasFlag(ModificationSites.NPep) || site == Peptide.Length && mod.Sites.HasFlag(ModificationSites.PepC)))
                 {
-                    Peptide.SetModification(mod, mod.Sites);
+                    Peptide.SetModification(mod, ModificationSites.NPep);
+                }
+                else if (site == Peptide.Length && mod.Sites.HasFlag(ModificationSites.PepC))
+                {
+                    Peptide.SetModification(mod, ModificationSites.PepC);
                 }
                 else
                 {

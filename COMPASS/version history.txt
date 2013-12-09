@@ -6,6 +6,12 @@ Wenger CD, Phanstiel DH, Lee MV, Bailey DJ, Coon JJ.
 software tools for OMSSA," Proteomics 11:1074–1084 
 (2011)
 
+1.2.12.0 (Monday, December 9, 2013)
+- FdrOptimizer -> 2.0.3.0
+  Added maximaul ppm error input for capping the maximum ppm error allowed.
+  Added back * to user modifications
+  Went back to slower, but more accurate 2D FDR calculation.
+
 1.2.11.0 (Tuesday, November 12, 2013)
 - Procyon -> 0.0.1.0
   Added Procyon to Compass

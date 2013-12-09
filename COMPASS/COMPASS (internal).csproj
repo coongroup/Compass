@@ -30,8 +30,8 @@
     <PublisherName>CoonWare</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>2</ApplicationRevision>
-    <ApplicationVersion>1.2.10.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.2.11.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -154,6 +154,10 @@
     <ProjectReference Include="..\Phosphinator\Phosphinator.csproj">
       <Project>{18c3ae3c-e032-4fe9-ad14-e602ba663be4}</Project>
       <Name>Phosphinator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Procyon\Procyon\Procyon.csproj">
+      <Project>{bd302eec-97de-4c25-b229-2b5bd0d7822c}</Project>
+      <Name>Procyon</Name>
     </ProjectReference>
     <ProjectReference Include="..\Protein Hoarder\Protein Hoarder.csproj">
       <Project>{f9872e16-407f-4640-867b-f0b7072a3535}</Project>

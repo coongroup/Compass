@@ -46,17 +46,18 @@
             this.tsbDatabaseMaker = new System.Windows.Forms.ToolStripButton();
             this.tsbDtaGenerator = new System.Windows.Forms.ToolStripButton();
             this.tsbCoondornator = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.tsbTagQuant = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.nonbatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.batchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lowResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.batchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lowResToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.highResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -178,6 +179,7 @@
             this.toolStripButton1,
             this.toolStripButton2,
             this.toolStripButton3,
+            this.toolStripButton5,
             this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
@@ -211,6 +213,15 @@
             this.tsbCoondornator.Size = new System.Drawing.Size(102, 22);
             this.tsbCoondornator.Text = "Coondornator";
             this.tsbCoondornator.Click += new System.EventHandler(this.tsbCoondornator_Click);
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Image = global::Coon.Compass.Properties.Resources.coon_blue;
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(99, 22);
+            this.toolStripButton4.Text = "Fdr Optimizer";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
             // tsbTagQuant
             // 
@@ -260,15 +271,6 @@
             this.toolStripDropDownButton1.Size = new System.Drawing.Size(93, 22);
             this.toolStripDropDownButton1.Text = "Old Programs";
             // 
-            // toolStripButton4
-            // 
-            this.toolStripButton4.Image = global::Coon.Compass.Properties.Resources.coon_blue;
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(99, 22);
-            this.toolStripButton4.Text = "Fdr Optimizer";
-            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
-            // 
             // nonbatchToolStripMenuItem
             // 
             this.nonbatchToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -276,6 +278,13 @@
             this.nonbatchToolStripMenuItem.Name = "nonbatchToolStripMenuItem";
             this.nonbatchToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.nonbatchToolStripMenuItem.Text = "non-batch FDR";
+            // 
+            // lowResToolStripMenuItem
+            // 
+            this.lowResToolStripMenuItem.Name = "lowResToolStripMenuItem";
+            this.lowResToolStripMenuItem.Size = new System.Drawing.Size(111, 22);
+            this.lowResToolStripMenuItem.Text = "low res";
+            this.lowResToolStripMenuItem.Click += new System.EventHandler(this.lowResToolStripMenuItem_Click);
             // 
             // batchToolStripMenuItem
             // 
@@ -286,26 +295,28 @@
             this.batchToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.batchToolStripMenuItem.Text = "batch FDR";
             // 
-            // lowResToolStripMenuItem
-            // 
-            this.lowResToolStripMenuItem.Name = "lowResToolStripMenuItem";
-            this.lowResToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.lowResToolStripMenuItem.Text = "low res";
-            this.lowResToolStripMenuItem.Click += new System.EventHandler(this.lowResToolStripMenuItem_Click);
-            // 
             // lowResToolStripMenuItem1
             // 
             this.lowResToolStripMenuItem1.Name = "lowResToolStripMenuItem1";
-            this.lowResToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.lowResToolStripMenuItem1.Size = new System.Drawing.Size(116, 22);
             this.lowResToolStripMenuItem1.Text = "low res";
             this.lowResToolStripMenuItem1.Click += new System.EventHandler(this.lowResToolStripMenuItem1_Click);
             // 
             // highResToolStripMenuItem
             // 
             this.highResToolStripMenuItem.Name = "highResToolStripMenuItem";
-            this.highResToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.highResToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.highResToolStripMenuItem.Text = "high res";
             this.highResToolStripMenuItem.Click += new System.EventHandler(this.highResToolStripMenuItem_Click);
+            // 
+            // toolStripButton5
+            // 
+            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
+            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton5.Name = "toolStripButton5";
+            this.toolStripButton5.Size = new System.Drawing.Size(71, 22);
+            this.toolStripButton5.Text = "Procyon";
+            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // CompassForm
             // 
@@ -357,6 +368,7 @@
         private System.Windows.Forms.ToolStripMenuItem batchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem lowResToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem highResToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButton5;
 
     }
 }

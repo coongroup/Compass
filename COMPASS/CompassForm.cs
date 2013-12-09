@@ -6,6 +6,7 @@ using Coon.Compass.DatabaseMaker;
 using Coon.Compass.Lotor;
 using Coon.Compass.ProteinHoarder;
 using Coon.Compass.TagQuant;
+using Coon.Compass.Procyon;
 using Phosphinator;
 
 namespace Coon.Compass
@@ -134,6 +135,12 @@ namespace Coon.Compass
         {
             var batchFDROptimizer = new BatchFdrOptimizer.frmMain { MdiParent = this };
             batchFDROptimizer.Show();
+        }
+
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+            var procyonForm = new ProcyonForm { MdiParent = this };
+            procyonForm.Show();
         }
 
     }

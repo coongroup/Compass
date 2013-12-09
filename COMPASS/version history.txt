@@ -6,6 +6,10 @@ Wenger CD, Phanstiel DH, Lee MV, Bailey DJ, Coon JJ.
 software tools for OMSSA," Proteomics 11:1074–1084 
 (2011)
 
+1.2.11.0 (Tuesday, November 12, 2013)
+- Procyon -> 0.0.1.0
+  Added Procyon to Compass
+
 1.2.9.0 (Thursday, October 3, 2013)
 - FdrOptimizer -> 2.0.0.0
   Combined all the FDR optimizers into one new program.

@@ -59,7 +59,7 @@ namespace Coon.Compass.Lotor
             {
                 // 1) Read in all the psms and map them to their respective spectra
                 List<PSM> psms = LoadAllPSMs(_csvFile, _rawFileDirectory, _fixedModifications);
-
+                
                 // 2) Calculate all the best isoforms for all the psms
                 List<LocalizedHit> hits = CalculateBestIsoforms(psms, _ascoreThreshold, _fragType, _prodTolerance, _productThreshold);
 
@@ -92,10 +92,13 @@ namespace Coon.Compass.Lotor
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append("Protein Group,Defline,Isoform,Sites,PSMs Identified,PSMs Localized");
-                for (int i = firstQuant; i <= lastQuant; i++)
+                if (firstQuant >= 0)
                 {
-                    sb.Append(',');
-                    sb.Append(headerInfo[i]);
+                    for (int i = firstQuant; i <= lastQuant; i++)
+                    {
+                        sb.Append(',');
+                        sb.Append(headerInfo[i]);
+                    }
                 }
                 localizeWriter.WriteLine(sb.ToString());
                 foreach (Protein prot in proteins)
@@ -202,15 +205,18 @@ namespace Coon.Compass.Lotor
                         sb.Append(hit.LocalizedIsoform.SequenceWithModifications);
                         sb.Append(',');
                         sb.Append(hit.LocalizedIsoform.SpectralMatch.Matches);
-                        sb.Append(',');
-                        sb.Append(hit.BestPeptideSDFCount);
-                        sb.Append(',');
-                        sb.Append(hit.SecondBestPeptideIsoform.SequenceWithModifications);
-                        sb.Append(',');
-                        sb.Append(hit.SecondBestPeptideIsoform.SpectralMatch.Matches);
-                        sb.Append(',');
-                        sb.Append(hit.SecondBestPeptideSDFCount);
-                      
+                        if (hit.PSM.Isoforms > 1)
+                        {
+                            sb.Append(',');
+                            sb.Append(hit.BestPeptideSDFCount);
+                            sb.Append(',');
+                            sb.Append(hit.SecondBestPeptideIsoform.SequenceWithModifications);
+                            sb.Append(',');
+                            sb.Append(hit.SecondBestPeptideIsoform.SpectralMatch.Matches);
+                            sb.Append(',');
+                            sb.Append(hit.SecondBestPeptideSDFCount);
+                        }
+
                         if(hit.IsLocalized)
                             localizedWriter.WriteLine(sb.ToString());
                         writer.WriteLine(sb.ToString());
@@ -231,8 +237,13 @@ namespace Coon.Compass.Lotor
             List<LocalizedHit> hits = new List<LocalizedHit>();
             foreach (PSM psm in psms)
             {
+                psm_count++;
+                count++;
+
                 // Generate all the isoforms for the PSM
                 int isoformCount = psm.GenerateIsoforms(_ignoreCTerminal);
+
+                // If only one isoform, nothing to compare it to, so it is automatically localized
                 if(isoformCount == 0)
                     continue;
                 
@@ -263,14 +274,14 @@ namespace Coon.Compass.Lotor
                 {
                     localized_psm++;
                 }
+
                 // Progress Bar Stuff
-                count++;
-                psm_count++;
                 if (count <= 50) 
                     continue;
                 count = 0;
                 ProgressUpdate((double)psm_count / psms.Count);
             }
+            ProgressUpdate(1.0);
             Log(string.Format("Total Number of Possible Isoforms Considered: {0:N0}",totalisofromscount));
             Log(string.Format("Total Number of PSMs Considered: {0:N0}", psm_count));
             Log(string.Format("Total Number of PSMs Localized: {0:N0} ({1:00.00}%)", localized_psm, localized_psm * 100 / psm_count));       
@@ -291,8 +302,9 @@ namespace Coon.Compass.Lotor
 
             List<PSM> psms = new List<PSM>();
             ThermoRawFile rawFile = null;
+
             using (CsvReader reader = new CsvReader(new StreamReader(csvFile), true))
-            {               
+            {
                 while (reader.ReadNextRecord())
                 {
                     string mods = reader["Mods"];
@@ -301,24 +313,25 @@ namespace Coon.Compass.Lotor
                     if (string.IsNullOrEmpty(mods))
                         continue;
 
+                    // Convert the text mod line into a list of modification objects
                     List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).Select(item => item.Item1).OfType<Modification>().ToList();
 
                     // Only keep things with quantified Modifications
-                    if(!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))
+                    if (!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))
                         continue;
 
                     string filename = reader["Filename/id"];
-                    string rawname =  filename.Split('.')[0];                                       
+                    string rawname = filename.Split('.')[0];
                     if (rawFiles.TryGetValue(rawname, out rawFile))
                     {
-                        if(_dataFiles.Add(rawFile))
+                        if (_dataFiles.Add(rawFile))
                             rawFile.Open();
 
-                        int scan_number = int.Parse(reader["Spectrum number"]);       
-               
-                        PSM psm = new PSM(scan_number, rawFile);
+                        int scanNumber = int.Parse(reader["Spectrum number"]);
+
+                        PSM psm = new PSM(scanNumber, rawFile);
                         psm.StartResidue = int.Parse(reader["Start"]);
-                        psm.Charge = int.Parse(reader["Charge"]);      
+                        psm.Charge = int.Parse(reader["Charge"]);
                         psm.BasePeptide = new Peptide(reader["Peptide"].ToUpper());
                         psm.Defline = reader["Defline"];
                         psm.ProteinGroup = reader["Best PG Name"];
@@ -328,6 +341,19 @@ namespace Coon.Compass.Lotor
                         // Apply all the fix modifications
                         psm.BasePeptide.SetModifications(fixedMods);
 
+                        int i = 0;
+                        while (i < variableMods.Count)
+                        {
+                            if (fixedMods.Contains(variableMods[i]))
+                            {
+                                variableMods.RemoveAt(i);
+                            }
+                            else
+                            {
+                                i++;
+                            }
+                        }
+
                         // Save all the variable mod types             
                         psm.VariabledModifications = variableMods;
 
@@ -335,9 +361,10 @@ namespace Coon.Compass.Lotor
                     }
                     else
                     {
-                        throw new NullReferenceException(string.Format("Raw File: {0}.raw was not found! Aborting.",rawname));
-                    }     
-                }               
+                        throw new NullReferenceException(string.Format("Raw File: {0}.raw was not found! Aborting.", rawname));
+                    }
+                }
+
             }
 
             Log(string.Format("{0:N0} PSMs were loaded.", psms.Count));

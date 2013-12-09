@@ -125,17 +125,17 @@ namespace Phosphinator
             }
 
             // dynamic modifications
-            string[] dynamic_modifications = dynamicModifications.Trim('"').Split(new string[] { " ,", " ;"}, StringSplitOptions.RemoveEmptyEntries);
+            string[] dynamic_modifications = dynamicModifications.Trim('"').Split(new string[] {",", ";"}, StringSplitOptions.RemoveEmptyEntries);
             this.dynamicModifications = new Dictionary<int, string>(dynamic_modifications.Length);
             foreach(string dynamic_modification in dynamic_modifications)
             {
                 int index = dynamic_modification.IndexOf(':');
-                string modification_name = dynamic_modification.Substring(0, index);
+                string modification_name = dynamic_modification.Substring(0, index).Trim();
                 if(!MODIFICATIONS.ContainsKey(modification_name))
                 {
                     throw new Exception("Mass of modification \"" + modification_name + "\" not found");
                 }
-                int residue_number = int.Parse(dynamic_modification.Substring(index + 1));
+                int residue_number = int.Parse(dynamic_modification.Substring(index + 1).Trim());
                 if(!this.dynamicModifications.ContainsKey(residue_number))
                 {
                     this.dynamicModifications.Add(residue_number, dynamic_modification);

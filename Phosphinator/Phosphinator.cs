@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using LumenWorks.Framework.IO.Csv;
 using Net.Kniaz.LMA;
 using MSFileReaderLib;
@@ -138,24 +139,24 @@ namespace Phosphinator
             StreamWriter unlocalized_phospho_output = null;
             StreamWriter motifX = null;
 
-            //try
-            //{
+            try
+            {
                 onStarting(new EventArgs());
 
                 onUpdateProgress(new ProgressEventArgs(0));
 
                 StringBuilder fixed_modifications_sb = new StringBuilder();
-                foreach(Modification modification in fixedModifications)
+                foreach (Modification modification in fixedModifications)
                 {
                     fixed_modifications_sb.Append(modification.Name + ", ");
                 }
-                if(fixed_modifications_sb.Length > 0)
+                if (fixed_modifications_sb.Length > 0)
                 {
                     fixed_modifications_sb = fixed_modifications_sb.Remove(fixed_modifications_sb.Length - 2, 2);
                 }
                 string fixed_modifications = fixed_modifications_sb.ToString();
 
-                if(!Directory.Exists(outputFolder))
+                if (!Directory.Exists(outputFolder))
                 {
                     Directory.CreateDirectory(outputFolder);
                 }
@@ -169,11 +170,11 @@ namespace Phosphinator
                 log.WriteLine("Fragment m/z Tolerance (Th): " + mzTolerance.ToString());
                 log.WriteLine("Ambiguity Score Threshold: " + ambiguityScoreThreshold.ToString());
                 log.WriteLine("Eliminate Precursor Interference: " + eliminatePrecursorInterference.ToString());
-                if(eliminatePrecursorInterference)
+                if (eliminatePrecursorInterference)
                 {
                     log.WriteLine("Precursor Interference Threshold: " + precursorInterferenceThreshold.ToString());
                 }
-                if(motifXOutput)
+                if (motifXOutput)
                 {
                     log.WriteLine("Motif-X Fasta Protein Database Filepath: " + motifXFastaProteinDatabaseFilepath);
                     log.WriteLine("Motif-X Window Size: " + motifXWindowSize.ToString());
@@ -195,25 +196,25 @@ namespace Phosphinator
 
                 ProteinDictionary proteins = null;
                 Dictionary<string, int> motifs = null;
-                if(motifXOutput)
+                if (motifXOutput)
                 {
                     proteins = new ProteinDictionary(motifXFastaProteinDatabaseFilepath);
                     motifs = new Dictionary<string, int>();
                     motifX = new StreamWriter(Path.Combine(outputFolder, "motif-x.txt"));
                 }
 
-                raw = (IXRawfile2)new MSFileReader_XRawfile();
+                raw = (IXRawfile2) new MSFileReader_XRawfile();
 
                 string header_line = null;
                 string[] headers = null;
                 bool quant = false;
 
-                foreach(string csv_filepath in csvFilepaths)
+                foreach (string csv_filepath in csvFilepaths)
                 {
                     onStartingFile(new FilepathEventArgs(csv_filepath));
 
                     csv = new StreamReader(csv_filepath);
-                   
+
                     using (CsvReader reader = new CsvReader(csv, true))
                     {
                         headers = reader.GetFieldHeaders();
@@ -233,7 +234,7 @@ namespace Phosphinator
                         while (reader.ReadNextRecord())
                         {
                             //string line = csv.ReadLine();
-                         
+
 
 
                             //string[] fields = Regex.Split(line,
@@ -1016,18 +1017,18 @@ namespace Phosphinator
                 log.WriteLine();
 
                 int localized_phosphoisoforms = 0;
-                foreach(KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in localized)
+                foreach (KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in localized)
                 {
-                    foreach(KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
+                    foreach (KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
                     {
                         localized_phosphoisoforms++;
                     }
                 }
 
                 int unlocalized_phosphoisoforms = 0;
-                foreach(KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in unlocalized)
+                foreach (KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in unlocalized)
                 {
-                    foreach(KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
+                    foreach (KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
                     {
                         unlocalized_phosphoisoforms++;
                     }
@@ -1038,43 +1039,43 @@ namespace Phosphinator
 
                 log.Close();
 
-                using(StreamWriter protein_sites = new StreamWriter(Path.Combine(outputFolder, "localized_protein_phosphosites.csv")))
+                using (StreamWriter protein_sites = new StreamWriter(Path.Combine(outputFolder, "localized_protein_phosphosites.csv")))
                 {
                     protein_sites.WriteLine("Protein Description, Number of Localized Phosphosites");
                     protein_sites.WriteLine(", Localized Phosphosite");
 
-                    foreach(KeyValuePair<string, Dictionary<string, int>> kvp in localized_sites_by_protein)
+                    foreach (KeyValuePair<string, Dictionary<string, int>> kvp in localized_sites_by_protein)
                     {
                         protein_sites.WriteLine((kvp.Key.Contains(",") ? '"' + kvp.Key + '"' : kvp.Key) + ',' + kvp.Value.Count.ToString());
-                        foreach(KeyValuePair<string, int> kvp2 in kvp.Value)
+                        foreach (KeyValuePair<string, int> kvp2 in kvp.Value)
                         {
                             protein_sites.WriteLine(',' + kvp2.Key);
                         }
                     }
                 }
 
-                using(StreamWriter full_localized_output = new StreamWriter(Path.Combine(outputFolder, "full_localized_phosphoisoforms.csv")))
+                using (StreamWriter full_localized_output = new StreamWriter(Path.Combine(outputFolder, "full_localized_phosphoisoforms.csv")))
                 {
                     //int interference_index = -1;
                     int first_quant_index = -1;
                     int last_quant_index = -1;
-                    if(!quant)
+                    if (!quant)
                     {
                         full_localized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites, PSMs Identified, Peptides Identified");
                     }
                     else
                     {
                         full_localized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites, PSMs Identified, PSMs Quantified, Peptides Identified, Peptides Quantified,");
-                        for(int i = 0; i < headers.Length; i++)
+                        for (int i = 0; i < headers.Length; i++)
                         {
                             if (headers[i].EndsWith("NL)"))
                             {
-                                if(first_quant_index < 0)
+                                if (first_quant_index < 0)
                                 {
                                     first_quant_index = i;
                                 }
                             }
-                            if(first_quant_index >= 0)
+                            if (first_quant_index >= 0)
                                 full_localized_output.Write(' ' + headers[i] + ',');
                             if (headers[i].Equals("Channels Detected"))
                             {
@@ -1086,16 +1087,16 @@ namespace Phosphinator
                     full_localized_output.WriteLine();
                     full_localized_output.WriteLine(", " + header_line);
 
-                    using(StreamWriter reduced_localized_output = new StreamWriter(Path.Combine(outputFolder, "reduced_localized_phosphoisoforms.csv")))
+                    using (StreamWriter reduced_localized_output = new StreamWriter(Path.Combine(outputFolder, "reduced_localized_phosphoisoforms.csv")))
                     {
-                        if(!quant)
+                        if (!quant)
                         {
                             reduced_localized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites,Peptides , PSMs Identified, Peptides Identified");
                         }
                         else
                         {
                             reduced_localized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites,Peptides , PSMs Identified, PSMs Quantified, Peptides Identified, Peptides Quantified,");
-                            for(int i = first_quant_index; i <= last_quant_index; i++)
+                            for (int i = first_quant_index; i <= last_quant_index; i++)
                             {
                                 reduced_localized_output.Write(' ' + headers[i] + ',');
                             }
@@ -1103,16 +1104,16 @@ namespace Phosphinator
                         }
                         reduced_localized_output.WriteLine();
 
-                        foreach(KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in localized)
+                        foreach (KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in localized)
                         {
-                            foreach(KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
+                            foreach (KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
                             {
                                 full_localized_output.Write((kvp.Key.Contains(",") ? '"' + kvp.Key + '"' : kvp.Key) + ',');
                                 reduced_localized_output.Write((kvp.Key.Contains(",") ? '"' + kvp.Key + '"' : kvp.Key) + ',');
 
                                 full_localized_output.Write((kvp2.Key.Value.Contains(",") ? '"' + kvp2.Key.Value + '"' : kvp2.Key.Value) + ',');
                                 reduced_localized_output.Write((kvp2.Key.Value.Contains(",") ? '"' + kvp2.Key.Value + '"' : kvp2.Key.Value) + ',');
-                                                                
+
                                 full_localized_output.Write(kvp2.Key.Key.ToString() + ',');
                                 reduced_localized_output.Write(kvp2.Key.Key.ToString() + ',');
 
@@ -1123,37 +1124,37 @@ namespace Phosphinator
                                 Dictionary<string, int> unique_peptides_identified = new Dictionary<string, int>();
                                 Dictionary<string, int> unique_peptides_quantified = new Dictionary<string, int>();
                                 StringBuilder peptides = new StringBuilder();
-                                foreach(string line in kvp2.Value)
+                                foreach (string line in kvp2.Value)
                                 {
-                                    string[] fields = Regex.Split(line, @",(?!(?<=(?:^|,)\s*\x22(?:[^\x22]|\x22\x22|\\\x22)*,)(?:[^\x22]|\x22\x22|\\\x22)*\x22\s*(?:,|$))");  // crazy regex to parse CSV with internal double quotes from http://regexlib.com/REDetails.aspx?regexp_id=621
+                                    string[] fields = Regex.Split(line, @",(?!(?<=(?:^|,)\s*\x22(?:[^\x22]|\x22\x22|\\\x22)*,)(?:[^\x22]|\x22\x22|\\\x22)*\x22\s*(?:,|$))"); // crazy regex to parse CSV with internal double quotes from http://regexlib.com/REDetails.aspx?regexp_id=621
                                     spectra_identified++;
                                     string peptide_sequence = fields[2];
                                     peptides.Append(peptide_sequence + " ");
-                                    if(!unique_peptides_identified.ContainsKey(peptide_sequence))
+                                    if (!unique_peptides_identified.ContainsKey(peptide_sequence))
                                     {
                                         unique_peptides_identified.Add(peptide_sequence, 0);
                                     }
                                     unique_peptides_identified[peptide_sequence]++;
-                                    if(quant)
+                                    if (quant)
                                     {
-                                        
+
                                         spectra_quantified++;
-                                        if(double.IsNaN(isoform_quantitation[0]))
+                                        if (double.IsNaN(isoform_quantitation[0]))
                                         {
                                             isoform_quantitation = Array.ConvertAll<double, double>(isoform_quantitation, SET_DOUBLE_VALUE_TO_ZERO);
                                         }
-                                        if(!unique_peptides_quantified.ContainsKey(peptide_sequence))
+                                        if (!unique_peptides_quantified.ContainsKey(peptide_sequence))
                                         {
                                             unique_peptides_quantified.Add(peptide_sequence, 0);
                                         }
                                         unique_peptides_quantified[peptide_sequence]++;
-                                        for(int i = first_quant_index; i <= last_quant_index; i++)
+                                        for (int i = first_quant_index; i <= last_quant_index; i++)
                                         {
                                             double val = 0;
-                                            double.TryParse(fields[i], out val);                                                
+                                            double.TryParse(fields[i], out val);
                                             isoform_quantitation[i - first_quant_index] += val;
                                         }
-                                        
+
                                     }
                                 }
 
@@ -1162,18 +1163,18 @@ namespace Phosphinator
 
                                 full_localized_output.Write(spectra_identified.ToString() + ',');
                                 reduced_localized_output.Write(spectra_identified.ToString() + ',');
-                                if(quant)
+                                if (quant)
                                 {
                                     full_localized_output.Write(spectra_quantified.ToString() + ',');
                                     reduced_localized_output.Write(spectra_quantified.ToString() + ',');
                                 }
                                 full_localized_output.Write(unique_peptides_identified.Count.ToString() + ',');
                                 reduced_localized_output.Write(unique_peptides_identified.Count.ToString() + ',');
-                                if(quant)
+                                if (quant)
                                 {
                                     full_localized_output.Write(unique_peptides_quantified.Count.ToString() + ',');
                                     reduced_localized_output.Write(unique_peptides_quantified.Count.ToString() + ',');
-                                    for(int i = isoform_quantitation.GetLowerBound(0); i <= isoform_quantitation.GetUpperBound(0); i++)
+                                    for (int i = isoform_quantitation.GetLowerBound(0); i <= isoform_quantitation.GetUpperBound(0); i++)
                                     {
                                         full_localized_output.Write(isoform_quantitation[i].ToString() + ',');
                                         reduced_localized_output.Write(isoform_quantitation[i].ToString() + ',');
@@ -1184,7 +1185,7 @@ namespace Phosphinator
                                 full_localized_output.WriteLine();
                                 reduced_localized_output.WriteLine();
 
-                                foreach(string line in kvp2.Value)
+                                foreach (string line in kvp2.Value)
                                 {
                                     full_localized_output.WriteLine(',' + line);
                                 }
@@ -1193,11 +1194,11 @@ namespace Phosphinator
                     }
                 }
 
-                using(StreamWriter full_unlocalized_output = new StreamWriter(Path.Combine(outputFolder, "full_unlocalized_phosphoisoforms.csv")))
+                using (StreamWriter full_unlocalized_output = new StreamWriter(Path.Combine(outputFolder, "full_unlocalized_phosphoisoforms.csv")))
                 {
                     int first_quant_index = -1;
                     int last_quant_index = -1;
-                    if(!quant)
+                    if (!quant)
                     {
                         full_unlocalized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites,Peptides, PSMs Identified, Peptides Identified");
                     }
@@ -1213,7 +1214,7 @@ namespace Phosphinator
                                     first_quant_index = i;
                                 }
                             }
-                            if(first_quant_index >= 0)
+                            if (first_quant_index >= 0)
                                 full_unlocalized_output.Write(' ' + headers[i] + ',');
                             if (headers[i].Equals("Channels Detected"))
                             {
@@ -1225,16 +1226,16 @@ namespace Phosphinator
                     full_unlocalized_output.WriteLine();
                     full_unlocalized_output.WriteLine(", " + header_line);
 
-                    using(StreamWriter reduced_unlocalized_output = new StreamWriter(Path.Combine(outputFolder, "reduced_unlocalized_phosphoisoforms.csv")))
+                    using (StreamWriter reduced_unlocalized_output = new StreamWriter(Path.Combine(outputFolder, "reduced_unlocalized_phosphoisoforms.csv")))
                     {
-                        if(!quant)
+                        if (!quant)
                         {
                             reduced_unlocalized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites,Peptides, PSMs Identified, Peptides Identified");
                         }
                         else
                         {
                             reduced_unlocalized_output.Write("Protein Description, Phosphoisoform, Phosphoisoform Sites,Peptides, PSMs Identified, PSMs Quantified, Peptides Identified, Peptides Quantified,");
-                            for(int i = first_quant_index; i <= last_quant_index; i++)
+                            for (int i = first_quant_index; i <= last_quant_index; i++)
                             {
                                 reduced_unlocalized_output.Write(' ' + headers[i] + ',');
                             }
@@ -1243,10 +1244,10 @@ namespace Phosphinator
                         reduced_unlocalized_output.WriteLine();
 
 
-                    
-                        foreach(KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in unlocalized)
+
+                        foreach (KeyValuePair<string, Dictionary<KeyValuePair<int, string>, List<string>>> kvp in unlocalized)
                         {
-                            foreach(KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
+                            foreach (KeyValuePair<KeyValuePair<int, string>, List<string>> kvp2 in kvp.Value)
                             {
                                 full_unlocalized_output.Write((kvp.Key.Contains(",") ? '"' + kvp.Key + '"' : kvp.Key) + ',');
                                 reduced_unlocalized_output.Write((kvp.Key.Contains(",") ? '"' + kvp.Key + '"' : kvp.Key) + ',');
@@ -1264,36 +1265,36 @@ namespace Phosphinator
                                 Dictionary<string, int> unique_peptides_identified = new Dictionary<string, int>();
                                 Dictionary<string, int> unique_peptides_quantified = new Dictionary<string, int>();
                                 StringBuilder peptides = new StringBuilder();
-                                foreach(string line in kvp2.Value)
+                                foreach (string line in kvp2.Value)
                                 {
-                                    string[] fields = Regex.Split(line, @",(?!(?<=(?:^|,)\s*\x22(?:[^\x22]|\x22\x22|\\\x22)*,)(?:[^\x22]|\x22\x22|\\\x22)*\x22\s*(?:,|$))");  // crazy regex to parse CSV with internal double quotes from http://regexlib.com/REDetails.aspx?regexp_id=621
+                                    string[] fields = Regex.Split(line, @",(?!(?<=(?:^|,)\s*\x22(?:[^\x22]|\x22\x22|\\\x22)*,)(?:[^\x22]|\x22\x22|\\\x22)*\x22\s*(?:,|$))"); // crazy regex to parse CSV with internal double quotes from http://regexlib.com/REDetails.aspx?regexp_id=621
                                     spectra_identified++;
                                     string peptide_sequence = fields[2];
                                     peptides.Append(peptide_sequence + " ");
-                                    if(!unique_peptides_identified.ContainsKey(peptide_sequence))
+                                    if (!unique_peptides_identified.ContainsKey(peptide_sequence))
                                     {
                                         unique_peptides_identified.Add(peptide_sequence, 0);
                                     }
                                     unique_peptides_identified[peptide_sequence]++;
-                                    if(quant)
+                                    if (quant)
                                     {
                                         spectra_quantified++;
-                                        if(double.IsNaN(isoform_quantitation[0]))
+                                        if (double.IsNaN(isoform_quantitation[0]))
                                         {
                                             isoform_quantitation = Array.ConvertAll<double, double>(isoform_quantitation, SET_DOUBLE_VALUE_TO_ZERO);
                                         }
-                                        if(!unique_peptides_quantified.ContainsKey(peptide_sequence))
+                                        if (!unique_peptides_quantified.ContainsKey(peptide_sequence))
                                         {
                                             unique_peptides_quantified.Add(peptide_sequence, 0);
                                         }
                                         unique_peptides_quantified[peptide_sequence]++;
-                                        for(int i = first_quant_index; i <= last_quant_index; i++)
+                                        for (int i = first_quant_index; i <= last_quant_index; i++)
                                         {
                                             double val = 0;
                                             double.TryParse(fields[i], out val);
                                             isoform_quantitation[i - first_quant_index] += val;
                                         }
-                                        
+
                                     }
                                 }
 
@@ -1302,18 +1303,18 @@ namespace Phosphinator
 
                                 full_unlocalized_output.Write(spectra_identified.ToString() + ',');
                                 reduced_unlocalized_output.Write(spectra_identified.ToString() + ',');
-                                if(quant)
+                                if (quant)
                                 {
                                     full_unlocalized_output.Write(spectra_quantified.ToString() + ',');
                                     reduced_unlocalized_output.Write(spectra_quantified.ToString() + ',');
                                 }
                                 full_unlocalized_output.Write(unique_peptides_identified.Count.ToString() + ',');
                                 reduced_unlocalized_output.Write(unique_peptides_identified.Count.ToString() + ',');
-                                if(quant)
+                                if (quant)
                                 {
                                     full_unlocalized_output.Write(unique_peptides_quantified.Count.ToString() + ',');
                                     reduced_unlocalized_output.Write(unique_peptides_quantified.Count.ToString() + ',');
-                                    for(int i = isoform_quantitation.GetLowerBound(0); i <= isoform_quantitation.GetUpperBound(0); i++)
+                                    for (int i = isoform_quantitation.GetLowerBound(0); i <= isoform_quantitation.GetUpperBound(0); i++)
                                     {
                                         full_unlocalized_output.Write(isoform_quantitation[i].ToString() + ',');
                                         reduced_unlocalized_output.Write(isoform_quantitation[i].ToString() + ',');
@@ -1324,7 +1325,7 @@ namespace Phosphinator
                                 full_unlocalized_output.WriteLine();
                                 reduced_unlocalized_output.WriteLine();
 
-                                foreach(string line in kvp2.Value)
+                                foreach (string line in kvp2.Value)
                                 {
                                     full_unlocalized_output.WriteLine(',' + line);
                                 }
@@ -1333,19 +1334,19 @@ namespace Phosphinator
                     }
                 }
 
-                if(motifXOutput)
+                if (motifXOutput)
                 {
-                    foreach(string motif in motifs.Keys)
+                    foreach (string motif in motifs.Keys)
                     {
                         motifX.WriteLine(motif);
                     }
                     motifX.Close();
 
-                    using(StreamWriter motif_fasta = new StreamWriter(Path.Combine(outputFolder, "motif-x.fasta")))
+                    using (StreamWriter motif_fasta = new StreamWriter(Path.Combine(outputFolder, "motif-x.fasta")))
                     {
-                        foreach(KeyValuePair<string, string> kvp in proteins)
+                        foreach (KeyValuePair<string, string> kvp in proteins)
                         {
-                            if(!kvp.Key.Contains("DECOY") && !kvp.Key.Contains("REVERSED"))
+                            if (!kvp.Key.Contains("DECOY") && !kvp.Key.Contains("REVERSED"))
                             {
                                 motif_fasta.WriteLine('>' + kvp.Key);
                                 motif_fasta.WriteLine(kvp.Value);
@@ -1355,42 +1356,46 @@ namespace Phosphinator
                 }
 
                 onFinished(new EventArgs());
-            //}
-            //catch(Exception ex)
-            //{
-            //    onThrowException(new ExceptionEventArgs(ex));
-            //}
-            //finally
-            //{
-                if(log != null)
+                //}
+                //catch(Exception ex)
+                //{
+                //    onThrowException(new ExceptionEventArgs(ex));
+                //}
+                //finally
+                //{
+                if (log != null)
                 {
                     log.Close();
                 }
-                if(raw != null)
+                if (raw != null)
                 {
                     raw.Close();
                 }
-                if(csv != null)
+                if (csv != null)
                 {
                     csv.Close();
                 }
-                if(non_phospho_output != null)
+                if (non_phospho_output != null)
                 {
                     non_phospho_output.Close();
                 }
-                if(localized_phospho_output != null)
+                if (localized_phospho_output != null)
                 {
                     localized_phospho_output.Close();
                 }
-                if(unlocalized_phospho_output != null)
+                if (unlocalized_phospho_output != null)
                 {
                     unlocalized_phospho_output.Close();
                 }
-                if(motifX != null)
+                if (motifX != null)
                 {
                     motifX.Close();
                 }
-            //}
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
         }
 
         private static List<Peptide> GetAlternativePhosphoisoformPeptides(Peptide peptide, IEnumerable<Modification> fixedModifications)

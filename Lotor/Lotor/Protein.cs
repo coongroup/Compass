@@ -34,6 +34,7 @@ namespace Coon.Compass.Lotor
                 Hits.Add(localizedString, hits);
             }
         }
+
         public string Print(int quantStart, int quantEnd)
         {
             bool quant = quantStart >= 0;

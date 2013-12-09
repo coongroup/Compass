@@ -64,12 +64,15 @@ namespace Coon.Compass.FdrOptimizer
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.twoDCB = new System.Windows.Forms.CheckBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.maximumPPMUD = new System.Windows.Forms.NumericUpDown();
             this.grpFixedModifications.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.maximumPPMUD)).BeginInit();
             this.SuspendLayout();
             // 
             // ofdOmssaCsvFiles
@@ -258,7 +261,7 @@ namespace Coon.Compass.FdrOptimizer
             this.numMaximumFalseDiscoveryRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.numMaximumFalseDiscoveryRate.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "maximumFalseDiscoveryRate", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numMaximumFalseDiscoveryRate.DecimalPlaces = 2;
-            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(202, 202);
+            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(202, 200);
             this.numMaximumFalseDiscoveryRate.Name = "numMaximumFalseDiscoveryRate";
             this.numMaximumFalseDiscoveryRate.Size = new System.Drawing.Size(44, 20);
             this.numMaximumFalseDiscoveryRate.TabIndex = 96;
@@ -394,6 +397,8 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.maximumPPMUD);
+            this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.label17);
             this.splitContainer1.Panel1.Controls.Add(this.txtRawFolder);
             this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
@@ -436,6 +441,7 @@ namespace Coon.Compass.FdrOptimizer
             this.twoDCB.TabIndex = 180;
             this.twoDCB.Text = "High Resolution (2D FDR)";
             this.twoDCB.UseVisualStyleBackColor = true;
+            this.twoDCB.CheckedChanged += new System.EventHandler(this.twoDCB_CheckedChanged);
             // 
             // richTextBox1
             // 
@@ -446,6 +452,34 @@ namespace Coon.Compass.FdrOptimizer
             this.richTextBox1.Size = new System.Drawing.Size(564, 189);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(252, 204);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(102, 13);
+            this.label2.TabIndex = 181;
+            this.label2.Text = "Maximum PPM Error";
+            // 
+            // maximumPPMUD
+            // 
+            this.maximumPPMUD.DecimalPlaces = 2;
+            this.maximumPPMUD.Location = new System.Drawing.Point(360, 200);
+            this.maximumPPMUD.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.maximumPPMUD.Name = "maximumPPMUD";
+            this.maximumPPMUD.Size = new System.Drawing.Size(64, 20);
+            this.maximumPPMUD.TabIndex = 182;
+            this.maximumPPMUD.Value = new decimal(new int[] {
+            25,
+            0,
+            0,
+            0});
             // 
             // FdrOptimizerForm
             // 
@@ -471,6 +505,7 @@ namespace Coon.Compass.FdrOptimizer
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.maximumPPMUD)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -512,6 +547,8 @@ namespace Coon.Compass.FdrOptimizer
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox twoDCB;
+        private System.Windows.Forms.NumericUpDown maximumPPMUD;
+        private System.Windows.Forms.Label label2;
     }
 }
 

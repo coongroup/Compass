@@ -38,21 +38,21 @@ namespace Coon.Compass.FdrOptimizer
             Peptide = new CSMSL.Proteomics.Peptide(sequence);
             Peptide.SetModifications(fixedMods);
             Modificationstring = variableMods;
-            foreach (Tuple<OmssaModification, int> modTuple in OmssaModification.ParseModificationLine(variableMods))
+            foreach (Tuple<Modification, int> modTuple in OmssaModification.ParseModificationLine(variableMods))
             {
                 Modification mod = modTuple.Item1;
                 int site = modTuple.Item2;
-                if (site == 1 && (mod.Sites.HasFlag(ModificationSites.NPep) || site == Peptide.Length && mod.Sites.HasFlag(ModificationSites.PepC)))
+                if (site == 1 && mod.Sites.HasFlag(ModificationSites.NPep))
                 {
-                    Peptide.SetModification(mod, ModificationSites.NPep);
+                    Peptide.AddModification(mod, Terminus.N);
                 }
                 else if (site == Peptide.Length && mod.Sites.HasFlag(ModificationSites.PepC))
                 {
-                    Peptide.SetModification(mod, ModificationSites.PepC);
+                    Peptide.AddModification(mod, Terminus.C);
                 }
                 else
                 {
-                    Peptide.SetModification(mod, site);
+                    Peptide.AddModification(mod, site);
                 }
             }
         }

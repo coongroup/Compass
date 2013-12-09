@@ -28,7 +28,9 @@ namespace Coon.Compass.FdrOptimizer
             List<OmssaModification> allMods = OmssaModification.GetAllModifications().ToList();
             foreach (OmssaModification modification in allMods.OrderByDescending(mod => mod.Name.Contains("*")).ThenBy(mod => mod.Name))
             {
-                ListViewItem list_view_item = new ListViewItem(modification.ToString()) {Tag = modification};
+                string text = (modification.UserMod) ? "*" :"";
+                text += modification.ToString();
+                ListViewItem list_view_item = new ListViewItem(text) { Tag = modification };
                 if(modification.Name == "carbamidomethyl C")
                 {
                     lstSelectedFixedModifications.Items.Add(list_view_item);
@@ -177,6 +179,7 @@ namespace Coon.Compass.FdrOptimizer
             List<Modification> fixedModifications = new List<Modification>(from ListViewItem checkedItem in lstSelectedFixedModifications.Items select (Modification)checkedItem.Tag);
 
             double maxFalseDiscoveryRate = (double)numMaximumFalseDiscoveryRate.Value;
+            double maxPPM = (double)maximumPPMUD.Value;
             bool isBatched = checkBox1.Checked;
             bool is2DFDR = twoDCB.Checked;
             bool includeFixedMods = checkBox2.Checked;
@@ -188,12 +191,12 @@ namespace Coon.Compass.FdrOptimizer
                 MessageBox.Show("Output folder must be specified");
                 return;
             }
-
+            
             Directory.CreateDirectory(outputFolder);
 
             FdrOptimizer fdrOptimizer = new FdrOptimizer(csvFilepaths, rawFolder,
                 fixedModifications,
-                maxFalseDiscoveryRate, uniquePeptideType,
+                maxFalseDiscoveryRate,maxPPM, uniquePeptideType,
                   outputFolder, isBatched, is2DFDR, includeFixedMods);
           
             fdrOptimizer.UpdateProgress += HandleUpdateProgress;
@@ -284,6 +287,11 @@ namespace Coon.Compass.FdrOptimizer
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("changelog.txt");
+        }
+
+        private void twoDCB_CheckedChanged(object sender, EventArgs e)
+        {
+            maximumPPMUD.Enabled = twoDCB.Checked;
         }
    
     }

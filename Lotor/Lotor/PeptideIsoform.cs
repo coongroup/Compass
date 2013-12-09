@@ -24,11 +24,14 @@ namespace Coon.Compass.Lotor
 
         public List<Fragment> Fragments;
 
+        public HashSet<Fragment> MatchedFragments; 
+
         public void MatchSpectrum(FragmentTypes fragmentTypes, MassTolerance tolerance, double cutoffThreshold, params int[] chargeStates)
         {
-            Fragments = Fragment(fragmentTypes).ToList();
+            Fragments = Fragment(fragmentTypes).OrderBy(f => f.ToString()).ToList();
             SpectralMatch = new SpectrumFragmentsMatch(Spectrum);
-            SpectralMatch.MatchFragments(Fragments, tolerance, cutoffThreshold, chargeStates);
+            var matches = SpectralMatch.MatchFragments(Fragments, tolerance, cutoffThreshold, chargeStates);
+            MatchedFragments = new HashSet<Fragment>(matches);
         }
 
         public int CompareTo(PeptideIsoform other)

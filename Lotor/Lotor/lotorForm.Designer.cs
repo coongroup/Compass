@@ -461,6 +461,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "lotorForm";
             this.Text = "Lotor";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.lotorForm_FormClosed);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.lotorForm_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.lotorForm_DragEnter);
             this.splitContainer1.Panel1.ResumeLayout(false);

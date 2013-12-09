@@ -212,7 +212,7 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
-        public string ToParsimonyProteins(ExperimentGroup exp, int quantLen = 0)
+        public string ToParsimonyProteins(ExperimentGroup exp)
         {
             StringBuilder sb = new StringBuilder(512);
             sb.AppendFormat("{0},{1},{2},{3:G4},{4},{5},{6},", Name, Description, LongestProteinLen, SequenceCoverage, Count, UniquePeptides, Peptides.Count);

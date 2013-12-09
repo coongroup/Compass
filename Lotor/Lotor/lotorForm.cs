@@ -25,8 +25,8 @@ namespace Coon.Compass.Lotor
             return Assembly.GetExecutingAssembly().GetName().Version;
         }  
 
-        public Lotor Lotor = null;
-        public Thread MainThread = null;
+        private Lotor _lotor = null;
+        private Thread _mainThread = null;
 
         public lotorForm()
         {
@@ -57,7 +57,7 @@ namespace Coon.Compass.Lotor
 
             string rawFileDirectory = textBox3.Text;
             string inputcsvfile = textBox1.Text;
-            if (!System.IO.File.Exists(inputcsvfile))
+            if (!File.Exists(inputcsvfile))
             {
                 UpdateLog("Cannot open input csvfile: " + inputcsvfile + ", aborting!");
                 return;
@@ -68,41 +68,57 @@ namespace Coon.Compass.Lotor
                 UpdateLog("Must provide a valid output folder!");
                 return;
             }
-            if (!System.IO.Directory.Exists(outputDirectory))
+            if (!Directory.Exists(outputDirectory))
             {
                 UpdateLog("Output directory " + outputDirectory + " doesn't exist, creating it...");
-                System.IO.Directory.CreateDirectory(outputDirectory);
+                Directory.CreateDirectory(outputDirectory);
             }
 
             List<Modification> fixedModifications = listBox2.Items.OfType<Modification>().ToList();
+            List<Modification> quantifiedModifications = new List<Modification>();
 
             List<string> modNames = checkedListBox1.CheckedItems.OfType<string>().ToList();
-            List<Modification> quantifiedModifications = new List<Modification>();
-            foreach (string modName in modNames)
+            if (modNames.Count > 0)
             {
-                OmssaModification mod;
-                if (!OmssaModification.TryGetModification(modName, out mod))
+                foreach (string modName in modNames)
                 {
-                    UpdateLog("Unable to load mod "+modName+". Did you load the correct modification file?");
-                    return;
+                    if (modName == Phosphorylation.Name)
+                    {
+                        quantifiedModifications.Add(Phosphorylation);
+                    }
+                    else
+                    {
+                        OmssaModification mod;
+                        if (!OmssaModification.TryGetModification(modName, out mod))
+                        {
+                            UpdateLog("Unable to load mod " + modName + ". Did you load the correct modification file?");
+                            return;
+                        }
+                        quantifiedModifications.Add(mod);
+                    }
                 }
-                quantifiedModifications.Add(mod);
+            } 
+            else
+            {
+                UpdateLog("No modifications were selected to be quantified, please select mods from the list or one of the default options");
+                return;
             }
-           
+
             double ascoreThreshold = (double)numericUpDown2.Value;
             double prodThreshold = (double)numericUpDown3.Value / 100.0;
             bool ignoreCTerminal = checkBox2.Checked;
 
 
             MassTolerance prodTolerance = GetProductTolerance();
-            Lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
+            _lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
                 quantifiedModifications, prodTolerance, ascoreThreshold, prodThreshold, ignoreCTerminal,
                 FragmentTypes.b | FragmentTypes.y);
-            Lotor.UpdateLog += lotor_UpdateLog;
-            Lotor.UpdateProgress += lotor_UpdateProgress;
+            _lotor.UpdateLog += lotor_UpdateLog;
+            _lotor.UpdateProgress += lotor_UpdateProgress;
             localizeB.Enabled = false;
-            MainThread = new Thread(Lotor.Localize) {IsBackground = true};
-            MainThread.Start();
+            _mainThread = new Thread(_lotor.Localize);
+            _mainThread.IsBackground = true;
+            _mainThread.Start();
         }
 
         public MassTolerance GetProductTolerance()
@@ -120,20 +136,23 @@ namespace Coon.Compass.Lotor
             listBox2.Items.Clear();
             foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
-                if (mod.Name == "carbamidomethyl C")
+                if (mod.Name.Equals("carbamidomethyl C"))
                     listBox2.Items.Add(mod);
                 else
                     listBox1.Items.Add(mod);
             }
         }
 
-        private HashSet<string> _variableModifications = new HashSet<string>();
+        private readonly HashSet<string> _variableModifications = new HashSet<string>();
 
+        public Modification Phosphorylation = new Modification(new ChemicalFormula("H3PO3").MonoisotopicMass, "Phosphorylation", ModificationSites.S | ModificationSites.T | ModificationSites.Y);
+        
         private void UpdateVariableMods()
         {
             if (string.IsNullOrEmpty(textBox1.Text))
                 return;
             _variableModifications.Clear();
+           
             using (CsvReader reader = new CsvReader(new StreamReader(textBox1.Text), true))
             {
                 while (reader.ReadNextRecord())
@@ -142,14 +161,30 @@ namespace Coon.Compass.Lotor
                         Tuple<string,int> modName in
                             OmssaModification.SplitModificationLine(reader["Mods"]))
                     {
-                        _variableModifications.Add(modName.Item1);
+                    
+                           _variableModifications.Add(modName.Item1);
+                        
                     }
                 }
             }
+           
+            bool phospho = true;
             checkedListBox1.Items.Clear();
             foreach (string modName in _variableModifications)
             {
-                checkedListBox1.Items.Add(modName);
+                if (modName.Contains("phosphorylation"))
+                {
+                    if (phospho)
+                    {
+                        checkedListBox1.Items.Add(Phosphorylation.Name);
+                        phospho = false;
+                    }
+                    OmssaModification.GroupedModifications.Add(modName, Phosphorylation);
+                }
+                else
+                {
+                    checkedListBox1.Items.Add(modName);
+                }
             }
         }
 
@@ -185,7 +220,7 @@ namespace Coon.Compass.Lotor
         {
             if (InvokeRequired)
             {
-                if (Lotor != null)
+                if (_lotor != null)
                 {
                     Invoke(new UpdateLogDelegate(UpdateLog), new object[] { msg, isError });
                 }
@@ -205,7 +240,7 @@ namespace Coon.Compass.Lotor
         {
             if (InvokeRequired)
             {
-                if (Lotor != null)
+                if (_lotor != null)
                 {
                     Invoke(new UpdateProgressDelegate(UpdateProgress), new object[] { percent });
                 }
@@ -216,8 +251,8 @@ namespace Coon.Compass.Lotor
                 {   
                     progressBar1.Style = ProgressBarStyle.Continuous;
                     progressBar1.Value = 0;                 
-                    Lotor = null;
-                    MainThread = null;
+                    //_lotor = null;
+                    //_mainThread = null;
                     localizeB.Enabled = true;
                 }
                 else if (percent == 0.0)
@@ -314,6 +349,22 @@ namespace Coon.Compass.Lotor
                 listBox1.Items.Add(listBox2.Items[index]);
                 listBox2.Items.RemoveAt(index);
             }
+        }
+
+        private void lotorForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            //if (_lotor != null)
+            //{
+            //    _lotor.UpdateLog -= lotor_UpdateLog;
+            //    _lotor.UpdateProgress -= lotor_UpdateProgress;
+            //    _lotor = null;
+            //}
+            //if (_mainThread != null)
+            //{
+            //    _mainThread.Abort();
+            //    _mainThread = null;
+            //}
+            Application.Exit();
         }
      
     }

@@ -275,18 +275,23 @@ namespace Coon.Compass.TagQuant
 
                             string[] inputData = new string[headerCount];
                             reader.CopyCurrentRecordTo(inputData);
-                            foreach (string data in inputData)
+                            for(int i=0; i <inputData.Length; i++)
                             {
+                                string data = inputData[i];
+                                if (data.Contains('"'))
+                                    data = data.Replace("\"", "\"\"");
+
                                 if (data.Contains(','))
                                 {
-                                    sb.Append("\"");
+                                    sb.Append('"');
                                     sb.Append(data);
-                                    sb.Append("\"");
+                                    sb.Append('"');
                                 }
                                 else
                                 {
                                     sb.Append(data);
                                 }
+
                                 sb.Append(',');
                             }
                             sb.Remove(sb.Length - 1, 1);

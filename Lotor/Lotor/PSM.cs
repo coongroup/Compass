@@ -81,16 +81,11 @@ namespace Coon.Compass.Lotor
             int count = isoforms.Count();
             double[,] res = new double[count, count];
             NumSiteDeterminingFragments = new int[count, count];
-            BestSiteDeterminingFragments = new int[count,count];
+            BestSiteDeterminingFragments = new int[count, count];
             for (int i = 0; i < count; i++)
             {
-                for (int j = i; j < count; j++)
+                for (int j = i+1; j < count; j++)
                 {
-                    if (i == j)
-                    {
-                        continue;
-                    }                        
-              
                     int i_count = 0;
                     int j_count = 0;
                     int num_sdfs = 0;
@@ -98,7 +93,7 @@ namespace Coon.Compass.Lotor
                     var isoI = isoforms[i];
                     var isoJ = isoforms[j];
 
-                    foreach (Fragment sdf in GetSiteDeterminingFragments(isoI, isoJ))
+                    foreach (var sdf in GetSiteDeterminingFragments(isoI, isoJ))
                     {
                         if (ReferenceEquals(sdf.Parent, isoI) && isoI.MatchedFragments.Contains(sdf)) i_count++;
                         if (ReferenceEquals(sdf.Parent, isoJ) && isoJ.MatchedFragments.Contains(sdf)) j_count++;                         
@@ -123,12 +118,10 @@ namespace Coon.Compass.Lotor
 
         private IEnumerable<Fragment> GetSiteDeterminingFragments(PeptideIsoform pep1, PeptideIsoform pep2)
         {
-
             List<Fragment> frags1 = pep1.Fragments;
             List<Fragment> frags2 = pep2.Fragments;
-
+           
             int count = frags1.Count;
-
             for (int i = 0; i < count; i++)
             {
                 var frag1 = frags1[i];
@@ -140,11 +133,6 @@ namespace Coon.Compass.Lotor
                     yield return frag2;
                 }
             }
-
-
-            //HashSet<Fragment> aFrags = new HashSet<Fragment>(pep1.Fragments);
-            // aFrags.SymmetricExceptWith(pep2.Fragments);
-            //return aFrags;
         }
 
         public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance, double cutoffThreshold, params int[] chargeStates)

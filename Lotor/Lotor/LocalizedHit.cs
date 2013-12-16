@@ -10,9 +10,17 @@
         public double AScore;
         public double PValue;
 
+        public int MatchDifference { get; private set; }
+
         public bool IsLocalized
         {
-            get { return AScore >= AScoreThreshold; }
+            get
+            {
+                if (ReferenceEquals(LocalizedIsoform, SecondBestPeptideIsoform))
+                    return true;
+                return MatchDifference > 0;
+                //return AScore >= AScoreThreshold;
+            }
         }
 
         public int BestPeptideSDFCount { get; set; }
@@ -20,7 +28,6 @@
 
         public int StartResidue;
         public int NumberOfSiteDeterminingFragments { get; set; }
-
     
         public string[] omssapsm;
 
@@ -34,6 +41,7 @@
             SecondBestPeptideSDFCount = sdfs2;
             PValue = pvalue;
             AScore = ascore;
+            MatchDifference = isoform.SpectralMatch.Matches - secondIsoform.SpectralMatch.Matches;
         }
 
     }

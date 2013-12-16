@@ -256,19 +256,25 @@ namespace Coon.Compass.Lotor
                 psm.MatchIsofroms(fragType, prod_tolerance, productThreshold, 1);
 
                 // Perform the localization for all combinations of isoforms
-                double[,] res = psm.Calc(pvalue);
+                //double[,] res = psm.Calc(pvalue);
+
+                Tuple<int, int, double> scores = LocalizedIsoformSimple(psm, pvalue);
 
                 // Check if the localization is above some threshold               
-                Tuple<int, int, double> scores = LocalizedIsoform(res);
+                //Tuple<int, int, double> scores = LocalizedIsoform(res);
                 int bestIsoform = scores.Item1;
                 int secondBestIsoform = scores.Item2;
                 double ascore = scores.Item3;
-                int numSDFs = psm.NumSiteDeterminingFragments[bestIsoform, secondBestIsoform];
+                //int numSDFs = psm.NumSiteDeterminingFragments[bestIsoform, secondBestIsoform];
                           
                 List<PeptideIsoform> isoforms = psm.PeptideIsoforms.ToList();
-                LocalizedHit hit = new LocalizedHit(psm, isoforms[bestIsoform], isoforms[secondBestIsoform], numSDFs,
-                    psm.BestSiteDeterminingFragments[bestIsoform, secondBestIsoform],
-                    psm.BestSiteDeterminingFragments[secondBestIsoform, bestIsoform], pvalue, ascore);
+                //LocalizedHit hit = new LocalizedHit(psm, isoforms[bestIsoform], isoforms[secondBestIsoform], numSDFs,
+                //    psm.BestSiteDeterminingFragments[bestIsoform, secondBestIsoform],
+                //    psm.BestSiteDeterminingFragments[secondBestIsoform, bestIsoform], pvalue, ascore);
+
+                LocalizedHit hit = new LocalizedHit(psm, isoforms[bestIsoform], isoforms[secondBestIsoform], 0,
+                   0,
+                   0, pvalue, ascore);
                 hits.Add(hit);
                 if (hit.IsLocalized)
                 {
@@ -288,6 +294,48 @@ namespace Coon.Compass.Lotor
             ProgressUpdate(0);
             return hits;
         }
+
+        private Tuple<int, int, double> LocalizedIsoformSimple(PSM psm, double pvalue)
+        {
+            int length = psm.Isoforms;
+            List<PeptideIsoform> isoforms = psm.PeptideIsoforms.ToList();
+
+            if (length == 1)
+                return new Tuple<int, int, double>(0, 0, double.PositiveInfinity);
+
+            int biggesti = 0;
+            int bestI = -1;
+
+            for (int i = 0; i < length; i++)
+            {
+                var isoform = isoforms[i];
+                if (isoform.SpectralMatch.Matches > biggesti)
+                {
+                    biggesti = isoform.SpectralMatch.Matches;
+                    bestI = i;
+                }
+            }
+
+            int biggestj = 0;
+            int bestJ = bestI;
+
+            for (int j = 0; j < length; j++)
+            {
+                if (j == bestI)
+                    continue;
+                
+                var isoform = isoforms[j];
+                if (isoform.SpectralMatch.Matches > biggestj)
+                {
+                    biggestj = isoform.SpectralMatch.Matches;
+                    bestJ = j;
+                }
+            }
+
+            return new Tuple<int, int, double>(bestI, bestJ, double.PositiveInfinity);
+        }
+
+
            
         private List<PSM> LoadAllPSMs(string csvFile, string rawFileDirectory, List<Modification> fixedMods)
         {
@@ -303,18 +351,22 @@ namespace Coon.Compass.Lotor
             List<PSM> psms = new List<PSM>();
             ThermoRawFile rawFile = null;
 
+            int totalPsms = 0;
+
             using (CsvReader reader = new CsvReader(new StreamReader(csvFile), true))
             {
                 while (reader.ReadNextRecord())
                 {
                     string mods = reader["Mods"];
 
-                    // Skip no modifications
+                    totalPsms++;
+
+                    // Skip if there are no modifications
                     if (string.IsNullOrEmpty(mods))
                         continue;
 
                     // Convert the text mod line into a list of modification objects
-                    List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).Select(item => item.Item1).OfType<Modification>().ToList();
+                    List<Modification> variableMods = OmssaModification.ParseModificationLine(mods).Select(item => item.Item1).ToList();
 
                     // Only keep things with quantified Modifications
                     if (!variableMods.Any(mod => QuantifiedModifications.Contains(mod)))
@@ -366,8 +418,8 @@ namespace Coon.Compass.Lotor
                 }
 
             }
-
-            Log(string.Format("{0:N0} PSMs were loaded.", psms.Count));
+            Log(string.Format("{0:N0} PSMs were loaded.", totalPsms));
+            Log(string.Format("{0:N0} PSMs were kept.", psms.Count));
             return psms;
         }
              
@@ -399,17 +451,25 @@ namespace Coon.Compass.Lotor
                 for (int j = 0; j < length; j++)
                 {
                     if (i == j) continue;
-                    
-                    if (data[i, j] < 0)
+
+                    double value = data[i, j];
+
+                    if (value == 0.0)
                     {
-                        // Contains a negative value, meaning some isoforms beats this one (i) so just skip
+                        minvalue = 0;
+                        break;
+                    }
+
+                    if (value < 0)
+                    {
+                        // Contains a negative value, meaning some isoforms beats this one (i) so just skip this loop entirely
                         minvalue = -1;
                         break;
                     }
 
-                    if (data[i, j] <= minvalue) 
+                    if (value <= minvalue) 
                     {
-                        minvalue = data[i, j];
+                        minvalue = value;
                         bestJ = j;
                     }
                 }

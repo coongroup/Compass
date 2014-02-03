@@ -104,14 +104,15 @@ namespace Coon.Compass.Lotor
                 return;
             }
 
-            double ascoreThreshold = (double)numericUpDown2.Value;
+            //double ascoreThreshold = (double)numericUpDown2.Value;
             double prodThreshold = (double)numericUpDown3.Value / 100.0;
+            bool separateGroups = checkBox3.Checked;
             bool ignoreCTerminal = checkBox2.Checked;
 
 
             MassTolerance prodTolerance = GetProductTolerance();
             _lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
-                quantifiedModifications, prodTolerance, ascoreThreshold, prodThreshold, ignoreCTerminal,
+                quantifiedModifications, prodTolerance, 0,separateGroups, prodThreshold, ignoreCTerminal,
                 FragmentTypes.b | FragmentTypes.y);
             _lotor.UpdateLog += lotor_UpdateLog;
             _lotor.UpdateProgress += lotor_UpdateProgress;

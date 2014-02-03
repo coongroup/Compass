@@ -28,13 +28,14 @@ namespace Coon.Compass.Lotor
         private readonly double _productThreshold;
         private readonly FragmentTypes _fragType;
         private readonly bool _ignoreCTerminal;
+        private readonly bool _separateProteinGroups;
         private HashSet<MSDataFile> _dataFiles; 
 
         private int FirstQuantColumn = -1;
         private int LastQuantColumn = -1;
         private string[] headerInfo = null;
 
-        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, double ascore_threshold, double productThreshold,bool ignoreCTerminal, FragmentTypes fragType)
+        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, double ascore_threshold, bool separateGroups, double productThreshold,bool ignoreCTerminal, FragmentTypes fragType)
         {
             _rawFileDirectory = rawFileDirectory;
             _csvFile = inputcsvFile;
@@ -44,6 +45,7 @@ namespace Coon.Compass.Lotor
             QuantifiedModifications = quantifiedModifications;
             _prodTolerance = prod_Tolerance;
             _ascoreThreshold = ascore_threshold;
+            _separateProteinGroups = separateGroups;
             _productThreshold = productThreshold;
             _fragType = fragType;
             _ignoreCTerminal = ignoreCTerminal;
@@ -64,7 +66,7 @@ namespace Coon.Compass.Lotor
                 List<LocalizedHit> hits = CalculateBestIsoforms(psms, _ascoreThreshold, _fragType, _prodTolerance, _productThreshold);
 
                 // 3) Compile Results
-                List<Protein> proteins = CompileResults(hits, _csvFile, _outputDirectory);
+                List<Protein> proteins = CompileResults(hits, _csvFile, _outputDirectory, _separateProteinGroups);
 
                 // 4) Write out the results
                 WriteResults(proteins, _csvFile, _outputDirectory, FirstQuantColumn, LastQuantColumn);
@@ -108,7 +110,7 @@ namespace Coon.Compass.Lotor
             }
         }
 
-        private List<Protein> CompileResults(List<LocalizedHit> hits, string csvFile, string outputDirectory)
+        private List<Protein> CompileResults(List<LocalizedHit> hits, string csvFile, string outputDirectory, bool breakProteinsApart = false)
         {
             Dictionary<string, LocalizedHit> hitsdict = new Dictionary<string, LocalizedHit>();
  
@@ -119,16 +121,30 @@ namespace Coon.Compass.Lotor
             {
                 hitsdict.Add(hit.PSM.Filename, hit);
                 
-                string[] groups = hit.PSM.ProteinGroup.Split('|');
+               
                 string defline = hit.PSM.Defline;
 
-                foreach (string group in groups)
+                if (breakProteinsApart)
+                {
+                    string[] groups = hit.PSM.ProteinGroup.Split('|');
+                    foreach (string group in groups)
+                    {
+                        Protein prot;
+                        if (!proteins.TryGetValue(group, out prot))
+                        {
+                            prot = new Protein(group, defline);
+                            proteins.Add(group, prot);
+                        }
+                        prot.AddHit(hit);
+                    }
+                }
+                else
                 {
                     Protein prot;
-                    if (!proteins.TryGetValue(group, out prot))
+                    if (!proteins.TryGetValue(hit.PSM.ProteinGroup, out prot))
                     {
-                        prot = new Protein(group, defline);
-                        proteins.Add(group, prot);
+                        prot = new Protein(hit.PSM.ProteinGroup, defline);
+                        proteins.Add(hit.PSM.ProteinGroup, prot);
                     }
                     prot.AddHit(hit);
                 }

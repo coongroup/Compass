@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CSMSL;
 using CSMSL.Analysis.Identification;
 using CSMSL.IO;
 using CSMSL.Proteomics;
@@ -24,13 +25,15 @@ namespace Coon.Compass.ProteinHoarder
         private DateTime _startTime;
         private int _smallestPeptide = int.MaxValue;
         private int _largestPeptide;
-       // private List<ProteinGroup> proteinGroups;
+        private List<ProteinGroup> _proteinGroups;
         //private List<ProteinGroup> filteredproteinGroups;
       
         public static Dictionary<Peptide, List<ProteinGroup>> ParsimonyPeptides;
         public static Dictionary<Peptide, List<ProteinGroup>> ParismonyPeptidesFiltered;
         public HashSet<Protease> Proteases;
         public HashSet<Modification> ModificationsToIgnore;
+
+        
 
         private static Regex omssaRTRegex = new Regex(@"RT_([0-9.]+)_min", RegexOptions.Compiled);
 
@@ -48,6 +51,10 @@ namespace Coon.Compass.ProteinHoarder
         public static bool IgnorePeptideWithMissingData = false;
         public static bool SemiDigestion = false;
         public static bool ProteinsPerMinute = false;
+        public static bool UseMedianForQuantitation = false;
+        public static bool DuplexQuantitation = false;
+        public static bool UseOnlyCompleteSets = false;
+        public static AnnotationType AnnotationType = AnnotationType.None;
 
         public ProteinHoarder(IEnumerable<CsvFile> csvFiles,
             string fastaFile,
@@ -55,8 +62,12 @@ namespace Coon.Compass.ProteinHoarder
             int minPeptidesPerGroup = 1,
             int maxMissedCleavages = 3,
             double maxFDR = 1,
+            AnnotationType annotationType = AnnotationType.None,
             bool useConservativePScore = true,
             bool useQuant = false,
+            bool useMedian = false,
+            bool duplexQuantitation = false,
+            bool useNoiseBandCap = false,
             HashSet<Modification> modstoignore = null,
             bool filterquantInterference = true,
             double quantInterferenceCutoff = 0.25,
@@ -71,8 +82,13 @@ namespace Coon.Compass.ProteinHoarder
             MaxMissedCleavages = maxMissedCleavages;
             MaxFdr = maxFDR;
             MinPeptidesPerGroup = minPeptidesPerGroup;
+            AnnotationType = annotationType;
             UseConservativePScore = useConservativePScore;
             UseQuant = useQuant;
+            UseMedianForQuantitation = useMedian;
+            DuplexQuantitation = duplexQuantitation;
+            UseOnlyCompleteSets = useNoiseBandCap;
+            Quantitation.UseMedian = useMedian;
             ModificationsToIgnore = modstoignore;
             FilterQuantInterference = filterquantInterference;
             QuantInterferenceCutoff = quantInterferenceCutoff;
@@ -101,35 +117,39 @@ namespace Coon.Compass.ProteinHoarder
                 
                 if (ProteinsPerMinute)
                 {
-                    WriteProteinsPerMinute(Peptides.Values.ToList(), proteins, OutputDirectory);
+                    _proteinGroups = WriteProteinsPerMinute(Peptides.Values.ToList(), proteins, OutputDirectory);
                 }
                 else
                 {
-                    GroupProteins(proteins);
+                    _proteinGroups = GroupProteins(proteins);
                 }
    
                 // 4) Write out the data
-                Dictionary<char, ExperimentGroup> expgroups = GroupExperiments(CsvFiles, UseQuant);
+                Dictionary<string, ExperimentGroup> expgroups = GroupExperiments(CsvFiles, UseQuant);
 
                 WritePeptides(expgroups, OutputDirectory);
 
                 WriteGroups(expgroups, OutputDirectory);
-              
+                
+                // 5) Write summary document
+                WriteSummary(expgroups, OutputDirectory);
+                
             }
-            //catch (Exception e)
-            //{
-            //    Log("[ERROR]\t{0}", e.Message);
-            //}
+            catch (Exception e)
+            {
+                Log("[ERROR]\t{0}", e.Message);
+            }
             finally
             {               
                 CleanUp();
             }
         }
 
-        private void WriteProteinsPerMinute(List<Peptide> allPeptides, List<Protein> proteins, string outputDirectory)
+        private List<ProteinGroup> WriteProteinsPerMinute(List<Peptide> allPeptides, List<Protein> proteins, string outputDirectory)
         {
             Log("Writing proteins per minute file...");
             double maxPeptides = allPeptides.Count;
+            List<ProteinGroup> groups = null;
             using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, "proteins_per_minute.csv")))
             {
                 writer.WriteLine("Time (min),Unique Peptides,Protein Groups");
@@ -153,7 +173,7 @@ namespace Coon.Compass.ProteinHoarder
                             }
                         }
                     }
-                    List<ProteinGroup> groups = GroupProteins(currentProteins.ToList(), false);
+                    groups = GroupProteins(currentProteins.ToList(), false);
 
                     int fdrGroups = groups.Count(g => g.PassesFDR);
 
@@ -164,7 +184,7 @@ namespace Coon.Compass.ProteinHoarder
                     i++;
                 }
             }
-
+            return groups;
         }
 
         /// <summary>
@@ -659,78 +679,218 @@ namespace Coon.Compass.ProteinHoarder
         }
 */
 
-        private Dictionary<char, ExperimentGroup> GroupExperiments(IEnumerable<CsvFile> csvFiles, bool useQuant)
+        private Dictionary<string, ExperimentGroup> GroupExperiments(IEnumerable<CsvFile> csvFiles, bool useQuant)
         {
-            Dictionary<char, ExperimentGroup> expgroups = new Dictionary<char, ExperimentGroup>();
-            foreach (CsvFile csvfile in csvFiles)
+            Dictionary<string, ExperimentGroup> uniqueNames = new Dictionary<string, ExperimentGroup>();
+            foreach (CsvFile file in csvFiles)
             {
-                ExperimentGroup exp;
-                if (expgroups.TryGetValue(csvfile.ExperimentGroup, out exp))
+                ExperimentGroup experiment;
+                if (string.IsNullOrEmpty(file.ExperimentName))
                 {
-                    exp.CsvFiles.Add(csvfile);
+                    file.ExperimentName = "";
                 }
+                if(uniqueNames.TryGetValue(file.ExperimentName, out experiment))
+                {
+                    experiment.CsvFiles.Add(file);
+                } 
                 else
                 {
-                    exp = new ExperimentGroup(csvfile.ExperimentGroup);
-                    exp.CsvFiles.Add(csvfile);
-                    expgroups.Add(csvfile.ExperimentGroup, exp);
-                    using (CsvReader reader = new CsvReader(new StreamReader(csvfile.FilePath), true))
+                    experiment = new ExperimentGroup(file.ExperimentName);
+                    experiment.CsvFiles.Add(file);
+                    uniqueNames.Add(file.ExperimentName, experiment);
+                    using (CsvReader reader = new CsvReader(new StreamReader(file.FilePath), true))
                     {
                         // write the header only once to the two outputs
                         string[] headers = reader.GetFieldHeaders();
-                        exp.Header = string.Join(",", headers);
+                        experiment.Header = string.Join(",", headers);
 
                         if (!useQuant) continue;
 
                         int headerCount = headers.Length;
 
-                        exp.TQStart = -1;
-                        exp.TQStop = headerCount - 2;
+                        experiment.TQStart = -1;
+                        experiment.TQStop = headerCount - 2;
                         for (int i = 0; i < headerCount; i++)
                         {
                             string header = headers[i];
-                            if (!header.Contains("NL)")) 
+                            if (!header.Contains("NL)"))
                                 continue;
-                            exp.TQStart = i;
+                            experiment.TQStart = i;
                             break;
                         }
 
-                        if (exp.TQStart < 0)
+                        if (experiment.TQStart < 0)
                         {
-                            Log("[WARNING] No quantification data found in {0} for experiment {1}", csvfile, exp.ExperimentalID);
-                            exp.UseQuant = false;
+                            Log("[WARNING] No quantification data found in {0} for experiment {1}", file, experiment.Name);
+                            experiment.UseQuant = false;
                             break;
                         }
-                        exp.UseQuant = true;
-                      
+                        experiment.UseQuant = true;
+
                         // Get the experimental Quant headers
                         StringBuilder sb = new StringBuilder();
-                        for (int i = exp.TQStart; i <= exp.TQStop; i++)
+                        for (int i = experiment.TQStart; i <= experiment.TQStop; i++)
                         {
                             sb.Append(headers[i]);
                             sb.Append(',');
                         }
                         sb.Remove(sb.Length - 1, 1);
-                        exp.QuantHeader = sb.ToString();
+                        experiment.QuantHeader = sb.ToString();
                     }
                 }
+
             }
-            return expgroups;
+
+            return uniqueNames;
+
+            //Dictionary<char, ExperimentGroup> expgroups = new Dictionary<char, ExperimentGroup>();
+            //foreach (CsvFile csvfile in csvFiles)
+            //{
+            //    ExperimentGroup exp;
+            //    if (expgroups.TryGetValue(csvfile.ExperimentGroup, out exp))
+            //    {
+            //        exp.CsvFiles.Add(csvfile);
+            //    }
+            //    else
+            //    {
+            //        exp = new ExperimentGroup(csvfile.ExperimentGroup, csvfile.ExperimentName);
+            //        exp.CsvFiles.Add(csvfile);
+            //        expgroups.Add(csvfile.ExperimentGroup, exp);
+            //        using (CsvReader reader = new CsvReader(new StreamReader(csvfile.FilePath), true))
+            //        {
+            //            // write the header only once to the two outputs
+            //            string[] headers = reader.GetFieldHeaders();
+            //            exp.Header = string.Join(",", headers);
+
+            //            if (!useQuant) continue;
+
+            //            int headerCount = headers.Length;
+
+            //            exp.TQStart = -1;
+            //            exp.TQStop = headerCount - 2;
+            //            for (int i = 0; i < headerCount; i++)
+            //            {
+            //                string header = headers[i];
+            //                if (!header.Contains("NL)")) 
+            //                    continue;
+            //                exp.TQStart = i;
+            //                break;
+            //            }
+
+            //            if (exp.TQStart < 0)
+            //            {
+            //                Log("[WARNING] No quantification data found in {0} for experiment {1}", csvfile, exp.Name);
+            //                exp.UseQuant = false;
+            //                break;
+            //            }
+            //            exp.UseQuant = true;
+                      
+            //            // Get the experimental Quant headers
+            //            StringBuilder sb = new StringBuilder();
+            //            for (int i = exp.TQStart; i <= exp.TQStop; i++)
+            //            {
+            //                sb.Append(headers[i]);
+            //                sb.Append(',');
+            //            }
+            //            sb.Remove(sb.Length - 1, 1);
+            //            exp.QuantHeader = sb.ToString();
+            //        }
+            //    }
+            //}
+            //return expgroups;
         }
 
-        private void WriteGroups(Dictionary<char, ExperimentGroup> expgroups, string outputDirectory)
+        private void WriteSummary(Dictionary<string, ExperimentGroup> expgroups, string outputDirectory)
+        {
+            // Only write it for duplex
+            if (!DuplexQuantitation)
+                return;
+
+            string filePath = Path.Combine(outputDirectory, "Protein_summary.csv");
+            Log("Writing file " + filePath);
+
+            List<ExperimentGroup> experiments = expgroups.Values.ToList();
+
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                // Header info
+                writer.Write("Protein Group,Representative Protein Description");
+                if (AnnotationType == AnnotationType.SGD)
+                {
+                    writer.Write(",SGD Ids,Gene Names");
+                } else if (AnnotationType == AnnotationType.UniProt)
+                {
+                    writer.Write(",UniProt Ids,Gene Names");
+                }
+                foreach (ExperimentGroup exp in experiments)
+                {
+                    writer.Write("," + exp.Name + " (log2)");
+                }
+                writer.WriteLine();
+
+                // Iterate over all protein groups
+                foreach(ProteinGroup pg in _proteinGroups.Where(pg => pg.PassesFDR))
+                {
+                    writer.Write(pg.Name);
+                    writer.Write(',');
+                    writer.Write(pg.RepresentativeProtein.Description);
+                    if (AnnotationType != AnnotationType.None)
+                    {
+                        writer.Write(',');
+                        writer.Write(pg.ProteinIdsString());
+                        writer.Write(',');
+                        writer.Write(pg.GeneNamesString());
+                    }
+
+                    foreach (ExperimentGroup exp in experiments)
+                    {
+                        writer.Write(',');
+                        double log2Ratio = 0;
+                        if (exp.ProteinGroups.Contains(pg) && pg.TryGetLog2Ratio(exp, out log2Ratio, UseOnlyCompleteSets))
+                        {
+                            log2Ratio -= exp.MeidanLog2Ratio;  
+                            writer.Write(log2Ratio.ToString("G4"));
+                        }
+                        else
+                        {
+                            writer.Write("n/a");
+                        }
+                    }
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private void WriteGroups(Dictionary<string, ExperimentGroup> expgroups, string outputDirectory)
         {
             foreach (ExperimentGroup exp in expgroups.Values)
             {
                 StreamWriter writer = null;
                 if (IncludeNonFilteredResults)
                 {
-                    string filename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_proteins.csv", exp.ExperimentalID));
+                    string filename = "";
+                    if (string.IsNullOrEmpty(exp.Name))
+                    {
+                        filename = Path.Combine(outputDirectory, "Parsimony_proteins.csv");
+                    }
+                    else
+                    {
+                        filename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_proteins.csv", exp.Name));
+                    }
                     Log("Writing file " + filename);
                     writer = new StreamWriter(filename);
                 }
-               
-                string filteredfilename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_proteins_filtered.csv", exp.ExperimentalID));               
+
+                string filteredfilename = "";
+                if (string.IsNullOrEmpty(exp.Name))
+                {
+                    filteredfilename = Path.Combine(outputDirectory, "Parsimony_proteins_filtered.csv");
+                }
+                else
+                {
+                    filteredfilename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_proteins_filtered.csv", exp.Name));   
+                }
+                
                 Log("Writing file " + filteredfilename);
                 StreamWriter filteredwriter = new StreamWriter(filteredfilename);
                 
@@ -739,20 +899,45 @@ namespace Coon.Compass.ProteinHoarder
                 {
                     header.Append("# Quantified PSMs,# Quantified Peptides,");
                     header.Append(exp.QuantHeader);
-                    header.Append(',');
+                    if (DuplexQuantitation)
+                    {
+                        header.Append(",Log2 Ratio,Normalized Log2 Ratio");
+                    }
                 }
-                header.Append("UniprotIDs,Gene Names");
+                if (AnnotationType == AnnotationType.UniProt)
+                {
+                    header.Append(",Uniprot IDs,Gene Names");
+                } 
+                else if (AnnotationType == AnnotationType.SGD)
+                {
+                    header.Append(",SGD IDs,Gene Names");
+                }
 
                 if (IncludeNonFilteredResults)
                 {
                     writer.WriteLine(header);
                 }
                 filteredwriter.WriteLine(header);
+                                
+                if (DuplexQuantitation && exp.UseQuant)
+                {
+                    List<double> log2s = new List<double>();
+                    foreach (ProteinGroup pg in exp.ProteinGroups.OrderBy(pg => pg.PScore))
+                    {
+                        double log2Ratio = 0;
+                        if (pg.TryGetLog2Ratio(exp, out log2Ratio, UseOnlyCompleteSets))
+                        {
+                            log2s.Add(log2Ratio);
+                        }
+                    }
+                    log2s.Sort();
+                    exp.MeidanLog2Ratio = log2s.Median();
+                }
 
                 // Loop over each protein group
                 foreach (ProteinGroup pg in exp.ProteinGroups.OrderBy(pg => pg.PScore))
                 {
-                    string line = pg.ToParsimonyProteins(exp);
+                    string line = pg.ToParsimonyProteins(exp, DuplexQuantitation,  UseOnlyCompleteSets);
                     if (IncludeNonFilteredResults)
                     {
                         writer.WriteLine(line);
@@ -762,6 +947,7 @@ namespace Coon.Compass.ProteinHoarder
                         filteredwriter.WriteLine(line);
                     }
                 }
+
                 if (IncludeNonFilteredResults)
                 {
                     writer.Close();
@@ -770,7 +956,7 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
-        private void WritePeptides(Dictionary<char, ExperimentGroup> expgroups, string outputDirectory)
+        private void WritePeptides(Dictionary<string, ExperimentGroup> expgroups, string outputDirectory)
         {
             foreach (Peptide pep in Peptides.Values)
             {
@@ -781,21 +967,36 @@ namespace Coon.Compass.ProteinHoarder
             // Loop over each experiment
             foreach (ExperimentGroup exp in expgroups.Values)
             {
-                char experimentID = exp.ExperimentalID;
+                string experimentName = exp.Name;
                 List<CsvFile> files = exp.CsvFiles;
                 StreamWriter writer = null;
                 if (IncludeNonFilteredResults)
                 {
-                    string filename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_peptides.csv", experimentID));
+                    string filename = "";
+                    if (string.IsNullOrEmpty(experimentName))
+                    {
+                        filename = Path.Combine(outputDirectory, "Parsimony_peptides.csv");
+                    }
+                    else
+                    {
+                        filename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_peptides.csv", experimentName));
+                    }
                     Log("Writing file {0}", filename);
                     writer = new StreamWriter(filename);
                 }
-               
-                string filteredfilename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_peptides_filtered.csv", experimentID));                
+                string filteredfilename = "";
+                if (string.IsNullOrEmpty(experimentName))
+                {
+                    filteredfilename = Path.Combine(outputDirectory, "Parsimony_peptides_filtered.csv");
+                }
+                else
+                {
+                    filteredfilename = Path.Combine(outputDirectory, string.Format("{0}_parsimony_peptides_filtered.csv", experimentName));           
+                }
                 Log("Writing file {0}", filteredfilename);
                 StreamWriter filteredwriter = new StreamWriter(filteredfilename);
                 
-                string header = exp.Header + ",Experiment ID,# of Sharing PGs,Best PG Name";
+                string header = exp.Header + ",Experiment Name,# of Sharing PGs,Best PG Name";
                 if (IncludeNonFilteredResults)
                 {
                     writer.WriteLine(header);
@@ -805,8 +1006,8 @@ namespace Coon.Compass.ProteinHoarder
                 foreach (CsvFile csvfile in files)
                 {
                     string sequenceString = "Peptide";
-                    string spectrumNumberString = "Spectrum number";
-                    string pvalueString = "P-value";
+                    //string spectrumNumberString = "Spectrum number";
+                    //string pvalueString = "P-value";
 
                     // Open up the csvfile and read it's contents, skipping the header
                     using (CsvReader reader = new CsvReader(new StreamReader(csvfile.FilePath), true))
@@ -815,8 +1016,8 @@ namespace Coon.Compass.ProteinHoarder
                         if (reader.GetFieldHeaders().Contains("XCorr"))
                         {
                             sequenceString = "Sequence";
-                            spectrumNumberString = "RT [min]";
-                            pvalueString = "PEP";
+                            //spectrumNumberString = "RT [min]";
+                            //pvalueString = "PEP";
                             pdOutput = true;
                         }
 
@@ -906,29 +1107,35 @@ namespace Coon.Compass.ProteinHoarder
                                             {
                                                 quantData[j] = 0;
                                             }
+
+
                                             if (IgnorePeptideWithMissingData && quantData[j] == 0)
                                             {
                                                 keepPeptide = false;
                                                 break;
                                             }
+
                                             j++;
                                         }
 
+                                        int detectedChannels = int.Parse(reader[exp.TQStop + 1]);
+                                        int totalChannels = (int) exp.QuantPlex;
+                                        bool isMissingChannel = detectedChannels != totalChannels;
+
                                         if (keepPeptide)
                                         {
+                                            //pep.SetQuantData(quantData);
+
                                             // append/add the quant data to the best and only protein group
-                                            if (pep.BestPG.Quantitation.TryGetValue(experimentID, out quant))
+                                            if (pep.BestPG.Quantitation.TryGetValue(exp.Name, out quant))
                                             {
-                                                quant.AddData(quantData);
+                                                quant.AddData(pep, quantData, isMissingChannel);
                                             }
                                             else
                                             {
-                                                quant = new Quantitation(exp.QuantPlex, quantData);
-                                                pep.BestPG.Quantitation.Add(experimentID, quant);
+                                                quant = new Quantitation(exp.QuantPlex, pep, quantData, isMissingChannel);
+                                                pep.BestPG.Quantitation.Add(exp.Name, quant);
                                             }
-
-                                            // Keep track of unique quantified peptides
-                                            quant.Peptides.Add(pep);
                                         }
                                     }
                                 }
@@ -961,7 +1168,7 @@ namespace Coon.Compass.ProteinHoarder
                                     sb.Append(data[i]);
                                     sb.Append(',');
                                 }
-                                sb.Append(experimentID);
+                                sb.Append(exp.Name);
                                 sb.Append(',');
                                 sb.Append(pep.NumberOfSharingProteinGroups);
                                 sb.Append(',');
@@ -1017,7 +1224,7 @@ namespace Coon.Compass.ProteinHoarder
             Log("Finished [{0:D2} hrs, {1:D2} mins, {2:D2} secs]", diff.Hours, diff.Minutes, diff.Seconds);
             ProgressUpdate(-1);
         }
-
+        
         #region Callbacks
 
         public event EventHandler<StatusEventArgs> UpdateLog;

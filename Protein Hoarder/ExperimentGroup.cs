@@ -6,8 +6,10 @@ namespace Coon.Compass.ProteinHoarder
     {
         public List<CsvFile> CsvFiles { get; set; }
 
-        public char ExperimentalID { get; set; }
+        //public char ExperimentalID { get; set; }
 
+        public string Name { get; set; }
+     
         public HashSet<ProteinGroup> ProteinGroups { get; set; }
 
         public int TQStart { get; set; }
@@ -15,6 +17,8 @@ namespace Coon.Compass.ProteinHoarder
         public int TQStop { get; set; }
 
         public bool UseQuant { get; set; }
+
+        public double MeidanLog2Ratio { get; set; }
 
         public int QuantPlex
         {
@@ -30,11 +34,12 @@ namespace Coon.Compass.ProteinHoarder
 
         public string Header { get; set; }
 
-        public ExperimentGroup(char id)
+        public ExperimentGroup(string name)
         {
-            ExperimentalID = id;
+            //ExperimentalID = id;
             CsvFiles = new List<CsvFile>();
             ProteinGroups = new HashSet<ProteinGroup>();
+            Name = name;
         }
     }
 }

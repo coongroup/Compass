@@ -62,10 +62,10 @@ namespace Coon.Compass.FdrOptimizer
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.maximumPPMUD = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
             this.twoDCB = new System.Windows.Forms.CheckBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.maximumPPMUD = new System.Windows.Forms.NumericUpDown();
             this.grpFixedModifications.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -261,7 +261,7 @@ namespace Coon.Compass.FdrOptimizer
             this.numMaximumFalseDiscoveryRate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.numMaximumFalseDiscoveryRate.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.FdrOptimizer.Properties.Settings.Default, "maximumFalseDiscoveryRate", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numMaximumFalseDiscoveryRate.DecimalPlaces = 2;
-            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(202, 200);
+            this.numMaximumFalseDiscoveryRate.Location = new System.Drawing.Point(90, 205);
             this.numMaximumFalseDiscoveryRate.Name = "numMaximumFalseDiscoveryRate";
             this.numMaximumFalseDiscoveryRate.Size = new System.Drawing.Size(44, 20);
             this.numMaximumFalseDiscoveryRate.TabIndex = 96;
@@ -271,11 +271,12 @@ namespace Coon.Compass.FdrOptimizer
             // 
             this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(10, 204);
+            this.label8.Location = new System.Drawing.Point(10, 207);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(186, 13);
+            this.label8.Size = new System.Drawing.Size(76, 13);
             this.label8.TabIndex = 95;
-            this.label8.Text = "Maximum False Discovery Rate (FDR)";
+            this.label8.Text = "Maximum FDR";
+            this.label8.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnClear
             // 
@@ -429,6 +430,34 @@ namespace Coon.Compass.FdrOptimizer
             this.splitContainer1.SplitterDistance = 420;
             this.splitContainer1.TabIndex = 179;
             // 
+            // maximumPPMUD
+            // 
+            this.maximumPPMUD.DecimalPlaces = 2;
+            this.maximumPPMUD.Location = new System.Drawing.Point(248, 205);
+            this.maximumPPMUD.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.maximumPPMUD.Name = "maximumPPMUD";
+            this.maximumPPMUD.Size = new System.Drawing.Size(64, 20);
+            this.maximumPPMUD.TabIndex = 182;
+            this.maximumPPMUD.Value = new decimal(new int[] {
+            25,
+            0,
+            0,
+            0});
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(139, 208);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(102, 13);
+            this.label2.TabIndex = 181;
+            this.label2.Text = "Maximum PPM Error";
+            // 
             // twoDCB
             // 
             this.twoDCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -452,34 +481,6 @@ namespace Coon.Compass.FdrOptimizer
             this.richTextBox1.Size = new System.Drawing.Size(564, 189);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
-            // 
-            // label2
-            // 
-            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(252, 204);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(102, 13);
-            this.label2.TabIndex = 181;
-            this.label2.Text = "Maximum PPM Error";
-            // 
-            // maximumPPMUD
-            // 
-            this.maximumPPMUD.DecimalPlaces = 2;
-            this.maximumPPMUD.Location = new System.Drawing.Point(360, 200);
-            this.maximumPPMUD.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.maximumPPMUD.Name = "maximumPPMUD";
-            this.maximumPPMUD.Size = new System.Drawing.Size(64, 20);
-            this.maximumPPMUD.TabIndex = 182;
-            this.maximumPPMUD.Value = new decimal(new int[] {
-            25,
-            0,
-            0,
-            0});
             // 
             // FdrOptimizerForm
             // 

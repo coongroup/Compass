@@ -34,7 +34,9 @@
             this.hoardB = new System.Windows.Forms.Button();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.inputGB = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.csvclearB = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.csvsB = new System.Windows.Forms.Button();
             this.maxMissedCleavagedUD = new System.Windows.Forms.NumericUpDown();
             this.csvDGV = new System.Windows.Forms.DataGridView();
@@ -58,8 +60,10 @@
             this.outputTB = new System.Windows.Forms.TextBox();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.quantGB = new System.Windows.Forms.GroupBox();
+            this.useNBCCB = new System.Windows.Forms.CheckBox();
+            this.medianvalueCB = new System.Windows.Forms.CheckBox();
+            this.duplexCB = new System.Windows.Forms.CheckBox();
             this.ignorePepMissingCB = new System.Windows.Forms.CheckBox();
-            this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.ignoreModsCLB = new System.Windows.Forms.CheckedListBox();
             this.enableQuantCB = new System.Windows.Forms.CheckBox();
@@ -88,7 +92,7 @@
             this.logGB.Location = new System.Drawing.Point(3, 3);
             this.logGB.Name = "logGB";
             this.logGB.Padding = new System.Windows.Forms.Padding(5);
-            this.logGB.Size = new System.Drawing.Size(831, 153);
+            this.logGB.Size = new System.Drawing.Size(794, 163);
             this.logGB.TabIndex = 0;
             this.logGB.TabStop = false;
             this.logGB.Text = "Log";
@@ -100,7 +104,7 @@
             this.logTB.Margin = new System.Windows.Forms.Padding(5);
             this.logTB.Name = "logTB";
             this.logTB.ReadOnly = true;
-            this.logTB.Size = new System.Drawing.Size(821, 130);
+            this.logTB.Size = new System.Drawing.Size(784, 140);
             this.logTB.TabIndex = 0;
             this.logTB.Text = "";
             this.logTB.WordWrap = false;
@@ -108,7 +112,7 @@
             // hoardB
             // 
             this.hoardB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.hoardB.Location = new System.Drawing.Point(763, 444);
+            this.hoardB.Location = new System.Drawing.Point(726, 469);
             this.hoardB.Name = "hoardB";
             this.hoardB.Size = new System.Drawing.Size(66, 23);
             this.hoardB.TabIndex = 1;
@@ -120,10 +124,10 @@
             // 
             this.progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar.Location = new System.Drawing.Point(5, 444);
+            this.progressBar.Location = new System.Drawing.Point(5, 469);
             this.progressBar.Maximum = 10000;
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(745, 23);
+            this.progressBar.Size = new System.Drawing.Size(708, 23);
             this.progressBar.TabIndex = 2;
             // 
             // inputGB
@@ -131,7 +135,9 @@
             this.inputGB.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.inputGB.Controls.Add(this.label7);
             this.inputGB.Controls.Add(this.csvclearB);
+            this.inputGB.Controls.Add(this.comboBox1);
             this.inputGB.Controls.Add(this.csvsB);
             this.inputGB.Controls.Add(this.maxMissedCleavagedUD);
             this.inputGB.Controls.Add(this.csvDGV);
@@ -141,15 +147,24 @@
             this.inputGB.Controls.Add(this.label1);
             this.inputGB.Location = new System.Drawing.Point(3, 3);
             this.inputGB.Name = "inputGB";
-            this.inputGB.Size = new System.Drawing.Size(831, 202);
+            this.inputGB.Size = new System.Drawing.Size(794, 227);
             this.inputGB.TabIndex = 3;
             this.inputGB.TabStop = false;
             this.inputGB.Text = "Input Files";
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(200, 201);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(80, 13);
+            this.label7.TabIndex = 16;
+            this.label7.Text = "Database Type";
+            // 
             // csvclearB
             // 
             this.csvclearB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.csvclearB.Location = new System.Drawing.Point(760, 48);
+            this.csvclearB.Location = new System.Drawing.Point(723, 48);
             this.csvclearB.Name = "csvclearB";
             this.csvclearB.Size = new System.Drawing.Size(66, 23);
             this.csvclearB.TabIndex = 7;
@@ -157,10 +172,18 @@
             this.csvclearB.UseVisualStyleBackColor = true;
             this.csvclearB.Click += new System.EventHandler(this.csvclearB_Click);
             // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(282, 197);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(63, 21);
+            this.comboBox1.TabIndex = 15;
+            // 
             // csvsB
             // 
             this.csvsB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.csvsB.Location = new System.Drawing.Point(759, 19);
+            this.csvsB.Location = new System.Drawing.Point(722, 19);
             this.csvsB.Name = "csvsB";
             this.csvsB.Size = new System.Drawing.Size(66, 23);
             this.csvsB.TabIndex = 6;
@@ -172,7 +195,7 @@
             // 
             this.maxMissedCleavagedUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.maxMissedCleavagedUD.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Coon.Compass.ProteinHoarder.Properties.Settings.Default, "maxMissedCleavages", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.maxMissedCleavagedUD.Location = new System.Drawing.Point(148, 174);
+            this.maxMissedCleavagedUD.Location = new System.Drawing.Point(148, 197);
             this.maxMissedCleavagedUD.Maximum = new decimal(new int[] {
             1000000,
             0,
@@ -196,14 +219,14 @@
             this.csvDGV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.csvDGV.Location = new System.Drawing.Point(9, 19);
             this.csvDGV.Name = "csvDGV";
-            this.csvDGV.Size = new System.Drawing.Size(744, 148);
+            this.csvDGV.Size = new System.Drawing.Size(707, 173);
             this.csvDGV.TabIndex = 5;
             // 
             // label5
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(8, 176);
+            this.label5.Location = new System.Drawing.Point(8, 201);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(134, 13);
             this.label5.TabIndex = 8;
@@ -212,7 +235,7 @@
             // databaseB
             // 
             this.databaseB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.databaseB.Location = new System.Drawing.Point(760, 171);
+            this.databaseB.Location = new System.Drawing.Point(723, 196);
             this.databaseB.Name = "databaseB";
             this.databaseB.Size = new System.Drawing.Size(66, 23);
             this.databaseB.TabIndex = 4;
@@ -224,16 +247,16 @@
             // 
             this.databaseTB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.databaseTB.Location = new System.Drawing.Point(309, 173);
+            this.databaseTB.Location = new System.Drawing.Point(461, 197);
             this.databaseTB.Name = "databaseTB";
-            this.databaseTB.Size = new System.Drawing.Size(444, 20);
+            this.databaseTB.Size = new System.Drawing.Size(255, 20);
             this.databaseTB.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(200, 176);
+            this.label1.Location = new System.Drawing.Point(351, 201);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(104, 13);
             this.label1.TabIndex = 0;
@@ -252,7 +275,7 @@
             this.optionsGB.Controls.Add(this.label2);
             this.optionsGB.Controls.Add(this.fdrUD);
             this.optionsGB.Controls.Add(this.conservativeCB);
-            this.optionsGB.Location = new System.Drawing.Point(5, 262);
+            this.optionsGB.Location = new System.Drawing.Point(5, 287);
             this.optionsGB.Name = "optionsGB";
             this.optionsGB.Size = new System.Drawing.Size(276, 176);
             this.optionsGB.TabIndex = 4;
@@ -380,9 +403,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.outputGB.Controls.Add(this.outputdirectoryB);
             this.outputGB.Controls.Add(this.outputTB);
-            this.outputGB.Location = new System.Drawing.Point(5, 211);
+            this.outputGB.Location = new System.Drawing.Point(5, 236);
             this.outputGB.Name = "outputGB";
-            this.outputGB.Size = new System.Drawing.Size(831, 45);
+            this.outputGB.Size = new System.Drawing.Size(794, 45);
             this.outputGB.TabIndex = 8;
             this.outputGB.TabStop = false;
             this.outputGB.Text = "Output Location";
@@ -390,7 +413,7 @@
             // outputdirectoryB
             // 
             this.outputdirectoryB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputdirectoryB.Location = new System.Drawing.Point(760, 15);
+            this.outputdirectoryB.Location = new System.Drawing.Point(723, 15);
             this.outputdirectoryB.Name = "outputdirectoryB";
             this.outputdirectoryB.Size = new System.Drawing.Size(66, 23);
             this.outputdirectoryB.TabIndex = 8;
@@ -404,7 +427,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.outputTB.Location = new System.Drawing.Point(9, 16);
             this.outputTB.Name = "outputTB";
-            this.outputTB.Size = new System.Drawing.Size(744, 20);
+            this.outputTB.Size = new System.Drawing.Size(707, 20);
             this.outputTB.TabIndex = 1;
             // 
             // splitContainer1
@@ -428,47 +451,74 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.logGB);
             this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(3);
-            this.splitContainer1.Size = new System.Drawing.Size(841, 641);
-            this.splitContainer1.SplitterDistance = 474;
+            this.splitContainer1.Size = new System.Drawing.Size(804, 676);
+            this.splitContainer1.SplitterDistance = 499;
             this.splitContainer1.TabIndex = 9;
             // 
             // quantGB
             // 
             this.quantGB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.quantGB.Controls.Add(this.useNBCCB);
+            this.quantGB.Controls.Add(this.medianvalueCB);
+            this.quantGB.Controls.Add(this.duplexCB);
             this.quantGB.Controls.Add(this.ignorePepMissingCB);
-            this.quantGB.Controls.Add(this.label7);
             this.quantGB.Controls.Add(this.label6);
             this.quantGB.Controls.Add(this.ignoreModsCLB);
             this.quantGB.Controls.Add(this.enableQuantCB);
-            this.quantGB.Location = new System.Drawing.Point(287, 262);
+            this.quantGB.Location = new System.Drawing.Point(287, 287);
             this.quantGB.Name = "quantGB";
-            this.quantGB.Size = new System.Drawing.Size(547, 176);
+            this.quantGB.Size = new System.Drawing.Size(510, 176);
             this.quantGB.TabIndex = 9;
             this.quantGB.TabStop = false;
             this.quantGB.Text = "Protein Quantitation";
             // 
+            // useNBCCB
+            // 
+            this.useNBCCB.AutoSize = true;
+            this.useNBCCB.Enabled = false;
+            this.useNBCCB.Location = new System.Drawing.Point(149, 153);
+            this.useNBCCB.Name = "useNBCCB";
+            this.useNBCCB.Size = new System.Drawing.Size(151, 17);
+            this.useNBCCB.TabIndex = 15;
+            this.useNBCCB.Text = "Use NBC only if necessary";
+            this.useNBCCB.UseVisualStyleBackColor = true;
+            // 
+            // medianvalueCB
+            // 
+            this.medianvalueCB.AutoSize = true;
+            this.medianvalueCB.Enabled = false;
+            this.medianvalueCB.Location = new System.Drawing.Point(25, 153);
+            this.medianvalueCB.Name = "medianvalueCB";
+            this.medianvalueCB.Size = new System.Drawing.Size(118, 17);
+            this.medianvalueCB.TabIndex = 13;
+            this.medianvalueCB.Text = "Use Median Values";
+            this.medianvalueCB.UseVisualStyleBackColor = true;
+            // 
+            // duplexCB
+            // 
+            this.duplexCB.AutoSize = true;
+            this.duplexCB.Enabled = false;
+            this.duplexCB.Location = new System.Drawing.Point(6, 130);
+            this.duplexCB.Name = "duplexCB";
+            this.duplexCB.Size = new System.Drawing.Size(119, 17);
+            this.duplexCB.TabIndex = 14;
+            this.duplexCB.Text = "Duplex Quantitation";
+            this.duplexCB.UseVisualStyleBackColor = true;
+            this.duplexCB.CheckedChanged += new System.EventHandler(this.duplexCB_CheckedChanged);
+            // 
             // ignorePepMissingCB
             // 
             this.ignorePepMissingCB.AutoSize = true;
+            this.ignorePepMissingCB.Checked = true;
+            this.ignorePepMissingCB.CheckState = System.Windows.Forms.CheckState.Checked;
             this.ignorePepMissingCB.Enabled = false;
-            this.ignorePepMissingCB.Location = new System.Drawing.Point(25, 130);
+            this.ignorePepMissingCB.Location = new System.Drawing.Point(243, 40);
             this.ignorePepMissingCB.Name = "ignorePepMissingCB";
             this.ignorePepMissingCB.Size = new System.Drawing.Size(186, 17);
             this.ignorePepMissingCB.TabIndex = 12;
             this.ignorePepMissingCB.Text = "Ignore Peptides with Missing Data";
             this.ignorePepMissingCB.UseVisualStyleBackColor = true;
-            // 
-            // label7
-            // 
-            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(309, 15);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(237, 26);
-            this.label7.TabIndex = 5;
-            this.label7.Text = "Quantitation only uses unshared peptides\r\n(peptides that map uniquely to one prot" +
-    "ein group)";
             // 
             // label6
             // 
@@ -488,7 +538,7 @@
             this.ignoreModsCLB.FormattingEnabled = true;
             this.ignoreModsCLB.Location = new System.Drawing.Point(25, 60);
             this.ignoreModsCLB.Name = "ignoreModsCLB";
-            this.ignoreModsCLB.Size = new System.Drawing.Size(515, 64);
+            this.ignoreModsCLB.Size = new System.Drawing.Size(478, 64);
             this.ignoreModsCLB.TabIndex = 1;
             // 
             // enableQuantCB
@@ -525,7 +575,7 @@
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(841, 641);
+            this.ClientSize = new System.Drawing.Size(804, 676);
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(600, 480);
@@ -590,10 +640,14 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckedListBox ignoreModsCLB;
         private System.Windows.Forms.CheckBox includeUnfliterCB;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox ignorePepMissingCB;
         private System.Windows.Forms.CheckBox semiCB;
         private System.Windows.Forms.CheckBox proteinsPerMinCB;
+        private System.Windows.Forms.CheckBox medianvalueCB;
+        private System.Windows.Forms.CheckBox duplexCB;
+        private System.Windows.Forms.CheckBox useNBCCB;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ComboBox comboBox1;
     }
 }
 

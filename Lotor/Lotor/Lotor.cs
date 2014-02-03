@@ -154,7 +154,7 @@ namespace Coon.Compass.Lotor
                         if(headerInfo[i] == "Channels Detected")
                             LastQuantColumn = i-1;
                     }
-                    string header = string.Join(",", headerInfo) + ",# Isoforms,Localized?,AScore,p-Value,# of Site Determining Fragments,Best Isoform,Spectral Matches,Site Determining Matches,Second Best Isoform,Second Spectral Matches,Second Site Determining Matches";
+                    string header = string.Join(",", headerInfo) + ",# Isoforms,Localized?,Delta Score,Best Isoform,Spectral Matches,Second Best Isoform,Second Spectral Matches";
                     writer.WriteLine(header);
                     localizedWriter.WriteLine(header);
                     while (reader.ReadNextRecord())
@@ -196,25 +196,26 @@ namespace Coon.Compass.Lotor
                         sb.Append(',');
                         sb.Append(hit.IsLocalized);
                         sb.Append(',');
-                        sb.Append(hit.AScore);
+                        sb.Append(hit.MatchDifference);
                         sb.Append(',');
-                        sb.Append(hit.PValue);
-                        sb.Append(',');
-                        sb.Append(hit.NumberOfSiteDeterminingFragments);
-                        sb.Append(',');
+                        //sb.Append(hit.PValue);
+                        //sb.Append(',');
+                        //sb.Append(hit.NumberOfSiteDeterminingFragments);
+                        //sb.Append(',');
                         sb.Append(hit.LocalizedIsoform.SequenceWithModifications);
                         sb.Append(',');
                         sb.Append(hit.LocalizedIsoform.SpectralMatch.Matches);
+
                         if (hit.PSM.Isoforms > 1)
                         {
-                            sb.Append(',');
-                            sb.Append(hit.BestPeptideSDFCount);
+                            //sb.Append(',');
+                            //sb.Append(hit.BestPeptideSDFCount);
                             sb.Append(',');
                             sb.Append(hit.SecondBestPeptideIsoform.SequenceWithModifications);
                             sb.Append(',');
                             sb.Append(hit.SecondBestPeptideIsoform.SpectralMatch.Matches);
-                            sb.Append(',');
-                            sb.Append(hit.SecondBestPeptideSDFCount);
+                            //sb.Append(',');
+                            //sb.Append(hit.SecondBestPeptideSDFCount);
                         }
 
                         if(hit.IsLocalized)
@@ -244,9 +245,9 @@ namespace Coon.Compass.Lotor
                 int isoformCount = psm.GenerateIsoforms(_ignoreCTerminal);
 
                 // If only one isoform, nothing to compare it to, so it is automatically localized
-                if(isoformCount == 0)
-                    continue;
-                
+                //if(isoformCount == 0)
+                //    continue;
+
                 totalisofromscount += isoformCount;
                 
                 // Calculate the probability of success for random matches
@@ -304,7 +305,7 @@ namespace Coon.Compass.Lotor
                 return new Tuple<int, int, double>(0, 0, double.PositiveInfinity);
 
             int biggesti = 0;
-            int bestI = -1;
+            int bestI = 0;
 
             for (int i = 0; i < length; i++)
             {

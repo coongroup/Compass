@@ -72,6 +72,7 @@ namespace Coon.Compass.FdrOptimizer
         private readonly string _rawFolder;
         private readonly IList<Modification> _fixedModifications;
         private readonly double _maximumFalseDiscoveryRate;
+        private readonly double _evalueThresholdPPMError = 1e-3;
         private readonly string _outputFolder;
         private readonly string _outputPsmFolder;
         private readonly string _outputScansFolder;
@@ -85,9 +86,9 @@ namespace Coon.Compass.FdrOptimizer
         public FdrOptimizer(IList<string> csvFilepaths, string rawFolder,
             IList<Modification> fixedModifications,
             double maximumFalseDiscoveryRate,
-            double maximumPPMError,
+            double maximumPPMError,           
             UniquePeptideType uniquePeptideType,
-            string outputFolder, bool isBatched = false, bool is2DFDR = true, bool includeFixedMods = false)
+            string outputFolder, bool isBatched = false, bool is2DFDR = true, bool includeFixedMods = false,  double evalueThresholdForPPMError = 1e-2)
         {
             _csvFilepaths = csvFilepaths;
             _rawFolder = rawFolder;
@@ -102,6 +103,7 @@ namespace Coon.Compass.FdrOptimizer
             _isBatched = isBatched;
             _is2DFDR = is2DFDR;
             _includeFixedMods = includeFixedMods;
+            _evalueThresholdPPMError = evalueThresholdForPPMError;
         }
 
         private void Setup()
@@ -269,8 +271,7 @@ namespace Coon.Compass.FdrOptimizer
                     targetUniqueWriter = new StreamWriter(outputTargetUniqueFile),
                     decoyUniqueWriter = new StreamWriter(outputDecoyUniqueFile))
                 {
-                    Dictionary<string, PSM> allPsms =
-                        csvFile.PeptideSpectralMatches.ToDictionary(psm => psm.FileName + psm.Peptide.Sequence);
+                    Dictionary<string, PSM> allPsms = csvFile.PeptideSpectralMatches.ToDictionary(psm => psm.FileName + psm.Peptide.Sequence);
 
                     HashSet<PSM> fdrPSMs = new HashSet<PSM>(csvFile.FdrFilteredPSMs);
 
@@ -570,7 +571,8 @@ namespace Coon.Compass.FdrOptimizer
             if (isBatched)
             {
                 msg += " in batch...";
-                Log(msg);
+                Log(msg);        
+
                 Tuple<double,double> ppmThreshold = CalculateBestPPMError(_allPeptides, _maximumFalseDiscoveryRate, steps, minimumIncrement);
                 foreach (InputFile csvFile in csvFiles)
                 {
@@ -597,7 +599,10 @@ namespace Coon.Compass.FdrOptimizer
                 List<Peptide> passingPeptides = csvFile.Peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= ppmError && pep.FdrScoreMetric <= threshold).ToList();
                 csvFile.FdrFilteredPeptides = passingPeptides;
 
-                List<PSM> passingPsms = csvFile.PeptideSpectralMatches.Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric <= threshold).ToList();
+                List<PSM> passingPsms = passingPeptides.SelectMany(p => p.PSMs).Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric <= threshold).ToList();
+
+                List<PSM> passingPsms2 = csvFile.PeptideSpectralMatches.Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric <= threshold).ToList();
+                int a = passingPsms2.Count;
                 csvFile.FdrFilteredPSMs = passingPsms;
 
                 int total = csvFile.FdrFilteredPeptides.Count;
@@ -688,7 +693,7 @@ namespace Coon.Compass.FdrOptimizer
                 using (MSDataFile dataFile = new ThermoRawFile(csvFile.RawFilePath))
                 {
                     dataFile.Open();
-                    csvFile.UpdatePsmInformation(dataFile, _is2DFDR, useMedian);
+                    csvFile.UpdatePsmInformation(dataFile, _is2DFDR, useMedian, _evalueThresholdPPMError);
                 }
                 if (_is2DFDR)
                 {

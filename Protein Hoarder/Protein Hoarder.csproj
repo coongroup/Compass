@@ -146,6 +146,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnnotationType.cs" />
     <Compile Include="CsvFile.cs" />
     <Compile Include="ExperimentGroup.cs" />
     <Compile Include="ProteinHoarderForm.cs">

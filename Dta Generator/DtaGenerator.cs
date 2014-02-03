@@ -105,6 +105,8 @@ namespace Coon.Compass.DtaGenerator
         private readonly IList<string> rawFilepaths;
         private readonly bool sequestDtaOutput;
 
+        public static bool IncludeLog = true;
+
         public DtaGenerator(IList<string> rawFilepaths,
             int minimumAssumedPrecursorChargeState, int maximumAssumedPrecursorChargeState,
             bool cleanPrecursor, bool enableEtdPreProcessing,
@@ -112,7 +114,8 @@ namespace Coon.Compass.DtaGenerator
             bool groupByActivationEnergyTime,
             bool sequestDtaOutput, bool omssaTxtOutput, bool mascotMgfOutput,
             string outputFolder,
-            List<double> neutralLosses)
+            List<double> neutralLosses,
+            bool includeLog = true)
         {
             this.rawFilepaths = rawFilepaths;
             this.minimumAssumedPrecursorChargeState = minimumAssumedPrecursorChargeState;
@@ -129,6 +132,7 @@ namespace Coon.Compass.DtaGenerator
             this.mascotMgfOutput = mascotMgfOutput;
             this.outputFolder = outputFolder;
             this.neutralLosses = neutralLosses;
+            IncludeLog = includeLog;
         }
 
         public event EventHandler Starting;
@@ -211,6 +215,7 @@ namespace Coon.Compass.DtaGenerator
             StreamWriter dta = null;
             Dictionary<string, StreamWriter> txt_outputs = null;
             Dictionary<string, StreamWriter> mgf_outputs = null;
+            string log_folder = "";
 
             try
             {
@@ -221,36 +226,42 @@ namespace Coon.Compass.DtaGenerator
                     Directory.CreateDirectory(outputFolder);
                 }
 
-                overall_log = new StreamWriter(Path.Combine(outputFolder, "DTA_Generator_log.txt"));
-                overall_log.AutoFlush = true;
-
-                overall_log.WriteLine("DTA Generator PARAMETERS");
-                overall_log.WriteLine("Assumed Precursor Charge State Range: " + minimumAssumedPrecursorChargeState +
-                                      '-' + maximumAssumedPrecursorChargeState);
-                overall_log.WriteLine("Clean Precursor: " + cleanPrecursor);
-                overall_log.WriteLine("Enable ETD Pre-Processing: " + enableEtdPreProcessing);
-                overall_log.WriteLine("Clean TMT Duplex: " + cleanTmtDuplex);
-                overall_log.WriteLine("Clean iTRAQ 4-Plex: " + cleanItraq4Plex);
-                overall_log.WriteLine("Clean TMT 6-Plex: " + cleanTmt6Plex);
-                overall_log.WriteLine("Clean iTRAQ 8-Plex: " + cleanItraq8Plex);
-
                 bool neutralLossesIncluded = (neutralLosses != null && neutralLosses.Count > 0);
-                if (neutralLossesIncluded)
-                {
-                    overall_log.WriteLine("Neutral Losses: true");
-                }
 
-                overall_log.WriteLine();
-                foreach (string raw_filepath in rawFilepaths)
+                if (IncludeLog)
                 {
-                    overall_log.WriteLine(raw_filepath);
-                }
-                overall_log.Close();
 
-                string log_folder = Path.Combine(outputFolder, "log");
-                if (!Directory.Exists(log_folder))
-                {
-                    Directory.CreateDirectory(log_folder);
+                    overall_log = new StreamWriter(Path.Combine(outputFolder, "DTA_Generator_log.txt"));
+                    overall_log.AutoFlush = true;
+
+                    overall_log.WriteLine("DTA Generator PARAMETERS");
+                    overall_log.WriteLine("Assumed Precursor Charge State Range: " + minimumAssumedPrecursorChargeState +
+                                          '-' + maximumAssumedPrecursorChargeState);
+                    overall_log.WriteLine("Clean Precursor: " + cleanPrecursor);
+                    overall_log.WriteLine("Enable ETD Pre-Processing: " + enableEtdPreProcessing);
+                    overall_log.WriteLine("Clean TMT Duplex: " + cleanTmtDuplex);
+                    overall_log.WriteLine("Clean iTRAQ 4-Plex: " + cleanItraq4Plex);
+                    overall_log.WriteLine("Clean TMT 6-Plex: " + cleanTmt6Plex);
+                    overall_log.WriteLine("Clean iTRAQ 8-Plex: " + cleanItraq8Plex);
+
+
+                    if (neutralLossesIncluded)
+                    {
+                        overall_log.WriteLine("Neutral Losses: true");
+                    }
+
+                    overall_log.WriteLine();
+                    foreach (string raw_filepath in rawFilepaths)
+                    {
+                        overall_log.WriteLine(raw_filepath);
+                    }
+                    overall_log.Close();
+
+                    log_folder = Path.Combine(outputFolder, "log");
+                    if (!Directory.Exists(log_folder))
+                    {
+                        Directory.CreateDirectory(log_folder);
+                    }
                 }
 
                 for (int file_index = 0; file_index < rawFilepaths.Count; file_index++)
@@ -279,21 +290,25 @@ namespace Coon.Compass.DtaGenerator
                     raw.Open(filepath);
                     raw.SetCurrentController(0, 1);
 
-                    log =
-                        new StreamWriter(Path.Combine(log_folder,
-                            Path.GetFileNameWithoutExtension(filepath) + "_log.txt"));
-                    log.AutoFlush = true;
+                    if (IncludeLog)
+                    {
 
-                    log.WriteLine("DTA Generator PARAMETERS");
-                    log.WriteLine("Assumed Precursor Charge State Range: " + minimumAssumedPrecursorChargeState + '-' +
-                                  maximumAssumedPrecursorChargeState);
-                    log.WriteLine("Clean Precursor: " + cleanPrecursor);
-                    log.WriteLine("Enable ETD Pre-Processing: " + enableEtdPreProcessing);
-                    log.WriteLine("Clean TMT Duplex: " + cleanTmtDuplex);
-                    log.WriteLine("Clean iTRAQ 4-Plex: " + cleanItraq4Plex);
-                    log.WriteLine("Clean TMT 6-Plex: " + cleanTmt6Plex);
-                    log.WriteLine("Clean iTRAQ 8-Plex: " + cleanItraq8Plex);
-                    log.WriteLine();
+                        log =
+                            new StreamWriter(Path.Combine(log_folder,
+                                Path.GetFileNameWithoutExtension(filepath) + "_log.txt"));
+                        log.AutoFlush = true;
+
+                        log.WriteLine("DTA Generator PARAMETERS");
+                        log.WriteLine("Assumed Precursor Charge State Range: " + minimumAssumedPrecursorChargeState + '-' +
+                                      maximumAssumedPrecursorChargeState);
+                        log.WriteLine("Clean Precursor: " + cleanPrecursor);
+                        log.WriteLine("Enable ETD Pre-Processing: " + enableEtdPreProcessing);
+                        log.WriteLine("Clean TMT Duplex: " + cleanTmtDuplex);
+                        log.WriteLine("Clean iTRAQ 4-Plex: " + cleanItraq4Plex);
+                        log.WriteLine("Clean TMT 6-Plex: " + cleanTmt6Plex);
+                        log.WriteLine("Clean iTRAQ 8-Plex: " + cleanItraq8Plex);
+                        log.WriteLine();
+                    }
 
                     int first_scan_number = -1;
                     raw.GetFirstSpectrumNumber(ref first_scan_number);
@@ -345,10 +360,12 @@ namespace Coon.Compass.DtaGenerator
                             break;
                         }
 
+
+
                         string scan_filter = null;
                         raw.GetFilterForScanNum(scanNumber, ref scan_filter);
 
-                        if (!no_precursor_scan)
+                        if (!no_precursor_scan && IncludeLog)
                         {
                             precursor_labels = null;
                             precursor_flags = null;
@@ -367,6 +384,8 @@ namespace Coon.Compass.DtaGenerator
                                     ref mass_list_array_size);
                                 precursor_data = (double[,]) precursor_labels;
                             }
+
+                            
 
                             int? precursor_index = null;
                             for (int i = precursor_data.GetLowerBound(1); i <= precursor_data.GetUpperBound(1); i++)
@@ -390,7 +409,7 @@ namespace Coon.Compass.DtaGenerator
                                     if (!precursor_index.HasValue ||
                                         Math.Abs(precursor_data[(int) RawLabelDataColumn.MZ, i] - precursorMZ) <
                                         Math.Abs(precursor_data[(int) RawLabelDataColumn.MZ, precursor_index.Value] -
-                                                 precursorMZ))
+                                                    precursorMZ))
                                     {
                                         precursor_index = i;
                                     }
@@ -398,67 +417,67 @@ namespace Coon.Compass.DtaGenerator
                             }
 
                             if (precursor_index.HasValue)
-                            {
-                                precursorMZ = precursor_data[(int) RawLabelDataColumn.MZ, precursor_index.Value];
-
-                                //precursor_mzs.Add(scan_number, precursor_mz);
-                                precursor_intensities.Add(scanNumber,
-                                    precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value]);
-
-                                object precursor_header_labels = null;
-                                object precursor_header_values = null;
-                                int precursor_array_size = -1;
-                                raw.GetTrailerExtraForScanNum(precursor_scan_number, ref precursor_header_labels,
-                                    ref precursor_header_values, ref precursor_array_size);
-                                var precursor_header_label_strings = (string[]) precursor_header_labels;
-                                var precursor_header_value_strings = (string[]) precursor_header_values;
-                                if (precursor_header_label_strings != null && precursor_header_value_strings != null)
                                 {
-                                    for (int header_i = precursor_header_label_strings.GetLowerBound(0);
-                                        header_i <= precursor_header_label_strings.GetUpperBound(0);
-                                        header_i++)
+                                    precursorMZ = precursor_data[(int) RawLabelDataColumn.MZ, precursor_index.Value];
+
+                                    //precursor_mzs.Add(scan_number, precursor_mz);
+                                    precursor_intensities.Add(scanNumber,
+                                        precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value]);
+
+                                    object precursor_header_labels = null;
+                                    object precursor_header_values = null;
+                                    int precursor_array_size = -1;
+                                    raw.GetTrailerExtraForScanNum(precursor_scan_number, ref precursor_header_labels,
+                                        ref precursor_header_values, ref precursor_array_size);
+                                    var precursor_header_label_strings = (string[]) precursor_header_labels;
+                                    var precursor_header_value_strings = (string[]) precursor_header_values;
+                                    if (precursor_header_label_strings != null && precursor_header_value_strings != null)
                                     {
-                                        if (
-                                            precursor_header_label_strings[header_i].StartsWith(
-                                                "Ion Injection Time (ms)"))
+                                        for (int header_i = precursor_header_label_strings.GetLowerBound(0);
+                                            header_i <= precursor_header_label_strings.GetUpperBound(0);
+                                            header_i++)
                                         {
-                                            precursor_denormalized_intensities.Add(scanNumber,
-                                                precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value
-                                                    ]*double.Parse(precursor_header_value_strings[header_i])/1000.0);
+                                            if (
+                                                precursor_header_label_strings[header_i].StartsWith(
+                                                    "Ion Injection Time (ms)"))
+                                            {
+                                                precursor_denormalized_intensities.Add(scanNumber,
+                                                    precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value
+                                                        ]*double.Parse(precursor_header_value_strings[header_i])/1000.0);
+                                            }
                                         }
                                     }
-                                }
 
-                                if (precursor_data.GetLength(0) > 2)
-                                {
-                                    precursor_sns.Add(scanNumber,
-                                        (precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value] -
-                                         precursor_data[(int) RawLabelDataColumn.NoiseBaseline, precursor_index.Value])/
-                                        precursor_data[(int) RawLabelDataColumn.NoiseLevel, precursor_index.Value]);
-                                }
-                                else
-                                {
-                                    precursor_sns.Add(scanNumber, null);
-                                }
-
-                                int peak_depth = 1;
-                                for (int i = precursor_data.GetLowerBound(1); i <= precursor_data.GetUpperBound(1); i++)
-                                {
-                                    if (i != precursor_index.Value)
+                                    if (precursor_data.GetLength(0) > 2)
                                     {
-                                        if (precursor_data[(int) RawLabelDataColumn.Intensity, i] >
-                                            precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value])
+                                        precursor_sns.Add(scanNumber,
+                                            (precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value] -
+                                             precursor_data[(int) RawLabelDataColumn.NoiseBaseline, precursor_index.Value])/
+                                            precursor_data[(int) RawLabelDataColumn.NoiseLevel, precursor_index.Value]);
+                                    }
+                                    else
+                                    {
+                                        precursor_sns.Add(scanNumber, null);
+                                    }
+
+                                    int peak_depth = 1;
+                                    for (int i = precursor_data.GetLowerBound(1); i <= precursor_data.GetUpperBound(1); i++)
+                                    {
+                                        if (i != precursor_index.Value)
                                         {
-                                            peak_depth++;
+                                            if (precursor_data[(int) RawLabelDataColumn.Intensity, i] >
+                                                precursor_data[(int) RawLabelDataColumn.Intensity, precursor_index.Value])
+                                            {
+                                                peak_depth++;
+                                            }
                                         }
                                     }
-                                }
 
-                                precursor_peak_depths.Add(scanNumber, peak_depth);
-                            }
+                                    precursor_peak_depths.Add(scanNumber, peak_depth);
+                                }
+                            
                         }
-
-
+                     
                         object header_labels = null;
                         object header_values = null;
                         int array_size = -1;
@@ -491,6 +510,7 @@ namespace Coon.Compass.DtaGenerator
                                 }
                             }
                         }
+
 
                         object labels = null;
                         object flags = null;
@@ -1164,8 +1184,8 @@ namespace Coon.Compass.DtaGenerator
                                 {
                                     foreach (MSPeak peak in peaks)
                                     {
-                                        dta_content_sb.AppendLine(string.Format(" {0:0.00000} {1:0.00}", peak.MZ,
-                                            peak.Intensity));
+                                        dta_content_sb.AppendFormat(@" {0:0.0000} {1:0.00}", peak.MZ, peak.Intensity);
+                                        dta_content_sb.AppendLine();
                                     }
                                 }
 
@@ -1212,6 +1232,11 @@ namespace Coon.Compass.DtaGenerator
 
                                     txt.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
                                     txt.WriteLine();
+
+                                    //foreach (MSPeak peak in peaks)
+                                    //{
+                                    //    txt.WriteLine(" {0:0.0000} {1:0.00}", peak.MZ, peak.Intensity);
+                                    //}
 
                                     if (dta_content_sb.Length > 0)
                                     {
@@ -1273,135 +1298,142 @@ namespace Coon.Compass.DtaGenerator
                         }
                     }
 
-                    log.WriteLine("Spectrum Type\tNumber of Scans");
-                    foreach (var kvp in spectrum_counts)
+                    if (IncludeLog)
                     {
-                        log.WriteLine(kvp.Key + '\t' + kvp.Value);
-                    }
-                    log.WriteLine();
 
-                    log.WriteLine("Spectrum Type\tNumber of DTAs");
-                    foreach (var kvp in dta_counts)
-                    {
-                        log.WriteLine(kvp.Key + '\t' + kvp.Value);
-                    }
-                    log.WriteLine();
-
-                    double? min_elapsed = null;
-                    double? max_elapsed = null;
-                    double mean_elapsed = 0.0;
-                    foreach (double elapsed_scan_time in elapsed_scan_times.Values)
-                    {
-                        if (!min_elapsed.HasValue || elapsed_scan_time < min_elapsed)
+                        log.WriteLine("Spectrum Type\tNumber of Scans");
+                        foreach (var kvp in spectrum_counts)
                         {
-                            min_elapsed = elapsed_scan_time;
+                            log.WriteLine(kvp.Key + '\t' + kvp.Value);
                         }
-
-                        if (!max_elapsed.HasValue || elapsed_scan_time > max_elapsed)
-                        {
-                            max_elapsed = elapsed_scan_time;
-                        }
-
-                        mean_elapsed += elapsed_scan_time;
-                    }
-                    mean_elapsed /= elapsed_scan_times.Count;
-
-                    if (min_elapsed.HasValue)
-                    {
-                        log.WriteLine("Minimum Fragmentation Elapsed Scan Time (sec): " + min_elapsed.Value);
-                    }
-                    if (max_elapsed.HasValue)
-                    {
-                        log.WriteLine("Maximum Fragmentation Elapsed Scan Time (sec): " + max_elapsed.Value);
-                    }
-                    if (!Double.IsNaN(mean_elapsed))
-                    {
-                        log.WriteLine("Average Fragmentation Elapsed Scan Time (sec): " + mean_elapsed);
-                    }
-
-                    log.WriteLine();
-
-                    double? min_injection = null;
-                    double? max_injection = null;
-                    double mean_injection = 0.0;
-                    foreach (double ion_injection_time in ion_injection_times.Values)
-                    {
-                        if (!min_injection.HasValue || ion_injection_time < min_injection)
-                        {
-                            min_injection = ion_injection_time;
-                        }
-
-                        if (!max_injection.HasValue || ion_injection_time > max_injection)
-                        {
-                            max_injection = ion_injection_time;
-                        }
-
-                        mean_injection += ion_injection_time;
-                    }
-                    mean_injection /= ion_injection_times.Count;
-
-                    if (min_injection.HasValue)
-                    {
-                        log.WriteLine("Minimum Fragmentation Ion Injection Time (msec): " + min_injection.Value);
-                    }
-                    if (max_injection.HasValue)
-                    {
-                        log.WriteLine("Maximum Fragmentation Ion Injection Time (msec): " + max_injection.Value);
-                    }
-                    if (!Double.IsNaN(mean_injection))
-                    {
-                        log.WriteLine("Average Fragmentation Ion Injection Time (msec): " + mean_injection);
-                    }
-
-                    log.WriteLine();
-
-                    log.WriteLine("Fragmentation Scan Summary");
-                    log.Write("Fragmentation Scan Number\t");
-                    log.Write("Retention Time (min.)\t");
-                    log.Write("Scan Filter m/z\t");
-                    log.Write("Precursor m/z\t");
-                    log.Write("Precursor Intensity\t");
-                    log.Write("Precursor Denormalized Intensity\t");
-                    log.Write("Precursor Charge State\t");
-                    log.Write("Precursor S/N Ratio\t");
-                    log.Write("Precursor Peak Depth\t");
-                    log.Write("Fragmentation Method\t");
-                    log.Write("Elapsed Scan Time (sec)\t");
-                    log.Write("Ion Injection Time (msec)");
-                    log.WriteLine();
-                    foreach (int sn2 in retention_times.Keys)
-                    {
-                        log.Write(sn2.ToString() + '\t');
-                        log.Write(retention_times[sn2].ToString("0.00") + '\t');
-                        log.Write(scan_filter_mzs[sn2].ToString("0.00") + '\t');
-                        log.Write((precursor_mzs.ContainsKey(sn2) ? precursor_mzs[sn2].ToString("0.00000") : "n/a") +
-                                  '\t');
-                        log.Write((precursor_intensities.ContainsKey(sn2)
-                            ? precursor_intensities[sn2].ToString("0.0")
-                            : "n/a") + '\t');
-                        log.Write((precursor_denormalized_intensities.ContainsKey(sn2)
-                            ? precursor_denormalized_intensities[sn2].ToString("0.0")
-                            : "n/a") + '\t');
-                        log.Write((precursor_charge_states.ContainsKey(sn2)
-                            ? precursor_charge_states[sn2].ToString()
-                            : "n/a") + '\t');
-                        log.Write((precursor_sns.ContainsKey(sn2) && precursor_sns[sn2].HasValue
-                            ? precursor_sns[sn2].Value.ToString()
-                            : "n/a") + '\t');
-                        log.Write((precursor_peak_depths.ContainsKey(sn2)
-                            ? precursor_peak_depths[sn2].ToString()
-                            : "n/a") + '\t');
-                        log.Write((precursor_fragmentation_methods.ContainsKey(sn2)
-                            ? precursor_fragmentation_methods[sn2]
-                            : "n/a") + '\t');
-                        log.Write((elapsed_scan_times.ContainsKey(sn2) ? elapsed_scan_times[sn2].ToString() : "n/a") +
-                                  '\t');
-                        log.Write((ion_injection_times.ContainsKey(sn2) ? ion_injection_times[sn2].ToString() : "n/a") +
-                                  '\t');
                         log.WriteLine();
-                    }
 
-                    log.Close();
+                        log.WriteLine("Spectrum Type\tNumber of DTAs");
+                        foreach (var kvp in dta_counts)
+                        {
+                            log.WriteLine(kvp.Key + '\t' + kvp.Value);
+                        }
+                        log.WriteLine();
+
+                        double? min_elapsed = null;
+                        double? max_elapsed = null;
+                        double mean_elapsed = 0.0;
+                        foreach (double elapsed_scan_time in elapsed_scan_times.Values)
+                        {
+                            if (!min_elapsed.HasValue || elapsed_scan_time < min_elapsed)
+                            {
+                                min_elapsed = elapsed_scan_time;
+                            }
+
+                            if (!max_elapsed.HasValue || elapsed_scan_time > max_elapsed)
+                            {
+                                max_elapsed = elapsed_scan_time;
+                            }
+
+                            mean_elapsed += elapsed_scan_time;
+                        }
+                        mean_elapsed /= elapsed_scan_times.Count;
+
+                        if (min_elapsed.HasValue)
+                        {
+                            log.WriteLine("Minimum Fragmentation Elapsed Scan Time (sec): " + min_elapsed.Value);
+                        }
+                        if (max_elapsed.HasValue)
+                        {
+                            log.WriteLine("Maximum Fragmentation Elapsed Scan Time (sec): " + max_elapsed.Value);
+                        }
+                        if (!Double.IsNaN(mean_elapsed))
+                        {
+                            log.WriteLine("Average Fragmentation Elapsed Scan Time (sec): " + mean_elapsed);
+                        }
+
+                        log.WriteLine();
+
+
+
+                        double? min_injection = null;
+                        double? max_injection = null;
+                        double mean_injection = 0.0;
+                        foreach (double ion_injection_time in ion_injection_times.Values)
+                        {
+                            if (!min_injection.HasValue || ion_injection_time < min_injection)
+                            {
+                                min_injection = ion_injection_time;
+                            }
+
+                            if (!max_injection.HasValue || ion_injection_time > max_injection)
+                            {
+                                max_injection = ion_injection_time;
+                            }
+
+                            mean_injection += ion_injection_time;
+                        }
+                        mean_injection /= ion_injection_times.Count;
+
+                        if (min_injection.HasValue)
+                        {
+                            log.WriteLine("Minimum Fragmentation Ion Injection Time (msec): " + min_injection.Value);
+                        }
+                        if (max_injection.HasValue)
+                        {
+                            log.WriteLine("Maximum Fragmentation Ion Injection Time (msec): " + max_injection.Value);
+                        }
+                        if (!Double.IsNaN(mean_injection))
+                        {
+                            log.WriteLine("Average Fragmentation Ion Injection Time (msec): " + mean_injection);
+                        }
+
+                        log.WriteLine();
+
+                        log.WriteLine("Fragmentation Scan Summary");
+                        log.Write("Fragmentation Scan Number\t");
+                        log.Write("Retention Time (min.)\t");
+                        log.Write("Scan Filter m/z\t");
+                        log.Write("Precursor m/z\t");
+                        log.Write("Precursor Intensity\t");
+                        log.Write("Precursor Denormalized Intensity\t");
+                        log.Write("Precursor Charge State\t");
+                        log.Write("Precursor S/N Ratio\t");
+                        log.Write("Precursor Peak Depth\t");
+                        log.Write("Fragmentation Method\t");
+                        log.Write("Elapsed Scan Time (sec)\t");
+                        log.Write("Ion Injection Time (msec)");
+                        log.WriteLine();
+                        foreach (int sn2 in retention_times.Keys)
+                        {
+                            log.Write(sn2.ToString() + '\t');
+                            log.Write(retention_times[sn2].ToString("0.00") + '\t');
+                            log.Write(scan_filter_mzs[sn2].ToString("0.00") + '\t');
+                            log.Write((precursor_mzs.ContainsKey(sn2) ? precursor_mzs[sn2].ToString("0.00000") : "n/a") +
+                                      '\t');
+                            log.Write((precursor_intensities.ContainsKey(sn2)
+                                ? precursor_intensities[sn2].ToString("0.0")
+                                : "n/a") + '\t');
+                            log.Write((precursor_denormalized_intensities.ContainsKey(sn2)
+                                ? precursor_denormalized_intensities[sn2].ToString("0.0")
+                                : "n/a") + '\t');
+                            log.Write((precursor_charge_states.ContainsKey(sn2)
+                                ? precursor_charge_states[sn2].ToString()
+                                : "n/a") + '\t');
+                            log.Write((precursor_sns.ContainsKey(sn2) && precursor_sns[sn2].HasValue
+                                ? precursor_sns[sn2].Value.ToString()
+                                : "n/a") + '\t');
+                            log.Write((precursor_peak_depths.ContainsKey(sn2)
+                                ? precursor_peak_depths[sn2].ToString()
+                                : "n/a") + '\t');
+                            log.Write((precursor_fragmentation_methods.ContainsKey(sn2)
+                                ? precursor_fragmentation_methods[sn2]
+                                : "n/a") + '\t');
+                            log.Write((elapsed_scan_times.ContainsKey(sn2) ? elapsed_scan_times[sn2].ToString() : "n/a") +
+                                      '\t');
+                            log.Write((ion_injection_times.ContainsKey(sn2) ? ion_injection_times[sn2].ToString() : "n/a") +
+                                      '\t');
+                            log.WriteLine();
+                        }
+
+                        log.Close();
+
+                    }
 
                     onFinishedFile(new FilepathEventArgs(filepath));
                 }
@@ -1414,7 +1446,7 @@ namespace Coon.Compass.DtaGenerator
             }
             finally
             {
-                if (overall_log != null)
+                if (overall_log != null && IncludeLog)
                 {
                     overall_log.Close();
                 }
@@ -1422,7 +1454,7 @@ namespace Coon.Compass.DtaGenerator
                 {
                     raw.Close();
                 }
-                if (log != null)
+                if (log != null && IncludeLog)
                 {
                     log.Close();
                 }

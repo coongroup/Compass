@@ -28,6 +28,8 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
+        public bool IsComplete { get; set; }
+
         public int Length
         {
             get
@@ -78,6 +80,13 @@ namespace Coon.Compass.ProteinHoarder
             if (ProteinGroups == null)
                 ProteinGroups = new List<ProteinGroup>();
             ProteinGroups.Add(pg);
+        }
+
+        internal double[] QuantData;
+
+        internal void SetQuantData(double[] quantData)
+        {
+            QuantData = quantData;
         }
     }
 }

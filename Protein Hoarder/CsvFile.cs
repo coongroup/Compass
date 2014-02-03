@@ -37,7 +37,6 @@ namespace Coon.Compass.ProteinHoarder
         }
 
         private char expGroup = 'A';
-
         public char ExperimentGroup
         {
             get
@@ -49,6 +48,22 @@ namespace Coon.Compass.ProteinHoarder
                 expGroup = value;
                 OnPropertyChanged("ExperimentGroup");
             }
+        }
+
+        private string expName = "";
+
+        public string ExperimentName
+        {
+            get
+            {
+                return expName;
+            }
+            set
+            {
+                expName = value;
+                OnPropertyChanged("ExperimentName");
+            }
+
         }
 
         private string _protease;

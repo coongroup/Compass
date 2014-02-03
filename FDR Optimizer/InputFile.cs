@@ -133,7 +133,7 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
-        public void UpdatePsmInformation(MSDataFile dataFile, bool is2dFDR = true, bool useMedian = true)
+        public void UpdatePsmInformation(MSDataFile dataFile, bool is2dFDR = true, bool useMedian = true, double evalueThreshold = 1e-3)
         {
             List<double> errors = new List<double>();
             MaximumPrecursorMassError = 0;
@@ -176,12 +176,18 @@ namespace Coon.Compass.FdrOptimizer
                     psm.IsotopeSelected = nominalMassOffset;
                     if(!HasPPMInfo)
                         psm.PrecursorMassError = tolerancePPM.Value;
-                    errors.Add(psm.PrecursorMassError);
+                                      
                     double positive = Math.Abs(psm.PrecursorMassError);
                     if (positive > MaximumPrecursorMassError)
                     {
                         MaximumPrecursorMassError = positive;
                     }
+
+                    if (psm.FdrScoreMetric <= evalueThreshold)
+                    {
+                        errors.Add(psm.PrecursorMassError);
+                    }
+
                     count++;
                 }
             }

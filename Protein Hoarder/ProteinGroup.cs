@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using CSMSL.Analysis.Identification;
 
@@ -18,29 +19,7 @@ namespace Coon.Compass.ProteinHoarder
                 return RepresentativeProtein == null ? 0 : RepresentativeProtein.Length;
             }
         }
-
-        public HashSet<string> GetUniprotIds()
-        {
-            HashSet<string> ids = new HashSet<string>();
-            foreach (Protein protein in _proteins)
-            {
-                if (!string.IsNullOrWhiteSpace(protein.UniprotID))
-                    ids.Add(protein.UniprotID);
-            }
-            return ids;
-        }
-
-        public HashSet<string> GetGeneNames()
-        {
-            HashSet<string> ids = new HashSet<string>();
-            foreach (Protein protein in _proteins)
-            {
-                if (!string.IsNullOrWhiteSpace(protein.GeneName))
-                    ids.Add(protein.GeneName);
-            }
-            return ids;
-        }
-
+        
         public double SequenceCoverage { get { return RepresentativeProtein.CalculateSequenceCoverage(Peptides); } }
 
         public double SequenceRedundacy { get { return RepresentativeProtein.CalculateSequenceRedundancy(Peptides); } }
@@ -51,7 +30,7 @@ namespace Coon.Compass.ProteinHoarder
 
         public string Name { get; private set; }
 
-        public Dictionary<char, Quantitation> Quantitation;
+        public Dictionary<string, Quantitation> Quantitation;
 
         public bool PassesFDR = false;
 
@@ -98,7 +77,6 @@ namespace Coon.Compass.ProteinHoarder
         private readonly List<Protein> _proteins;
 
         private HashSet<Peptide> _peptides;
-
         public HashSet<Peptide> Peptides
         {
             get
@@ -121,12 +99,18 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
+        public HashSet<string> ProteinIDs { get; private set; }
+
+        public HashSet<string> GeneNames { get; private set; }
+
         public ProteinGroup(Protein protein, HashSet<Peptide> peptides)
         {
             Name = "PG" + GroupNumber;
             GroupNumber++;
-            Quantitation = new Dictionary<char, Quantitation>();
+            Quantitation = new Dictionary<string, Quantitation>();
             _proteins = new List<Protein>(5);
+            ProteinIDs = new HashSet<string>();
+            GeneNames = new HashSet<string>();
             Add(protein);
             Peptides = peptides;
             foreach (Peptide pep in peptides)
@@ -148,6 +132,14 @@ namespace Coon.Compass.ProteinHoarder
             {
                 RepresentativeProtein = prot;
             }
+
+            // Add the protein ids
+            if(!string.IsNullOrEmpty(prot.ProteinID))
+                ProteinIDs.Add(prot.ProteinID);
+
+            // Add the gene names
+            if (!string.IsNullOrEmpty(prot.GeneName))
+                GeneNames.Add(prot.GeneName);
 
             // Add the protein to the internal list
             _proteins.Add(prot);
@@ -177,7 +169,6 @@ namespace Coon.Compass.ProteinHoarder
                             score *= pep.PSMs.CumulativePValue;
                         }
                         break;
-
                     case PScoreCalculateionMethod.UseUnsharedPeptides:
                         if (!pep.IsShared)
                         {
@@ -212,30 +203,23 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
-        public string ToParsimonyProteins(ExperimentGroup exp)
+        public bool TryGetLog2Ratio(ExperimentGroup exp, out double log2, bool useOnlyCompleteSets = false)
+        {
+            log2 = 0;
+            Quantitation quant;
+            if (Quantitation.TryGetValue(exp.Name, out quant))
+            {
+                double[] data;
+                log2 = quant.GetLog2Ratio(useOnlyCompleteSets, out data);
+                return true;
+            }           
+            return false;
+        }
+
+        public string ToParsimonyProteins(ExperimentGroup exp, bool duplexQuant = false, bool useOnlyCompleteSets = false)
         {
             StringBuilder sb = new StringBuilder(512);
             sb.AppendFormat("{0},{1},{2},{3:G4},{4},{5},{6},", Name, Description, LongestProteinLen, SequenceCoverage, Count, UniquePeptides, Peptides.Count);
-            //sb.Append(Name);
-            //sb.Append(',');
-            //sb.Append(IsDecoy);
-            //sb.Append(',');
-            //sb.Append("\"" + Description + "\"");
-            //sb.Append(',');
-            //sb.Append(LongestProteinLen);
-            //sb.Append(',');
-            //sb.Append(SequenceCoverage.ToString("g4"));
-            //sb.Append(',');
-            //sb.Append(SequenceRedundacy.ToString("g4"));
-            //sb.Append(',');
-            //sb.Append(Count);
-            //sb.Append(',');
-            //sb.Append(Count); // Number of unique proteins... need to figure this one out at some point
-            //sb.Append(',');
-            //sb.Append(UniquePeptides);
-            //sb.Append(',');
-            //sb.Append(Peptides.Count);
-            //sb.Append(',');
             if (exp != null)
             {
                 int psms;
@@ -251,14 +235,14 @@ namespace Coon.Compass.ProteinHoarder
             if (exp != null && exp.UseQuant)
             {
                 Quantitation quant;
-                if (Quantitation.TryGetValue(exp.ExperimentalID, out quant))
+                if (Quantitation.TryGetValue(exp.Name, out quant))
                 {
                     sb.Append(',');
                     sb.Append(quant.PSMs);
                     sb.Append(',');
-                    sb.Append(quant.Peptides.Count);
+                    sb.Append(quant.UniquePeptides.Count);
                     sb.Append(',');
-                    sb.Append(quant.ToOutput());
+                    sb.Append(quant.ToOutput(duplexQuant, exp.MeidanLog2Ratio, useOnlyCompleteSets));
                 }
                 else
                 {
@@ -267,25 +251,45 @@ namespace Coon.Compass.ProteinHoarder
                     {
                         sb.Append(",-");
                     }
+
+                    if (duplexQuant)
+                    {
+                        sb.Append(",N/A,N/A");
+                    }
                 }
             }
 
-            bool inId = false;
-            sb.Append(",");
-            HashSet<string> uniprotIDs = GetUniprotIds();
-            HashSet<string> genenames = GetGeneNames();
+            if (ProteinHoarder.AnnotationType != AnnotationType.None)
+            {
+                sb.Append(',');
+                sb.Append(ProteinIdsString());
+                sb.Append(',');
+                sb.Append(GeneNamesString());
+            }
 
-            foreach (string uniprotID in uniprotIDs)
+            return sb.ToString();
+        }
+
+        public string ProteinIdsString()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool inId = false;
+            foreach (string proteinID in ProteinIDs)
             {
                 inId = true;
-                sb.Append(uniprotID);
+                sb.Append(proteinID);
                 sb.Append('|');
             }
             if (inId)
                 sb.Remove(sb.Length - 1, 1);
-            sb.Append(',');
-            inId = false;
-            foreach (string genename in genenames)
+            return sb.ToString();
+        }
+
+        public string GeneNamesString()
+        {
+            StringBuilder sb = new StringBuilder();
+            bool inId = false;
+            foreach (string genename in GeneNames)
             {
                 inId = true;
                 sb.Append(genename);

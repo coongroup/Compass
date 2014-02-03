@@ -324,7 +324,7 @@ namespace Coon.Compass.TagQuant
             double ITerror = (double)numericUpDown1.Value;
             double FTerror = (double)numericUpDown2.Value;
 
-            bool DontQuantifyETD = false;// ComboBoxETDoptions.Text == "Don't Quantify";
+            //bool DontQuantifyETD = false;// ComboBoxETDoptions.Text == "Don't Quantify";
             bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
             bool ms3Quant = checkBox1.Checked;
 

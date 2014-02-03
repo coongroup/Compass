@@ -128,6 +128,7 @@ namespace Coon.Compass.DtaGenerator
             bool sequest_dta_output = chkSequestDtaOutput.Checked;
             bool omssa_text_output = chkOmssaTxtOutput.Checked;
             bool mascot_mgf_output = chkMascotMgfOutput.Checked;
+            bool includeLog = includeLogCB.Checked;
             string output_folder = txtOutputFolder.Text;
 
 
@@ -148,7 +149,8 @@ namespace Coon.Compass.DtaGenerator
                 group_by_activation_energy_time,
                 sequest_dta_output, omssa_text_output, mascot_mgf_output,
                 output_folder,
-                nlmass);
+                nlmass,
+                includeLog);
 
             dta_generator.Starting += handleStarting;
             dta_generator.StartingFile += handleStartingFile;

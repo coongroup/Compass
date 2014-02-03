@@ -43,6 +43,8 @@ namespace Coon.Compass.ProteinHoarder
             // Include the file version in the title of the program for easy identification
             Text = string.Format("Protein Hoarder ({0})", GetRunningVersion());
 
+            comboBox1.DataSource = Enum.GetValues(typeof (AnnotationType));
+
             progressBar.MarqueeAnimationSpeed = 50;
 
             ExperimentIDs = new BindingList<char>();
@@ -62,17 +64,23 @@ namespace Coon.Compass.ProteinHoarder
             DataGridViewTextBoxColumn nameCol = new DataGridViewTextBoxColumn();
             nameCol.ReadOnly = true;
             nameCol.HeaderText = "File Name";
-            nameCol.DataPropertyName = "FilePath";
+            nameCol.DataPropertyName = "Name";
             nameCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             csvDGV.Columns.Add(nameCol);
 
-            DataGridViewComboBoxColumn expCol = new DataGridViewComboBoxColumn();
-            expCol.HeaderText = "Experiment ID";
-            expCol.DataSource = ExperimentIDs;
-            expCol.DataPropertyName = "ExperimentGroup";
+            DataGridViewTextBoxColumn expCol = new DataGridViewTextBoxColumn();
+            expCol.HeaderText = "Experiment Name";
+            expCol.DataPropertyName = "ExperimentName";
             expCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-            expCol.AutoComplete = true;
             csvDGV.Columns.Add(expCol);
+
+            //DataGridViewComboBoxColumn expCol = new DataGridViewComboBoxColumn();
+            //expCol.HeaderText = "Experiment ID";
+            //expCol.DataSource = ExperimentIDs;
+            //expCol.DataPropertyName = "ExperimentGroup";
+            //expCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            //expCol.AutoComplete = true;
+            //csvDGV.Columns.Add(expCol);
 
             List<Protease> proteases = CSMSL.Proteomics.Protease.GetAllProteases().ToList();
 
@@ -119,6 +127,10 @@ namespace Coon.Compass.ProteinHoarder
             bool ignorePeptidesWithMissingData = ignorePepMissingCB.Checked;
             bool semiDigestion = semiCB.Checked;
             bool proteinPerMin = proteinsPerMinCB.Checked;
+            bool duplexQuant = duplexCB.Enabled && duplexCB.Checked;
+            bool useMedian = medianvalueCB.Enabled && medianvalueCB.Checked;
+            bool useNoiseBandCap = useNBCCB.Enabled && useNBCCB.Checked;
+            AnnotationType annotationType = (AnnotationType)comboBox1.SelectedItem;
             //double interferencecutoff = (double)quantintferenceUD.Value;
             
             HashSet<Modification> modstoignore = new HashSet<Modification>();
@@ -132,7 +144,7 @@ namespace Coon.Compass.ProteinHoarder
                 }
             }           
             logTB.Clear();
-            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, useConservative, useQuant, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion, proteinPerMin);
+            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR,annotationType, useConservative, useQuant, useMedian, duplexQuant,useNoiseBandCap, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion, proteinPerMin);
             Hoarder.UpdateLog += new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
             Hoarder.UpdateProgress += new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
             MainThread = new Thread(Hoarder.Herd);
@@ -207,6 +219,23 @@ namespace Coon.Compass.ProteinHoarder
         public void SetDatabase(string filename)
         {
             databaseTB.Text = filename;
+
+            using (StreamReader reader = new StreamReader(filename))
+            {
+                string line = reader.ReadLine();
+                if (Protein.SGDRegex.IsMatch(line))
+                {
+                    comboBox1.SelectedItem = AnnotationType.SGD;
+                } else if (Protein.UniProtRegex.IsMatch(line))
+                {
+                    comboBox1.SelectedItem = AnnotationType.UniProt;
+                }
+                else
+                {
+                    comboBox1.SelectedItem = AnnotationType.None;
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(outputTB.Text))
             {
                 outputTB.Text = Path.GetDirectoryName(filename);
@@ -385,9 +414,17 @@ namespace Coon.Compass.ProteinHoarder
         private void enableQuantCB_CheckedChanged(object sender, EventArgs e)
         {
             ignoreModsCLB.Enabled = enableQuantCB.Checked;
+            duplexCB.Enabled = enableQuantCB.Checked;
            // quantigorneinterferenceCB.Enabled = enableQuantCB.Checked;
             //quantintferenceUD.Enabled = enableQuantCB.Checked;
             ignorePepMissingCB.Enabled = enableQuantCB.Checked;
+
+            useNBCCB.Enabled = medianvalueCB.Enabled = enableQuantCB.Checked && duplexCB.Checked;
+        }
+
+        private void duplexCB_CheckedChanged(object sender, EventArgs e)
+        {
+            useNBCCB.Enabled = medianvalueCB.Enabled = duplexCB.Checked;
         }
     }
 }

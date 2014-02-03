@@ -996,10 +996,10 @@ namespace Coon.Compass.Procyon
 
                                 double a = double.Parse(reader[header]);
 
-                                if (a == 0)
-                                {
-                                    int b = 0;
-                                }
+                                //if (a == 0)
+                                //{
+                                //    int b = 0;
+                                //}
 
                                 quantFile.HeadertoValueDict[header].Add(double.Parse(reader[header]));
                                 quantEntry.SampleValues.Add(header, double.Parse(reader[header]));

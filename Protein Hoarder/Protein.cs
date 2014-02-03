@@ -10,6 +10,9 @@ namespace Coon.Compass.ProteinHoarder
         public static Regex _uniprotID = new Regex(@"\|([\w-]+)\|", RegexOptions.Compiled);
         public static Regex _genenameID = new Regex(@"GN=([\w-]+)", RegexOptions.Compiled);
 
+        public static Regex UniProtRegex = new Regex(@"\|([\w-]+)\|.+GN=([\w-]+)", RegexOptions.Compiled);
+        public static Regex SGDRegex = new Regex(@"(?:DECOY_)?([\w-]+) ([\w-]+)", RegexOptions.Compiled);
+
         private string description;
 
         public string Description
@@ -22,29 +25,12 @@ namespace Coon.Compass.ProteinHoarder
             {
                 description = value.Replace(',', ';');
                 IsDecoy = description.StartsWith("DECOY");
-                Match m = _uniprotID.Match(description);
-                if (m.Success)
-                {
-                    UniprotID = m.Groups[1].Value;
-                }
-                else
-                {
-                    UniprotID = "";
-                }
-                m = _genenameID.Match(description);
-                if (m.Success)
-                {
-                    GeneName = m.Groups[1].Value;
-                }
-                else
-                {
-                    GeneName = "";
-                }                
             }
         }
-        public string GeneName;
 
-        public string UniprotID;
+        public string GeneName { get; private set; }
+
+        public string ProteinID { get; private set; }
 
         private string sequence;
 
@@ -84,6 +70,27 @@ namespace Coon.Compass.ProteinHoarder
         {
             Description = description;
             Sequence = sequence;
+
+            Match m = null;
+
+            if (ProteinHoarder.AnnotationType == AnnotationType.SGD)
+            {
+                m = SGDRegex.Match(description);
+            } else if (ProteinHoarder.AnnotationType == AnnotationType.UniProt)
+            {
+                m = UniProtRegex.Match(description);
+            }
+            if (m != null && m.Success)
+            {
+                ProteinID = m.Groups[1].Value;
+                GeneName = m.Groups[2].Value;
+            }
+            else
+            {
+                ProteinID = string.Empty;
+                GeneName = string.Empty;
+            }
+
             Peptides = new HashSet<Peptide>();
         }
 
@@ -167,20 +174,6 @@ namespace Coon.Compass.ProteinHoarder
         public bool Equals(Protein other)
         {
             return Sequence.Equals(other.Sequence);
-        }
-
-        public bool TryGetUniprotID(out string uniprotID)
-        {
-            Match m = _uniprotID.Match(this.Description);
-            uniprotID = (m.Success) ? m.Groups[1].Value : string.Empty;
-            return m.Success;
-        }
-
-        public bool TryGetGeneName(out string genename)
-        {
-            Match m = _genenameID.Match(this.Description);
-            genename = (m.Success) ? m.Groups[1].Value : string.Empty;
-            return m.Success;
         }
 
         public override string ToString()

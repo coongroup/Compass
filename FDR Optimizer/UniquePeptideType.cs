@@ -6,6 +6,7 @@
         Mass,
         Sequence,
         SequenceAndMass,
-        SequenceAndModifactions
+        SequenceAndModifications,
+        SequenceAndModLocations
     }
 }

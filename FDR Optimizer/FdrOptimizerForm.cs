@@ -280,7 +280,7 @@ namespace Coon.Compass.FdrOptimizer
             Text += " (" + Assembly.GetExecutingAssembly().GetName().Version + ")";
             UpdateModsListboxes();
             comboBox1.DataSource = Enum.GetValues(typeof(UniquePeptideType));
-            comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifactions;
+            comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifications;
             base.OnLoad(e);
         }
 

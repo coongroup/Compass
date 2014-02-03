@@ -894,16 +894,18 @@ namespace Coon.Compass.ProteinHoarder
                 Log("Writing file " + filteredfilename);
                 StreamWriter filteredwriter = new StreamWriter(filteredfilename);
                 
-                StringBuilder header = new StringBuilder("Protein Group Name,Representative Protein Description,Total Amino Acids,Sequence Coverage (%),Numbers of Proteins,Number of PSMs,Number of Unique Peptides,# PSMs in Experiment,# Unique Seq in Experiment,P-Score,");
+                StringBuilder header = new StringBuilder("Protein Group Name,Representative Protein Description,Total Amino Acids,Sequence Coverage (%),Numbers of Proteins,Number of PSMs,Number of Unique Peptides,# PSMs in Experiment,# Unique Seq in Experiment,P-Score");
+                
                 if (exp.UseQuant)
                 {
-                    header.Append("# Quantified PSMs,# Quantified Peptides,");
+                    header.Append(",# Quantified PSMs,# Quantified Peptides,");
                     header.Append(exp.QuantHeader);
                     if (DuplexQuantitation)
                     {
                         header.Append(",Log2 Ratio,Normalized Log2 Ratio");
                     }
                 }
+
                 if (AnnotationType == AnnotationType.UniProt)
                 {
                     header.Append(",Uniprot IDs,Gene Names");

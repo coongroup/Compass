@@ -223,17 +223,18 @@ namespace Coon.Compass.ProteinHoarder
             using (StreamReader reader = new StreamReader(filename))
             {
                 string line = reader.ReadLine();
-                if (Protein.SGDRegex.IsMatch(line))
-                {
-                    comboBox1.SelectedItem = AnnotationType.SGD;
-                } else if (Protein.UniProtRegex.IsMatch(line))
+                if (Protein.UniProtRegex.IsMatch(line))
                 {
                     comboBox1.SelectedItem = AnnotationType.UniProt;
-                }
+                } else if (Protein.SGDRegex.IsMatch(line))
+                {
+                    comboBox1.SelectedItem = AnnotationType.SGD;
+                }              
                 else
                 {
                     comboBox1.SelectedItem = AnnotationType.None;
                 }
+                comboBox1.Enabled = true;
             }
 
             if (string.IsNullOrWhiteSpace(outputTB.Text))

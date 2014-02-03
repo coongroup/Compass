@@ -128,6 +128,28 @@ namespace Coon.Compass.FdrOptimizer
         }
     }
 
+    public class SequenceAndModPositionComparer : IEqualityComparer<Peptide>
+    {
+        public bool Equals(Peptide x, Peptide y)
+        {
+            if (!x.LeucineSequence.Equals(y.LeucineSequence))
+                return false;
+            IMass[] xMods = x.BestMatch.Peptide.GetModifications();
+            IMass[] yMods = y.BestMatch.Peptide.GetModifications();
+            for (int i = 0; i < xMods.Length; i++)
+            {
+                if (xMods[i] == null && yMods[i] != null || xMods[i] != null && yMods[i] == null)
+                    return false;                                           
+            }
+            return true;
+        }
+
+        public int GetHashCode(Peptide obj)
+        {
+            return obj.LeucineSequence.GetHashCode();
+        }
+    }
+
     public class MassComparer : IEqualityComparer<Peptide>
     {
         public bool Equals(Peptide x, Peptide y)

@@ -456,9 +456,13 @@ namespace Coon.Compass.FdrOptimizer
                     msg += "on mass";
                     comparer = new MassComparer();
                     break;
-                case UniquePeptideType.SequenceAndModifactions:
+                case UniquePeptideType.SequenceAndModifications:
                     msg += "on sequence and positional modifications";
                     comparer = new SequenceModComparer();
+                    break;
+                case UniquePeptideType.SequenceAndModLocations:
+                    msg += "on sequence and modification locations";
+                    comparer = new SequenceAndModPositionComparer();
                     break;
                 case UniquePeptideType.SequenceAndMass:
                     msg += "on sequence and mass";

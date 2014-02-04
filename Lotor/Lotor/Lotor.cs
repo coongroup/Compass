@@ -25,17 +25,19 @@ namespace Coon.Compass.Lotor
         public static List<Modification> QuantifiedModifications; 
         private DateTime _startTime;
         private readonly double _ascoreThreshold;
+        private readonly int _deltaScoreCutoff;
         private readonly double _productThreshold;
         private readonly FragmentTypes _fragType;
         private readonly bool _ignoreCTerminal;
         private readonly bool _separateProteinGroups;
+        private readonly bool _reduceSites;
         private HashSet<MSDataFile> _dataFiles; 
 
         private int FirstQuantColumn = -1;
         private int LastQuantColumn = -1;
         private string[] headerInfo = null;
 
-        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, double ascore_threshold, bool separateGroups, double productThreshold,bool ignoreCTerminal, FragmentTypes fragType)
+        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, int scoreCutoff, bool separateGroups, double productThreshold,bool ignoreCTerminal,bool reduceSites, FragmentTypes fragType)
         {
             _rawFileDirectory = rawFileDirectory;
             _csvFile = inputcsvFile;
@@ -43,33 +45,43 @@ namespace Coon.Compass.Lotor
             _fixedModifications = fixedModifications;
             FixedModifications = fixedModifications.OfType<IMass>().ToList();
             QuantifiedModifications = quantifiedModifications;
-            _prodTolerance = prod_Tolerance;
-            _ascoreThreshold = ascore_threshold;
+            _prodTolerance = prod_Tolerance;            
+            _deltaScoreCutoff = scoreCutoff;
             _separateProteinGroups = separateGroups;
             _productThreshold = productThreshold;
             _fragType = fragType;
             _ignoreCTerminal = ignoreCTerminal;
-            LocalizedHit.AScoreThreshold = ascore_threshold;
+            _reduceSites = reduceSites;
+            //LocalizedHit.AScoreThreshold = ascore_threshold;
+            LocalizedHit.ScoreThreshold = scoreCutoff;
         }
 
         public void Localize()
         {
             _startTime = DateTime.Now;
             Log("Localization Started...");
-            
+
+            Log("Ignore C Terimal Mods: " + _ignoreCTerminal);
+            Log("Score Threshold: " + _deltaScoreCutoff);
+            Log("Product Tolerance: " + _prodTolerance);
+            Log("Product Threshold: " + _productThreshold + "%");
+
             try
             {
                 // 1) Read in all the psms and map them to their respective spectra
                 List<PSM> psms = LoadAllPSMs(_csvFile, _rawFileDirectory, _fixedModifications);
                 
                 // 2) Calculate all the best isoforms for all the psms
-                List<LocalizedHit> hits = CalculateBestIsoforms(psms, _ascoreThreshold, _fragType, _prodTolerance, _productThreshold);
+                List<LocalizedHit> hits = CalculateBestIsoforms(psms, _fragType, _prodTolerance, _productThreshold);
 
                 // 3) Compile Results
                 List<Protein> proteins = CompileResults(hits, _csvFile, _outputDirectory, _separateProteinGroups);
 
-                // 4) Write out the results
-                WriteResults(proteins, _csvFile, _outputDirectory, FirstQuantColumn, LastQuantColumn);
+                if (_reduceSites)
+                {
+                    // 4) Write out the results
+                    WriteResults(proteins, _csvFile, _outputDirectory, FirstQuantColumn, LastQuantColumn);
+                }               
             }
             catch (Exception e)
             {
@@ -84,7 +96,7 @@ namespace Coon.Compass.Lotor
                 TimeSpan diff = DateTime.Now - _startTime;
                 Log(string.Format("Finished [{0:D2} hrs, {1:D2} mins, {2:D2} secs]", diff.Hours, diff.Minutes, diff.Seconds));
                 Log(string.Format("Lotor v{0}", lotorForm.GetRunningVersion()));
-                ProgressUpdate(-1);
+                OnFinished();                
             }
         }
 
@@ -244,14 +256,14 @@ namespace Coon.Compass.Lotor
             return proteins.Values.ToList();
         }
 
-        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, double ascoreThreshold, FragmentTypes fragType, MassTolerance prod_tolerance, double productThreshold)
+        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, FragmentTypes fragType, MassTolerance prod_tolerance, double productThreshold)
         {
             Log("Localizing Best Isoforms...");
             int totalisofromscount = 0;
             int count = 0;
             int psm_count = 0;
             int localized_psm = 0;
-            List<LocalizedHit> hits = new List<LocalizedHit>();
+            List<LocalizedHit> hits = new List<LocalizedHit>();          
             foreach (PSM psm in psms)
             {
                 psm_count++;
@@ -260,14 +272,13 @@ namespace Coon.Compass.Lotor
                 // Generate all the isoforms for the PSM
                 int isoformCount = psm.GenerateIsoforms(_ignoreCTerminal);
 
-                // If only one isoform, nothing to compare it to, so it is automatically localized
-                //if(isoformCount == 0)
-                //    continue;
+                if(isoformCount == 0)
+                    continue;
 
                 totalisofromscount += isoformCount;
                 
                 // Calculate the probability of success for random matches
-                double pvalue = GetPValue(psm, prod_tolerance, productThreshold);
+                //double pvalue = GetPValue(psm, prod_tolerance, productThreshold);
 
                 // Match all the isoforms to the spectrum and log the results
                 psm.MatchIsofroms(fragType, prod_tolerance, productThreshold, 1);
@@ -275,7 +286,7 @@ namespace Coon.Compass.Lotor
                 // Perform the localization for all combinations of isoforms
                 //double[,] res = psm.Calc(pvalue);
 
-                Tuple<int, int, double> scores = LocalizedIsoformSimple(psm, pvalue);
+                Tuple<int, int, double> scores = LocalizedIsoformSimple(psm);
 
                 // Check if the localization is above some threshold               
                 //Tuple<int, int, double> scores = LocalizedIsoform(res);
@@ -291,7 +302,7 @@ namespace Coon.Compass.Lotor
 
                 LocalizedHit hit = new LocalizedHit(psm, isoforms[bestIsoform], isoforms[secondBestIsoform], 0,
                    0,
-                   0, pvalue, ascore);
+                   0, 0, ascore);
                 hits.Add(hit);
                 if (hit.IsLocalized)
                 {
@@ -312,7 +323,7 @@ namespace Coon.Compass.Lotor
             return hits;
         }
 
-        private Tuple<int, int, double> LocalizedIsoformSimple(PSM psm, double pvalue)
+        private Tuple<int, int, double> LocalizedIsoformSimple(PSM psm)
         {
             int length = psm.Isoforms;
             List<PeptideIsoform> isoforms = psm.PeptideIsoforms.ToList();
@@ -397,6 +408,7 @@ namespace Coon.Compass.Lotor
                             rawFile.Open();
 
                         int scanNumber = int.Parse(reader["Spectrum number"]);
+                                             
 
                         PSM psm = new PSM(scanNumber, rawFile);
                         psm.StartResidue = int.Parse(reader["Start"]);
@@ -435,8 +447,14 @@ namespace Coon.Compass.Lotor
                 }
 
             }
-            Log(string.Format("{0:N0} PSMs were loaded.", totalPsms));
-            Log(string.Format("{0:N0} PSMs were kept.", psms.Count));
+            Log(string.Format("{0:N0} PSMs were loaded....", totalPsms));
+            Log(string.Format("{0:N0} PSMs were kept.... ({1:F2} %)", psms.Count, 100.0*(double)psms.Count / totalPsms));
+
+            foreach (MSDataFile datFile in _dataFiles)
+            {
+                datFile.Dispose();              
+            }
+
             return psms;
         }
              
@@ -447,7 +465,7 @@ namespace Coon.Compass.Lotor
             // Get the width of the product ion tolerance at the isolation mz;
             double productToleranceWidth = prod_tolerance.GetMassRange(psm.IsolationMZ).Width;
             double cutoffThreshold = psm.Spectrum.BasePeak.Intensity*cutoff;
-            return Math.Min(1.0, psm.Spectrum.Count(peak => peak.Intensity >= cutoffThreshold)*2*productToleranceWidth/psm.DataScan.MzRange.Width);
+            return Math.Min(1.0, psm.Spectrum.Count(peak => peak.Intensity >= cutoffThreshold)*2*productToleranceWidth/psm.ScanWidth);
         }
 
         public static Tuple<int,int, double> LocalizedIsoform(double[,] data)
@@ -508,31 +526,33 @@ namespace Coon.Compass.Lotor
         #region CallBacks
 
         public event EventHandler<StatusEventArgs> UpdateLog;
-        protected virtual void onUpdateLog(StatusEventArgs e)
-        {
-            if (UpdateLog != null)
-            {
-                UpdateLog(this, e);
-            }
-        }
-
         public void Log(string message, bool isError = false)
         {
-            onUpdateLog(new StatusEventArgs(message, isError));
+            var handler = UpdateLog;
+            if (handler != null)
+            {
+                handler(this, new StatusEventArgs(message, isError));
+            }          
         }
 
         public event EventHandler<ProgressEventArgs> UpdateProgress;
-        protected virtual void onUpdateProgress(ProgressEventArgs e)
-        {
-            if (UpdateProgress != null)
-            {
-                UpdateProgress(this, e);
-            }
-        }
-
         public void ProgressUpdate(double percent)
         {
-            onUpdateProgress(new ProgressEventArgs(percent));
+            var handler = UpdateProgress;
+            if (handler != null)
+            {
+                handler(this, new ProgressEventArgs(percent));
+            }           
+        }
+
+        public event EventHandler Completed;
+        protected virtual void OnFinished()
+        {
+            var handler = Completed;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
         }
 
         #endregion

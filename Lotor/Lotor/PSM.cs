@@ -16,24 +16,17 @@ namespace Coon.Compass.Lotor
         public int Charge;
         public Peptide BasePeptide;
         public HashSet<PeptideIsoform> PeptideIsoforms;
-        public double IsolationMZ {
-            get { return DataScan.IsolationRange.Mean; }
-        }
+
+        public double ScanWidth { get; private set; }
+        public double IsolationMZ { get; private set; }      
+        
         public double[,] LocalizationResult;
         public int[,] NumSiteDeterminingFragments;
         public int[,] BestSiteDeterminingFragments;
         public int[,] SecondBestSiteDeterminingFragments;
 
-        public MassSpectrum Spectrum
-        {
-            get { return DataScan.MassSpectrum; }
-        }
-        
-        public MsnDataScan DataScan
-        {
-            get; private set;
-        }
-
+        public MassSpectrum Spectrum { get; private set; }
+         
         public int StartResidue = 1;
 
         public int NumberOfSharingProteinGroups { get; set; }
@@ -55,7 +48,10 @@ namespace Coon.Compass.Lotor
         public PSM(int scannumber, MSDataFile dataFile) 
         {
             ScanNumber = scannumber;
-            DataScan = dataFile[scannumber] as MsnDataScan;
+            MsnDataScan scan = dataFile[scannumber] as MsnDataScan;
+            IsolationMZ = scan.IsolationRange.Mean;
+            Spectrum = scan.MassSpectrum;
+            ScanWidth = scan.MzRange.Width;
         }
 
         /// <summary>

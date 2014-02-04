@@ -49,6 +49,7 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.localizeB = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.checkBox3 = new System.Windows.Forms.CheckBox();
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
             this.label6 = new System.Windows.Forms.Label();
@@ -62,7 +63,8 @@
             this.inputfD = new System.Windows.Forms.OpenFileDialog();
             this.outputD = new System.Windows.Forms.FolderBrowserDialog();
             this.rawD = new System.Windows.Forms.FolderBrowserDialog();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -73,6 +75,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
@@ -129,6 +132,9 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.checkedListBox1);
             this.groupBox2.Location = new System.Drawing.Point(9, 95);
             this.groupBox2.Name = "groupBox2";
@@ -140,14 +146,17 @@
             // checkedListBox1
             // 
             this.checkedListBox1.CheckOnClick = true;
+            this.checkedListBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(9, 19);
+            this.checkedListBox1.Location = new System.Drawing.Point(3, 16);
             this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(169, 169);
+            this.checkedListBox1.Size = new System.Drawing.Size(178, 184);
             this.checkedListBox1.TabIndex = 12;
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.linkLabel1);
             this.groupBox1.Controls.Add(this.button4);
             this.groupBox1.Controls.Add(this.listBox2);
@@ -162,6 +171,7 @@
             // 
             // linkLabel1
             // 
+            this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.linkLabel1.AutoSize = true;
             this.linkLabel1.Location = new System.Drawing.Point(177, 179);
             this.linkLabel1.Name = "linkLabel1";
@@ -173,7 +183,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(177, 97);
+            this.button4.Location = new System.Drawing.Point(177, 48);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(28, 23);
             this.button4.TabIndex = 12;
@@ -184,6 +194,8 @@
             // listBox2
             // 
             this.listBox2.AllowDrop = true;
+            this.listBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox2.FormattingEnabled = true;
             this.listBox2.Location = new System.Drawing.Point(216, 19);
             this.listBox2.Name = "listBox2";
@@ -193,7 +205,7 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(177, 68);
+            this.button3.Location = new System.Drawing.Point(177, 19);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(28, 23);
             this.button3.TabIndex = 11;
@@ -204,6 +216,8 @@
             // listBox1
             // 
             this.listBox1.AllowDrop = true;
+            this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(13, 19);
             this.listBox1.Name = "listBox1";
@@ -302,6 +316,8 @@
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.numericUpDown2);
+            this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.checkBox3);
             this.groupBox3.Controls.Add(this.checkBox2);
             this.groupBox3.Controls.Add(this.numericUpDown3);
@@ -317,10 +333,22 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Options";
             // 
+            // checkBox3
+            // 
+            this.checkBox3.AutoSize = true;
+            this.checkBox3.Location = new System.Drawing.Point(268, 41);
+            this.checkBox3.Name = "checkBox3";
+            this.checkBox3.Size = new System.Drawing.Size(106, 17);
+            this.checkBox3.TabIndex = 10;
+            this.checkBox3.Text = "Separate Groups";
+            this.checkBox3.UseVisualStyleBackColor = true;
+            // 
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(152, 43);
+            this.checkBox2.Checked = true;
+            this.checkBox2.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox2.Location = new System.Drawing.Point(9, 41);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(109, 17);
             this.checkBox2.TabIndex = 9;
@@ -330,15 +358,15 @@
             // numericUpDown3
             // 
             this.numericUpDown3.DecimalPlaces = 1;
-            this.numericUpDown3.Location = new System.Drawing.Point(501, 39);
+            this.numericUpDown3.Location = new System.Drawing.Point(406, 15);
             this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(57, 20);
+            this.numericUpDown3.Size = new System.Drawing.Size(40, 20);
             this.numericUpDown3.TabIndex = 8;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(372, 42);
+            this.label6.Location = new System.Drawing.Point(283, 18);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(123, 13);
             this.label6.TabIndex = 7;
@@ -347,12 +375,15 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(8, 43);
+            this.checkBox1.Checked = true;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.Location = new System.Drawing.Point(124, 42);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(138, 17);
             this.checkBox1.TabIndex = 0;
             this.checkBox1.Text = "Reduce Localized Sites";
             this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // comboBox1
             // 
@@ -420,15 +451,26 @@
             // 
             this.inputfD.Filter = "Parsimony Peptides|*.csv";
             // 
-            // checkBox3
+            // label2
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Location = new System.Drawing.Point(267, 43);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(106, 17);
-            this.checkBox3.TabIndex = 10;
-            this.checkBox3.Text = "Separate Groups";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(452, 18);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(66, 13);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Score Cutoff";
+            // 
+            // numericUpDown2
+            // 
+            this.numericUpDown2.Location = new System.Drawing.Point(521, 16);
+            this.numericUpDown2.Name = "numericUpDown2";
+            this.numericUpDown2.Size = new System.Drawing.Size(40, 20);
+            this.numericUpDown2.TabIndex = 12;
+            this.numericUpDown2.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // lotorForm
             // 
@@ -437,6 +479,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(587, 521);
             this.Controls.Add(this.splitContainer1);
+            this.MinimumSize = new System.Drawing.Size(600, 450);
             this.Name = "lotorForm";
             this.Text = "Lotor";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.lotorForm_FormClosed);
@@ -455,6 +498,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.groupBox4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -496,5 +540,7 @@
         private System.Windows.Forms.NumericUpDown numericUpDown3;
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.Label label2;
     }
 }

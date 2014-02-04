@@ -2,6 +2,8 @@
 {
     public class LocalizedHit
     {
+        public static double ScoreThreshold { get; set; }
+
         public static double AScoreThreshold { get; set; }
 
         public PSM PSM;
@@ -18,8 +20,7 @@
             {
                 if (ReferenceEquals(LocalizedIsoform, SecondBestPeptideIsoform))
                     return true;
-                return MatchDifference > 0;
-                //return AScore >= AScoreThreshold;
+                return MatchDifference >= ScoreThreshold;               
             }
         }
 

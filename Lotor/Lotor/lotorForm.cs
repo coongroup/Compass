@@ -106,20 +106,42 @@ namespace Coon.Compass.Lotor
 
             //double ascoreThreshold = (double)numericUpDown2.Value;
             double prodThreshold = (double)numericUpDown3.Value / 100.0;
-            bool separateGroups = checkBox3.Checked;
+            bool separateGroups = checkBox3.Enabled && checkBox3.Checked;
             bool ignoreCTerminal = checkBox2.Checked;
-
+            bool reduceSites = checkBox1.Checked;
+            int scoreCutoff = (int)numericUpDown2.Value;
 
             MassTolerance prodTolerance = GetProductTolerance();
             _lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
-                quantifiedModifications, prodTolerance, 0,separateGroups, prodThreshold, ignoreCTerminal,
+                quantifiedModifications, prodTolerance, scoreCutoff, separateGroups, prodThreshold, ignoreCTerminal, reduceSites,
                 FragmentTypes.b | FragmentTypes.y);
             _lotor.UpdateLog += lotor_UpdateLog;
             _lotor.UpdateProgress += lotor_UpdateProgress;
+            _lotor.Completed += _lotor_Completed;
             localizeB.Enabled = false;
             _mainThread = new Thread(_lotor.Localize);
             _mainThread.IsBackground = true;
             _mainThread.Start();
+        }
+
+        private void _lotor_Completed(object sender, EventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, EventArgs>(_lotor_Completed), sender, e);
+                return;
+            }
+            string logFile =
+                Path.Combine(textBox2.Text, string.Format("Lotor_Log_{0:yyyyMMddhhmmss}.txt", DateTime.Now));
+
+            using (StreamWriter writer = new StreamWriter(logFile))
+            {
+                writer.Write(string.Join("\r\n", logTB.Lines));
+            }
+
+            progressBar1.Style = ProgressBarStyle.Continuous;
+            progressBar1.Value = 0;          
+            localizeB.Enabled = true;
         }
 
         public MassTolerance GetProductTolerance()
@@ -248,15 +270,7 @@ namespace Coon.Compass.Lotor
             }
             else
             {
-                if (percent < 0)
-                {   
-                    progressBar1.Style = ProgressBarStyle.Continuous;
-                    progressBar1.Value = 0;                 
-                    //_lotor = null;
-                    //_mainThread = null;
-                    localizeB.Enabled = true;
-                }
-                else if (percent == 0.0)
+                if (percent == 0.0)
                 {
                     progressBar1.Style = ProgressBarStyle.Marquee;
                     progressBar1.Value = 0;
@@ -353,19 +367,13 @@ namespace Coon.Compass.Lotor
         }
 
         private void lotorForm_FormClosed(object sender, FormClosedEventArgs e)
+        {        
+           
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            //if (_lotor != null)
-            //{
-            //    _lotor.UpdateLog -= lotor_UpdateLog;
-            //    _lotor.UpdateProgress -= lotor_UpdateProgress;
-            //    _lotor = null;
-            //}
-            //if (_mainThread != null)
-            //{
-            //    _mainThread.Abort();
-            //    _mainThread = null;
-            //}
-            Application.Exit();
+            checkBox3.Enabled = checkBox1.Checked;
         }
      
     }

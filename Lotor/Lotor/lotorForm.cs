@@ -131,6 +131,7 @@ namespace Coon.Compass.Lotor
                 Invoke(new Action<object, EventArgs>(_lotor_Completed), sender, e);
                 return;
             }
+
             string logFile =
                 Path.Combine(textBox2.Text, string.Format("Lotor_Log_{0:yyyyMMddhhmmss}.txt", DateTime.Now));
 
@@ -257,30 +258,26 @@ namespace Coon.Compass.Lotor
                 }
             }
         }
-
-        private delegate void UpdateProgressDelegate(double percent);
+               
         public void UpdateProgress(double percent)
         {
             if (InvokeRequired)
             {
-                if (_lotor != null)
-                {
-                    Invoke(new UpdateProgressDelegate(UpdateProgress), new object[] { percent });
-                }
+                Invoke(new Action<double>(UpdateProgress), percent);
+                return;
+            }
+      
+            if (percent == 0.0)
+            {
+                progressBar1.Style = ProgressBarStyle.Marquee;
+                progressBar1.Value = 0;
             }
             else
             {
-                if (percent == 0.0)
-                {
-                    progressBar1.Style = ProgressBarStyle.Marquee;
-                    progressBar1.Value = 0;
-                }
-                else
-                {
-                    progressBar1.Style = ProgressBarStyle.Blocks;
-                    progressBar1.Value = (int)(100*percent);
-                }
+                progressBar1.Style = ProgressBarStyle.Blocks;
+                progressBar1.Value = (int)(100*percent);
             }
+         
         }
 
         #endregion

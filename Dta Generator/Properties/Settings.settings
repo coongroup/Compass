@@ -1,12 +1,12 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DtaGenerator.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Coon.Compass.DtaGenerator.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="minimumAssumedPrecursorChargeState" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="maximumAssumedPrecursorChargeState" Type="System.Decimal" Scope="User">
-      <Value Profile="(Default)">6</Value>
+      <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="enableLockMassRecalibration" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

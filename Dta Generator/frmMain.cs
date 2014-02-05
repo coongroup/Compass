@@ -71,21 +71,7 @@ namespace Coon.Compass.DtaGenerator
             {
                 txtOutputFolder.Text = Path.GetDirectoryName(filepath);
             }
-        }
-
-        private void btnRemove_Click(object sender, EventArgs e)
-        {
-            while(lstRawFiles.SelectedItems.Count > 0)
-            {
-                lstRawFiles.Items.RemoveAt(lstRawFiles.SelectedIndex);
-            }
-        }
-
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            lstRawFiles.Items.Clear();
-            prgProgress.Value = prgProgress.Minimum;
-        }
+        }        
 
         private void linkLabel1_Click(object sender, EventArgs e)
         {
@@ -111,8 +97,8 @@ namespace Coon.Compass.DtaGenerator
             {
                 raw_filepaths.Add(filename);
             }
-            int minimum_assumed_precursor_charge_state = (int)numMinimumAssumedPrecursorChargeState.Value;
-            int maximum_assumed_precursor_charge_state = (int)numMaximumAssumedPrecursorChargeState.Value;
+            int minimum_assumed_precursor_charge_state = 2; //(int)numMinimumAssumedPrecursorChargeState.Value;
+            int maximum_assumed_precursor_charge_state = 2; // (int)numMaximumAssumedPrecursorChargeState.Value;
             if(minimum_assumed_precursor_charge_state > maximum_assumed_precursor_charge_state)
             {
                 MessageBox.Show("Minimum assumed precursor charge state (" + minimum_assumed_precursor_charge_state.ToString() + ") cannot be larger than maximum asssumed precursor charge state (" + maximum_assumed_precursor_charge_state.ToString() + ')');
@@ -151,8 +137,7 @@ namespace Coon.Compass.DtaGenerator
                 output_folder,
                 nlmass,
                 includeLog);
-
-            dta_generator.Starting += handleStarting;
+                      
             dta_generator.StartingFile += handleStartingFile;
             dta_generator.UpdateProgress += handleUpdateProgress;
             dta_generator.ThrowException += handleThrowException;
@@ -162,97 +147,92 @@ namespace Coon.Compass.DtaGenerator
             lstRawFiles.SelectedItem = null;
             prgProgress.Value = prgProgress.Minimum;
 
-            Thread generate_dtas = new Thread(new ThreadStart(dta_generator.GenerateDtas));
+            btnOK.Enabled = false;
+            Thread generate_dtas = new Thread(dta_generator.GenerateDtas);         
             generate_dtas.IsBackground = true;
             generate_dtas.Start();
         }
-
-        private delegate void changeMainPanelEnabledCallback(bool enabled);
-
-        private void changeMainPanelEnabled(bool enabled)
-        {
-            if(pnlMain.InvokeRequired)
-            {
-                pnlMain.Invoke(new changeMainPanelEnabledCallback(changeMainPanelEnabled),
-                    new object[] { enabled });
-            }
-            else
-            {
-                pnlMain.Enabled = enabled;
-            }
-        }
-
-        private void handleStarting(object sender, EventArgs e)
-        {
-            changeMainPanelEnabled(false);
-        }
-
-        private delegate void changeCurrentFileCallback(string filepath);
-
-        private void changeCurrentFile(string filepath)
-        {
-            if(lstRawFiles.InvokeRequired)
-            {
-                lstRawFiles.Invoke(new changeCurrentFileCallback(changeCurrentFile),
-                    new object[] { filepath });
-            }
-            else
-            {
-                lstRawFiles.SelectedItem = filepath;
-            }
-        }
-
+           
         private void handleStartingFile(object sender, FilepathEventArgs e)
         {
-            changeCurrentFile(e.Filepath);
-        }
-
-        private delegate void changeProgressBarValueCallback(int progressValue);
-
-        private void changeProgressBarValue(int progressValue)
-        {
-            if(prgProgress.InvokeRequired)
+            if (InvokeRequired)
             {
-                prgProgress.Invoke(new changeProgressBarValueCallback(changeProgressBarValue),
-                    new object[] { progressValue });
+                Invoke(new Action<object, FilepathEventArgs>(handleStartingFile), sender, e);
+                return;
             }
-            else
-            {
-                prgProgress.Value = progressValue;
-            }
+            lstRawFiles.SelectedItems.Add(e.Filepath);        
         }
 
         private void handleUpdateProgress(object sender, ProgressEventArgs e)
         {
-            changeProgressBarValue(e.Progress);
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, ProgressEventArgs>(handleUpdateProgress), sender, e);
+                return;
+            }
+            prgProgress.Value = (int)(prgProgress.Maximum * e.Progress);         
         }
 
         private void handleThrowException(object sender, ExceptionEventArgs e)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, ExceptionEventArgs>(handleThrowException), sender, e);
+                return;
+            }
             MessageBox.Show(e.Exception.ToString());
-            changeCurrentFile(null);
-            changeMainPanelEnabled(true);
+            lstRawFiles.SelectedItems.Clear();            
         }
 
         private void handleFinishedFile(object sender, FilepathEventArgs e)
         {
-            changeCurrentFile(null);
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, FilepathEventArgs>(handleFinishedFile), sender, e);
+                return;
+            }
+            lstRawFiles.SelectedItems.Remove(e.Filepath);         
         }
 
         private void handleFinished(object sender, EventArgs e)
         {
-            changeCurrentFile(null);
-            changeMainPanelEnabled(true);
+            if (InvokeRequired)
+            {
+                Invoke(new Action<object, EventArgs>(handleFinished), sender, e);
+                return;
+            }
+            lstRawFiles.SelectedItems.Clear();
+            prgProgress.Value = 0;
+            btnOK.Enabled = true;          
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
             Properties.Settings.Default.Save();
         }
-
-        private void chkCleanItraq4Plex_CheckedChanged(object sender, EventArgs e)
+          
+        private void clearAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            lstRawFiles.Items.Clear();
+        }
 
+        private void clearSelectedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            while (lstRawFiles.SelectedItems.Count > 0)
+            {
+                lstRawFiles.Items.RemoveAt(lstRawFiles.SelectedIndex);
+            }
+        }
+
+        public static Version GetRunningVersion()
+        {
+            return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        }  
+
+        protected override void OnLoad(EventArgs e)
+        {
+            Text = string.Format("DTA Generator ({0}) running {1} cores", GetRunningVersion(), Environment.ProcessorCount);
+            base.OnLoad(e);
         }
     }
 }

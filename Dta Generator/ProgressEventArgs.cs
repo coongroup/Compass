@@ -4,17 +4,12 @@ namespace Coon.Compass.DtaGenerator
 {
     public class ProgressEventArgs : EventArgs
     {
-        private int _progress;
-
-        public int Progress
+        
+        public double Progress { get; private set; }
+       
+        public ProgressEventArgs(double progress)
         {
-            get { return _progress; }
-            set { _progress = value; }
-        }
-
-        public ProgressEventArgs(int progress)
-        {
-            _progress = progress;
+            Progress = progress;
         }
     }
 }

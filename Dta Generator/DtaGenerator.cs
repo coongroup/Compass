@@ -210,10 +210,7 @@ namespace Coon.Compass.DtaGenerator
         private int _currentProgress = 0;
 
         public void GenerateDtas()
-        {
-            //StreamWriter overall_log = null;           
-            //string log_folder = "";
-
+        {     
             try
             {      
                 if (!Directory.Exists(outputFolder))
@@ -223,32 +220,25 @@ namespace Coon.Compass.DtaGenerator
                                
                 if (IncludeLog)
                 {
+                    using (StreamWriter overall_log = new StreamWriter(Path.Combine(outputFolder, "DTA_Generator_log.txt")))
+                    {   
+                        overall_log.WriteLine("DTA Generator PARAMETERS");
+                        overall_log.WriteLine("Assumed Precursor Charge State Range: " + minimumAssumedPrecursorChargeState +
+                                              '-' + maximumAssumedPrecursorChargeState);
+                        overall_log.WriteLine("Clean Precursor: " + cleanPrecursor);
+                        overall_log.WriteLine("Enable ETD Pre-Processing: " + enableEtdPreProcessing);
+                        overall_log.WriteLine("Clean TMT Duplex: " + cleanTmtDuplex);
+                        overall_log.WriteLine("Clean iTRAQ 4-Plex: " + cleanItraq4Plex);
+                        overall_log.WriteLine("Clean TMT 6-Plex: " + cleanTmt6Plex);
+                        overall_log.WriteLine("Clean iTRAQ 8-Plex: " + cleanItraq8Plex);
+                        overall_log.WriteLine("Neutral Losses: " + NeutralLossesIncluded);
+                        overall_log.WriteLine();
 
-                    StreamWriter overall_log = new StreamWriter(Path.Combine(outputFolder, "DTA_Generator_log.txt"));
-                    overall_log.AutoFlush = true;
-
-                    overall_log.WriteLine("DTA Generator PARAMETERS");
-                    overall_log.WriteLine("Assumed Precursor Charge State Range: " + minimumAssumedPrecursorChargeState +
-                                          '-' + maximumAssumedPrecursorChargeState);
-                    overall_log.WriteLine("Clean Precursor: " + cleanPrecursor);
-                    overall_log.WriteLine("Enable ETD Pre-Processing: " + enableEtdPreProcessing);
-                    overall_log.WriteLine("Clean TMT Duplex: " + cleanTmtDuplex);
-                    overall_log.WriteLine("Clean iTRAQ 4-Plex: " + cleanItraq4Plex);
-                    overall_log.WriteLine("Clean TMT 6-Plex: " + cleanTmt6Plex);
-                    overall_log.WriteLine("Clean iTRAQ 8-Plex: " + cleanItraq8Plex);
-
-
-                    if (NeutralLossesIncluded)
-                    {
-                        overall_log.WriteLine("Neutral Losses: true");
+                        foreach (string raw_filepath in rawFilepaths)
+                        {
+                            overall_log.WriteLine(raw_filepath);
+                        }                       
                     }
-
-                    overall_log.WriteLine();
-                    foreach (string raw_filepath in rawFilepaths)
-                    {
-                        overall_log.WriteLine(raw_filepath);
-                    }
-                    overall_log.Close();
                   
                     if (!Directory.Exists(LogFolder))
                     {
@@ -262,20 +252,12 @@ namespace Coon.Compass.DtaGenerator
                 //foreach (string msDataFile in rawFilepaths)
                 //{
                 //    ProcessFile(msDataFile, IncludeLog, groupByActivationEnergyTime);
-                //}
-
-                ParallelOptions a = new ParallelOptions();
-                //a.MaxDegreeOfParallelism = 3;
-
+                //}   
             
-
-                Parallel.ForEach<string>(rawFilepaths, a, msDataFile =>
+                Parallel.ForEach<string>(rawFilepaths, msDataFile =>
                 {
                     ProcessFile(msDataFile, IncludeLog, groupByActivationEnergyTime);
-                });
-
-
-                onFinished(EventArgs.Empty);
+                });                               
             }
             catch (Exception ex)
             {
@@ -283,36 +265,14 @@ namespace Coon.Compass.DtaGenerator
             }
             finally
             {
-                //if (overall_log != null && IncludeLog)
-                //{
-                //    overall_log.Close();
-                //}
-           
-                //if (txt_outputs != null)
-                //{
-                //    foreach (StreamWriter sw in txt_outputs.Values)
-                //    {
-                //        if (sw != null)
-                //        {
-                //            sw.Close();
-                //        }
-                //    }
-                //    foreach (StreamWriter sw in mgf_outputs.Values)
-                //    {
-                //        if (sw != null)
-                //        {
-                //            sw.Close();
-                //        }
-                //    }
-                //}
+                onFinished(EventArgs.Empty);               
             }
         }
 
         private void ProcessFile(string msDataFile, bool includeLog = false, bool groupByFragmentation = true)
         {
             IXRawfile5 raw = null;
-            StreamWriter log = null;
-            StreamWriter dta = null;
+            StreamWriter log = null;          
             Dictionary<string, StreamWriter> txt_outputs = null;
             Dictionary<string, StreamWriter> mgf_outputs = null;
 
@@ -545,32 +505,53 @@ namespace Coon.Compass.DtaGenerator
                 raw.GetTrailerExtraForScanNum(scanNumber, ref header_labels, ref header_values, ref array_size);
                 var header_label_strings = (string[])header_labels;
                 var header_value_strings = (string[])header_values;
-                int charge = 0;
-                if (header_label_strings != null && header_value_strings != null)
+
+
+                object chargeObj = null;
+                raw.GetTrailerExtraValueForScanNum(scanNumber, "Charge State:", ref chargeObj);
+                int charge = Convert.ToInt32(chargeObj);
+
+                var charges = new List<int>();
+                if (charge == 0 || no_precursor_scan)
                 {
-                    for (int header_i = header_label_strings.GetLowerBound(0);
-                        header_i <= header_label_strings.GetUpperBound(0);
-                        header_i++)
+                    for (int assumed_charge_state = minimumAssumedPrecursorChargeState;
+                        assumed_charge_state <= maximumAssumedPrecursorChargeState;
+                        assumed_charge_state++)
                     {
-                        if (header_label_strings[header_i].StartsWith("Charge"))
-                        {
-                            charge = int.Parse(header_value_strings[header_i]);
-                            if (scan_filter.Contains(" - "))
-                            {
-                                charge = -charge;
-                            }
-                            precursor_charge_states.Add(scanNumber, charge);
-                        }
-                        else if (header_label_strings[header_i].StartsWith("Elapsed Scan Time (sec)"))
-                        {
-                            elapsed_scan_times.Add(scanNumber, double.Parse(header_value_strings[header_i]));
-                        }
-                        else if (header_label_strings[header_i].StartsWith("Ion Injection Time (ms)"))
-                        {
-                            ion_injection_times.Add(scanNumber, double.Parse(header_value_strings[header_i]));
-                        }
+                        charges.Add(assumed_charge_state);
                     }
                 }
+                else
+                {
+                    charges.Add(charge);
+                }
+                                
+                //int charge = 0;
+                //if (header_label_strings != null && header_value_strings != null)
+                //{
+                //    for (int header_i = header_label_strings.GetLowerBound(0);
+                //        header_i <= header_label_strings.GetUpperBound(0);
+                //        header_i++)
+                //    {
+                //        if (header_label_strings[header_i].StartsWith("Charge"))
+                //        {
+                //            charge = int.Parse(header_value_strings[header_i]);
+                //            if (scan_filter.Contains(" - "))
+                //            {
+                //                charge = -charge;
+                //            }
+                //            precursor_charge_states.Add(scanNumber, charge);
+                //        }
+                //        else if (header_label_strings[header_i].StartsWith("Elapsed Scan Time (sec)"))
+                //        {
+                //            elapsed_scan_times.Add(scanNumber, double.Parse(header_value_strings[header_i]));
+                //        }
+                //        else if (header_label_strings[header_i].StartsWith("Ion Injection Time (ms)"))
+                //        {
+                //            ion_injection_times.Add(scanNumber, double.Parse(header_value_strings[header_i]));
+                //        }
+                //    }
+                //}                
 
 
                 object labels = null;
@@ -578,6 +559,8 @@ namespace Coon.Compass.DtaGenerator
                 raw.GetLabelData(ref labels, ref flags, ref scanNumber);
 
                 var data = (double[,])labels;
+
+                // Check it high res, if not, get the low resolution spectrum
                 if (data.Length == 0)
                 {
                     centroid_peak_width = -1.0;
@@ -591,6 +574,16 @@ namespace Coon.Compass.DtaGenerator
 
                 if (includeLog)
                 {
+                    precursor_charge_states.Add(scanNumber, charge);
+
+                    object elapsedScanTime = null;
+                    raw.GetTrailerExtraValueForScanNum(scanNumber, "Elapsed Scan Time (sec):", ref elapsedScanTime);
+                    elapsed_scan_times.Add(scanNumber, Convert.ToDouble(elapsedScanTime));
+
+                    object injectionTime = null;
+                    raw.GetTrailerExtraValueForScanNum(scanNumber, "Ion Injection Time (ms):", ref injectionTime);
+                    ion_injection_times.Add(scanNumber, Convert.ToDouble(injectionTime));
+              
                     double total_ion_current = 0.0;
                     double base_peak_mz = -1.0;
                     double base_peak_intensity = -1.0;
@@ -607,21 +600,6 @@ namespace Coon.Compass.DtaGenerator
                     }
                 }
 
-                var charges = new List<int>();
-                if (charge == 0 || no_precursor_scan)
-                {
-                    for (int assumed_charge_state = minimumAssumedPrecursorChargeState;
-                        assumed_charge_state <= maximumAssumedPrecursorChargeState;
-                        assumed_charge_state++)
-                    {
-                        charges.Add(assumed_charge_state);
-                    }
-                }
-                else
-                {
-                    charges.Add(charge);
-                }
-
                 string mass_analyzer = scan_filter.Substring(0, 4).ToUpper();
                 if (!mass_analyzer.Contains("MS"))
                 {
@@ -629,6 +607,7 @@ namespace Coon.Compass.DtaGenerator
                 }
 
                 string fragmentation_method = null;
+                
                 if (groupByFragmentation)
                 {
                     foreach (int i in AllIndicesOf(scan_filter, '@'))
@@ -645,56 +624,62 @@ namespace Coon.Compass.DtaGenerator
                         fragmentation_method += scan_filter.Substring(i + 1, 3).ToUpper() + '-';
                     }
                 }
+
                 fragmentation_method = fragmentation_method.Substring(0, fragmentation_method.Length - 1);
 
                 string base_output_filename = Path.GetFileNameWithoutExtension(filepath) + '_' + mass_analyzer +
                                               '_' + fragmentation_method;
-
-                precursor_fragmentation_methods.Add(scanNumber, fragmentation_method);
-
-                if (!spectrum_counts.ContainsKey(mass_analyzer))
+                
+                if (includeLog)
                 {
-                    spectrum_counts.Add(mass_analyzer, 0);
-                }
-                spectrum_counts[mass_analyzer]++;
+                    precursor_fragmentation_methods.Add(scanNumber, fragmentation_method);
 
-                if (!dta_counts.ContainsKey(mass_analyzer))
-                {
-                    dta_counts.Add(mass_analyzer, 0);
-                }
-                dta_counts[mass_analyzer] += charges.Count;
+                    if (!spectrum_counts.ContainsKey(mass_analyzer))
+                    {
+                        spectrum_counts.Add(mass_analyzer, 0);
+                    }
+                    spectrum_counts[mass_analyzer]++;
 
-                if (!spectrum_counts.ContainsKey(fragmentation_method))
-                {
-                    spectrum_counts.Add(fragmentation_method, 0);
-                }
-                spectrum_counts[fragmentation_method]++;
+                    if (!dta_counts.ContainsKey(mass_analyzer))
+                    {
+                        dta_counts.Add(mass_analyzer, 0);
+                    }
+                    dta_counts[mass_analyzer] += charges.Count;
 
-                if (!dta_counts.ContainsKey(fragmentation_method))
-                {
-                    dta_counts.Add(fragmentation_method, 0);
-                }
-                dta_counts[fragmentation_method] += charges.Count;
+                    if (!spectrum_counts.ContainsKey(fragmentation_method))
+                    {
+                        spectrum_counts.Add(fragmentation_method, 0);
+                    }
+                    spectrum_counts[fragmentation_method]++;
 
-                if (!spectrum_counts.ContainsKey(mass_analyzer + ' ' + fragmentation_method))
-                {
-                    spectrum_counts.Add(mass_analyzer + ' ' + fragmentation_method, 0);
-                }
-                spectrum_counts[mass_analyzer + ' ' + fragmentation_method]++;
+                    if (!dta_counts.ContainsKey(fragmentation_method))
+                    {
+                        dta_counts.Add(fragmentation_method, 0);
+                    }
+                    dta_counts[fragmentation_method] += charges.Count;
 
-                if (!dta_counts.ContainsKey(mass_analyzer + ' ' + fragmentation_method))
-                {
-                    dta_counts.Add(mass_analyzer + ' ' + fragmentation_method, 0);
+                    if (!spectrum_counts.ContainsKey(mass_analyzer + ' ' + fragmentation_method))
+                    {
+                        spectrum_counts.Add(mass_analyzer + ' ' + fragmentation_method, 0);
+                    }
+                    spectrum_counts[mass_analyzer + ' ' + fragmentation_method]++;
+
+                    if (!dta_counts.ContainsKey(mass_analyzer + ' ' + fragmentation_method))
+                    {
+                        dta_counts.Add(mass_analyzer + ' ' + fragmentation_method, 0);
+                    }
+                    dta_counts[mass_analyzer + ' ' + fragmentation_method] += charges.Count;
                 }
-                dta_counts[mass_analyzer + ' ' + fragmentation_method] += charges.Count;
+
 
                 if (sequestDtaOutput || omssaTxtOutput || mascotMgfOutput)
                 {
                     var all_peaks = new List<MSPeak>();
-                    for (int data_i = data.GetLowerBound(1); data_i < data.GetUpperBound(1); data_i++)
+
+                    for (int i = 0; i < data.GetUpperBound(1); i++)
                     {
-                        double mz = data[(int)RawLabelDataColumn.MZ, data_i];
-                        double intensity = data[(int)RawLabelDataColumn.Intensity, data_i];
+                        double mz = data[0, i];
+                        double intensity = data[1, i];
                         all_peaks.Add(new MSPeak(mz, intensity));
                     }
 
@@ -702,10 +687,12 @@ namespace Coon.Compass.DtaGenerator
                     raw.RTFromScanNum(scanNumber, ref retention_time_min);
                     double retention_time_s = retention_time_min * 60;
 
-                 
+                    bool isHCD = fragmentation_method.StartsWith("HCD");
+                    bool isETD = fragmentation_method.StartsWith("ETD") || fragmentation_method.StartsWith("ECD");
 
                     foreach (int charge_i in charges)
-                    {                        
+                    {
+                        var peaks = new List<MSPeak>(all_peaks);
 
                         string dta_filepath = Path.GetFileNameWithoutExtension(filepath) +
                                               '.' + mass_analyzer + '.' + fragmentation_method +
@@ -717,47 +704,34 @@ namespace Coon.Compass.DtaGenerator
                                               ".dta";
 
                         double precursor_mass = MassFromMZ(precursorMZ, charge_i);
-
-
-
-                        //dta_content_sb.AppendLine((precursor_mass + PROTON_MASS).ToString("0.00000") + ' ' +
-                        //                          charge_i);
-
-                        if(mascotMgfOutput) {
-                            mgf_content_sb.AppendLine("BEGIN IONS");
-                            mgf_content_sb.AppendLine("Title=" + Path.GetFileNameWithoutExtension(dta_filepath));
-                            mgf_content_sb.AppendLine("SCANS=" + scanNumber);
-                            mgf_content_sb.AppendLine("RTINSECONDS=" + retention_time_s);
-                            mgf_content_sb.AppendLine("PEPMASS=" + precursorMZ.ToString("0.00000"));
-                            mgf_content_sb.AppendLine("CHARGE=" + charge_i.ToString("0+;0-"));
-                        }
-
-                        var peaks = new List<MSPeak>(all_peaks);
-                        bool isHCD = fragmentation_method.StartsWith("HCD");
-                        bool isETD = fragmentation_method.StartsWith("ETD") ||
-                                     fragmentation_method.StartsWith("ECD");
                         
-
                         // precursor cleaning
                         if (cleanPrecursor || (enableEtdPreProcessing && isETD))
                         {
                             int p = 0;
+
+                            double lowMZ = precursorMZ - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
+                            double highMZ = precursorMZ + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
+
                             while (p < peaks.Count)
                             {
                                 double mz = peaks[p].MZ;
-
-                                if (mz >= precursorMZ - LOW_PRECURSOR_CLEANING_WINDOW_MZ &&
-                                    mz <= precursorMZ + HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
+                                if (mz < lowMZ)
                                 {
-                                    peaks.RemoveAt(p);
+                                    p++;
+                                }
+                                else if (mz > highMZ)
+                                {
+                                    break;
                                 }
                                 else
                                 {
-                                    p++;
+                                    peaks.RemoveAt(p);
                                 }
                             }
                         }
 
+                        // Neutral Loss Cleaning
                         if (NeutralLossesIncluded)
                         {
                             var mzs = new List<KeyValuePair<double, double>>();
@@ -1087,8 +1061,8 @@ namespace Coon.Compass.DtaGenerator
                                 }
                             }
                         }
-                        // TMT 6-plex cleaning
 
+                        // TMT 6-plex cleaning
                         if (cleanTmt6Plex)
                         {
                             if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
@@ -1191,8 +1165,8 @@ namespace Coon.Compass.DtaGenerator
                                 }
                             }
                         }
-                        // iTRAQ 8-plex cleaning
 
+                        // iTRAQ 8-plex cleaning
                         if (cleanItraq8Plex)
                         {
                             if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
@@ -1235,83 +1209,42 @@ namespace Coon.Compass.DtaGenerator
                                 }
                             }
                         }
-
-                        MSPeak base_peak = null;
-                        foreach (MSPeak peak in peaks)
-                        {
-                            if (base_peak == null || peak.Intensity > base_peak.Intensity)
-                            {
-                                base_peak = peak;
-                            }
-                        }
-
-                        //if (omssaTxtOutput)
-                        //{
-                        //    foreach (MSPeak peak in peaks)
-                        //    {
-                        //        dta_content_sb.AppendLine(" " + peak.MZ.ToString("0.0000") + " " + peak.Intensity.ToString("0.00"));
-                        //    }
-                        //}
-
-                        if (mascotMgfOutput)
-                        {
-                            foreach (MSPeak peak in peaks)
-                            {
-                                mgf_content_sb.AppendLine(string.Format("{0:0.00000} {1:0.00}", peak.MZ,
-                                    peak.Intensity));
-                            }
-                        }
-
-                        //foreach(MSPeak peak in peaks)
-                        //{
-                        //    dta_content_sb.AppendLine(' ' + peak.MZ.ToString("0.00000") + ' ' +
-                        //        peak.Intensity.ToString("0.00"));
-                        //    mgf_content_sb.AppendLine(peak.MZ.ToString("0.00000") + ' ' +
-                        //        peak.Intensity.ToString("0.00"));
-                        //}
-
+                    
                         if (sequestDtaOutput)
                         {
-                            dta = new StreamWriter(Path.Combine(outputFolder, dta_filepath));
-
-                            if (dta_content_sb.Length > 0)
+                            using (StreamWriter dta = new StreamWriter(Path.Combine(outputFolder, dta_filepath)))
                             {
-                                dta.Write(dta_content_sb.ToString());
+                                if (dta_content_sb.Length > 0)
+                                {
+                                    dta.Write(dta_content_sb.ToString());
+                                }
                             }
-
-                            dta.Close();
                         }
 
                         if (omssaTxtOutput)
                         {
-                            string txt_filepath = Path.Combine(outputFolder,
-                                base_output_filename + ".txt");
+                            string txt_filepath = Path.Combine(outputFolder, base_output_filename + ".txt");
 
-                            if (!txt_outputs.ContainsKey(txt_filepath))
+                            StreamWriter writer = null;
+                            if (!txt_outputs.TryGetValue(txt_filepath, out writer))
                             {
-                                txt_outputs.Add(txt_filepath, new StreamWriter(txt_filepath));
-                            }
+                                writer = new StreamWriter(txt_filepath);                                
+                                txt_outputs.Add(txt_filepath, writer);
+                            }                          
 
-                            StreamWriter txt = txt_outputs[txt_filepath];
-                            
 
-                            txt.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
-                            txt.WriteLine();
+                            writer.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
+                            writer.WriteLine();
 
-                            txt.WriteLine((precursor_mass + PROTON_MASS).ToString("0.00000") + ' ' + charge_i);
+                            writer.WriteLine((precursor_mass + PROTON_MASS).ToString("0.00000") + ' ' + charge_i);
 
                             foreach (MSPeak peak in peaks)
                             {
-                                txt.WriteLine(" {0:0.0000} {1:0.00}", peak.MZ, peak.Intensity);
+                                writer.WriteLine(" {0:0.0000} {1:0.00}", peak.MZ, peak.Intensity);
                             }
 
-                            //if (dta_content_sb.Length > 0)
-                            //{
-                            //    txt.Write(dta_content_sb.ToString());
-                            //}
-
-                            txt.WriteLine();
-                            txt.WriteLine();
+                            writer.WriteLine();
+                            writer.WriteLine();
                         }
 
                         if (mascotMgfOutput)
@@ -1325,20 +1258,25 @@ namespace Coon.Compass.DtaGenerator
                             }
 
                             StreamWriter mgf = mgf_outputs[mgf_filepath];
-
-                            if (mgf_content_sb.Length > 0)
+                                                       
+                            mgf.WriteLine("BEGIN IONS");
+                            mgf.WriteLine("Title=" + Path.GetFileNameWithoutExtension(dta_filepath));
+                            mgf.WriteLine("SCANS=" + scanNumber);
+                            mgf.WriteLine("RTINSECONDS=" + retention_time_s);
+                            mgf.WriteLine("PEPMASS=" + precursorMZ.ToString("0.00000"));
+                            mgf.WriteLine("CHARGE=" + charge_i.ToString("0+;0-"));
+                                                       
+                            foreach (MSPeak peak in peaks)
                             {
-                                mgf.Write(mgf_content_sb.ToString());
+                                mgf.WriteLine("{0:0.00000} {1:0.00}", peak.MZ, peak.Intensity);
                             }
-
+                           
                             mgf.WriteLine("END IONS");
                             mgf.WriteLine();
                         }
                     }
                 }
-            }
-
-            
+            }            
 
             if (txt_outputs != null)
             {
@@ -1497,6 +1435,7 @@ namespace Coon.Compass.DtaGenerator
                 log.Close();
 
             }
+           
             if (raw != null)
             {
                 raw.Close();
@@ -1504,11 +1443,7 @@ namespace Coon.Compass.DtaGenerator
             if (log != null && includeLog)
             {
                 log.Close();
-            }
-            if (dta != null)
-            {
-                dta.Close();
-            }
+            }         
             onFinishedFile(new FilepathEventArgs(filepath));
         }
 

@@ -180,8 +180,7 @@ namespace Coon.Compass.DtaGenerator
                 Invoke(new Action<object, ExceptionEventArgs>(handleThrowException), sender, e);
                 return;
             }
-            MessageBox.Show(e.Exception.ToString());
-            lstRawFiles.SelectedItems.Clear();            
+            MessageBox.Show(e.Exception.ToString());           
         }
 
         private void handleFinishedFile(object sender, FilepathEventArgs e)

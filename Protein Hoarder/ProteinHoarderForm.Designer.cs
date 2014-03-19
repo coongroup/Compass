@@ -70,6 +70,7 @@
             this.csvD = new System.Windows.Forms.OpenFileDialog();
             this.databaseD = new System.Windows.Forms.OpenFileDialog();
             this.outputD = new System.Windows.Forms.FolderBrowserDialog();
+            this.sequenceMapCB = new System.Windows.Forms.CheckBox();
             this.logGB.SuspendLayout();
             this.inputGB.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.maxMissedCleavagedUD)).BeginInit();
@@ -268,6 +269,7 @@
             // optionsGB
             // 
             this.optionsGB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.optionsGB.Controls.Add(this.sequenceMapCB);
             this.optionsGB.Controls.Add(this.proteinsPerMinCB);
             this.optionsGB.Controls.Add(this.semiCB);
             this.optionsGB.Controls.Add(this.includeUnfliterCB);
@@ -290,7 +292,7 @@
             this.proteinsPerMinCB.AutoSize = true;
             this.proteinsPerMinCB.Checked = global::Coon.Compass.ProteinHoarder.Properties.Settings.Default.proteinsPerMinute;
             this.proteinsPerMinCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.ProteinHoarder.Properties.Settings.Default, "proteinsPerMinute", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.proteinsPerMinCB.Location = new System.Drawing.Point(149, 137);
+            this.proteinsPerMinCB.Location = new System.Drawing.Point(149, 135);
             this.proteinsPerMinCB.Name = "proteinsPerMinCB";
             this.proteinsPerMinCB.Size = new System.Drawing.Size(117, 17);
             this.proteinsPerMinCB.TabIndex = 14;
@@ -302,7 +304,7 @@
             this.semiCB.AutoSize = true;
             this.semiCB.Checked = global::Coon.Compass.ProteinHoarder.Properties.Settings.Default.semiDigestion;
             this.semiCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.ProteinHoarder.Properties.Settings.Default, "semiDigestion", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.semiCB.Location = new System.Drawing.Point(8, 137);
+            this.semiCB.Location = new System.Drawing.Point(8, 135);
             this.semiCB.Name = "semiCB";
             this.semiCB.Size = new System.Drawing.Size(135, 17);
             this.semiCB.TabIndex = 13;
@@ -573,6 +575,18 @@
             this.outputD.Description = "Select the Output Directory";
             this.outputD.SelectedPath = global::Coon.Compass.ProteinHoarder.Properties.Settings.Default.outputDirectory;
             // 
+            // sequenceMapCB
+            // 
+            this.sequenceMapCB.AutoSize = true;
+            this.sequenceMapCB.Checked = global::Coon.Compass.ProteinHoarder.Properties.Settings.Default.coverageMap;
+            this.sequenceMapCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.ProteinHoarder.Properties.Settings.Default, "coverageMap", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.sequenceMapCB.Location = new System.Drawing.Point(8, 153);
+            this.sequenceMapCB.Name = "sequenceMapCB";
+            this.sequenceMapCB.Size = new System.Drawing.Size(153, 17);
+            this.sequenceMapCB.TabIndex = 15;
+            this.sequenceMapCB.Text = "Sequence Coverage Maps";
+            this.sequenceMapCB.UseVisualStyleBackColor = true;
+            // 
             // ProteinHoarderForm
             // 
             this.AllowDrop = true;
@@ -651,6 +665,7 @@
         private System.Windows.Forms.CheckBox useNBCCB;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.CheckBox sequenceMapCB;
     }
 }
 

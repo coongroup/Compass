@@ -43,6 +43,11 @@ namespace Coon.Compass.Lotor
             {
                 if (string.IsNullOrEmpty(kvp.Key))
                     continue;
+
+                int psmsLocalized = kvp.Value.Count(hit => hit.IsLocalized);
+                if (psmsLocalized == 0)
+                    continue;
+
                 sb.Append(ProteinGroup);
                 sb.Append(',');
                 sb.Append(Defline);
@@ -54,7 +59,7 @@ namespace Coon.Compass.Lotor
                 sb.Append(',');
                 sb.Append(kvp.Value.Count);
                 sb.Append(',');
-                sb.Append(kvp.Value.Count(hit => hit.IsLocalized));
+                sb.Append(psmsLocalized);
                 // quant
                 if (quant)
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Coon.Compass.ProteinHoarder
@@ -14,7 +15,6 @@ namespace Coon.Compass.ProteinHoarder
         public static Regex SGDRegex = new Regex(@"(?:DECOY_)?([\w-]+) ([\w-]+)", RegexOptions.Compiled);
 
         private string description;
-
         public string Description
         {
             get
@@ -76,7 +76,8 @@ namespace Coon.Compass.ProteinHoarder
             if (ProteinHoarder.AnnotationType == AnnotationType.SGD)
             {
                 m = SGDRegex.Match(description);
-            } else if (ProteinHoarder.AnnotationType == AnnotationType.UniProt)
+            }
+            else if (ProteinHoarder.AnnotationType == AnnotationType.UniProt)
             {
                 m = UniProtRegex.Match(description);
             }
@@ -99,9 +100,9 @@ namespace Coon.Compass.ProteinHoarder
             Peptides.Add(pep);
         }
 
-        public double CalculateSequenceCoverage(HashSet<Peptide> peptides)
+        public int[] GetSequenceCoverage(IEnumerable<Peptide> peptides)
         {
-            BitArray bit_array = new BitArray(Length, false);
+            int[] bits = new int[Length];
 
             foreach (Peptide pep in peptides)
             {
@@ -117,53 +118,29 @@ namespace Coon.Compass.ProteinHoarder
 
                     for (int aa = index; aa < index + pep.Length; aa++)
                     {
-                        bit_array[aa] = true;
+                        bits[aa]++;
                     }
                 }
             }
-
-            int observedAminoAcids = 0;
-            foreach (bool bit in bit_array)
-            {
-                if (bit)
-                {
-                    observedAminoAcids++;
-                }
-            }
-
-            return (double)observedAminoAcids / bit_array.Length * 100.0;
+            return bits;
         }
 
-        public double CalculateSequenceRedundancy(HashSet<Peptide> peptides)
+        public double CalculateSequenceCoverage(IEnumerable<Peptide> peptides)
         {
-            int[] amino_acid_redundancy = new int[Sequence.Length];
+            int[] bits = GetSequenceCoverage(peptides);
 
-            foreach (Peptide pep in peptides)
-            {
-                int start_index = 0;
-                while (true)
-                {
-                    int index = LeucineSequence.IndexOf(pep.LeucineSequence, start_index);
-                    start_index = index + 1;
-                    if (index < 0)
-                    {
-                        break;
-                    }
+            int observedAminoAcids = bits.Count(bit => bit > 0);     
 
-                    for (int aa = index; aa < index + pep.Length; aa++)
-                    {
-                        amino_acid_redundancy[aa]++;
-                    }
-                }
-            }
+            return (double)observedAminoAcids / Length * 100.0;
+        }
 
-            int redundancy = 0;
-            foreach (int count in amino_acid_redundancy)
-            {
-                redundancy += count;
-            }
+        public double CalculateSequenceRedundancy(IEnumerable<Peptide> peptides)
+        {
+            int[] bits = GetSequenceCoverage(peptides);
 
-            return (double)redundancy / amino_acid_redundancy.Length;
+            int observedAminoAcids = bits.Count(bit => bit > 1);
+
+            return (double)observedAminoAcids / Length * 100.0;
         }
 
         public override int GetHashCode()

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using CSMSL.Analysis.Identification;
+using System.Collections;
 
 namespace Coon.Compass.ProteinHoarder
 {
@@ -19,8 +20,14 @@ namespace Coon.Compass.ProteinHoarder
                 return RepresentativeProtein == null ? 0 : RepresentativeProtein.Length;
             }
         }
-        
-        public double SequenceCoverage { get { return RepresentativeProtein.CalculateSequenceCoverage(Peptides); } }
+
+        public double SequenceCoverage
+        {
+            get
+            {                
+                return RepresentativeProtein.CalculateSequenceCoverage(Peptides);
+            }
+        }
 
         public double SequenceRedundacy { get { return RepresentativeProtein.CalculateSequenceRedundancy(Peptides); } }
 
@@ -133,6 +140,8 @@ namespace Coon.Compass.ProteinHoarder
                 RepresentativeProtein = prot;
             }
 
+            _hCode ^= prot.GetHashCode();
+
             // Add the protein ids
             if(!string.IsNullOrEmpty(prot.ProteinID))
                 ProteinIDs.Add(prot.ProteinID);
@@ -144,7 +153,7 @@ namespace Coon.Compass.ProteinHoarder
             // Add the protein to the internal list
             _proteins.Add(prot);
         }
-
+        
         public void UpdatePValue(PScoreCalculateionMethod method, bool useConservativeScore)
         {
             _pScore = CalculatePScore(method, useConservativeScore);
@@ -219,7 +228,7 @@ namespace Coon.Compass.ProteinHoarder
         public string ToParsimonyProteins(ExperimentGroup exp, bool duplexQuant = false, bool useOnlyCompleteSets = false)
         {
             StringBuilder sb = new StringBuilder(512);
-            sb.AppendFormat("{0},{1},{2},{3:G4},{4},{5},{6},", Name, Description, LongestProteinLen, SequenceCoverage, Count, UniquePeptides, Peptides.Count);
+            sb.AppendFormat("{0},{1},{2},{3:G4},{4:G4},{5:G4},{6},{7},{8},{9},", Name, Description, LongestProteinLen, SequenceCoverage, RepresentativeProtein.CalculateSequenceCoverage(Peptides.Where(pep => !pep.IsShared)), SequenceRedundacy, Count, UniquePeptides, Peptides.Count, Peptides.Count(pep => pep.IsShared));
             if (exp != null)
             {
                 int psms;
@@ -241,6 +250,8 @@ namespace Coon.Compass.ProteinHoarder
                     sb.Append(quant.PSMs);
                     sb.Append(',');
                     sb.Append(quant.UniquePeptides.Count);
+                    sb.Append(',');
+                    sb.Append(quant.UniquePeptides.Count(pep => pep.IsShared));
                     sb.Append(',');
                     sb.Append(quant.ToOutput(duplexQuant, exp.MeidanLog2Ratio, useOnlyCompleteSets));
                 }
@@ -369,7 +380,7 @@ namespace Coon.Compass.ProteinHoarder
                 sb.Append(prot.Sequence);
                 sb.Append(',');
                 sb.Append(prot.Length);
-                sb.Append(',');
+                sb.Append(',');              
                 double seqcov = prot.CalculateSequenceCoverage(Peptides);
                 sb.Append((int)(seqcov * prot.Length) / 100);
                 sb.Append(',');
@@ -390,14 +401,11 @@ namespace Coon.Compass.ProteinHoarder
             return _proteins.GetEnumerator();
         }
 
+        private int _hCode = 1;
+
         public override int GetHashCode()
         {
-            int hCode = 1;
-            for (int i = 0; i < Count; i++)
-            {
-                hCode ^= _proteins[i].GetHashCode();
-            }
-            return hCode;
+            return _hCode;         
         }
 
         public bool Equals(ProteinGroup other)

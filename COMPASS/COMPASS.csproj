@@ -8,13 +8,14 @@
     <ProjectGuid>{1FDBDA24-8AAB-4CE6-A8FE-841057B1C516}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>COMPASS</RootNamespace>
-    <AssemblyName>COMPASS</AssemblyName>
+    <RootNamespace>Coon.Compass</RootNamespace>
+    <AssemblyName>COMPASS %28internal%29</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <TargetFrameworkProfile />
-    <PublishUrl>\\coongrpfs2\Groups\Software\COMPASS\</PublishUrl>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <PublishUrl>\\coongrp\Groups\Software\COMPASS %28internal%29\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -25,10 +26,12 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <TargetCulture>en-US</TargetCulture>
-    <ProductName>COMPASS</ProductName>
+    <ProductName>COMPASS %28internal%29</ProductName>
     <PublisherName>CoonWare</PublisherName>
-    <ApplicationRevision>2</ApplicationRevision>
-    <ApplicationVersion>1.2.1.%2a</ApplicationVersion>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
+    <WebPage>publish.htm</WebPage>
+    <ApplicationRevision>7</ApplicationRevision>
+    <ApplicationVersion>1.2.18.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -81,6 +84,19 @@
   <PropertyGroup>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Coon.Compass.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -93,25 +109,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompassPublic.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="frmAbout.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="frmAbout.Designer.cs">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmMain.cs">
+    <Compile Include="CompassForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frmMain.Designer.cs">
-      <DependentUpon>frmMain.cs</DependentUpon>
+    <Compile Include="CompassForm.Designer.cs">
+      <DependentUpon>CompassForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmAbout.resx">
       <DependentUpon>frmAbout.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frmMain.resx">
-      <DependentUpon>frmMain.cs</DependentUpon>
+    <EmbeddedResource Include="CompassForm.resx">
+      <DependentUpon>CompassForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -135,6 +154,38 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OMSSA Navigator\OMSSA Navigator.csproj">
+      <Project>{3112b2d8-0048-46c8-bb6d-751cdc1bc7d4}</Project>
+      <Name>OMSSA Navigator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OmssaLib\OmssaLib.csproj">
+      <Project>{5904ac55-5fc3-4625-8119-14069c53def7}</Project>
+      <Name>OmssaLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Phosphinator\Phosphinator.csproj">
+      <Project>{18c3ae3c-e032-4fe9-ad14-e602ba663be4}</Project>
+      <Name>Phosphinator</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Procyon\Procyon\Procyon.csproj">
+      <Project>{bd302eec-97de-4c25-b229-2b5bd0d7822c}</Project>
+      <Name>Procyon</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protein Hoarder\Protein Hoarder.csproj">
+      <Project>{f9872e16-407f-4640-867b-f0b7072a3535}</Project>
+      <Name>Protein Hoarder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TagQuant\TagQuant.csproj">
+      <Project>{298b64e4-f767-4204-a9ac-efda8a7bc2e1}</Project>
+      <Name>TagQuant</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CSMSL\CSMSL\IO\OMSSA\OMSSA.csproj">
+      <Project>{45a71e18-42e8-41a4-9479-2852c4186993}</Project>
+      <Name>OMSSA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CSMSL\CSMSL\IO\Thermo\Thermo.csproj">
+      <Project>{24dc85ff-e97b-4140-9614-77dd8fddd32f}</Project>
+      <Name>Thermo</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Batch FDR Optimizer\Batch FDR Optimizer.csproj">
       <Project>{1C59E65F-570C-4020-B1B4-261E527BFE46}</Project>
       <Name>Batch FDR Optimizer</Name>
@@ -143,17 +194,13 @@
       <Project>{7AA28AD1-6864-4651-A7CC-58A8EEE4BAB6}</Project>
       <Name>Batch Low-Res FDR Optimizer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CoonLib\CoonLib\CoonLib.csproj">
-      <Project>{7591033E-FFE6-474D-A903-E3D29C58192A}</Project>
-      <Name>CoonLib</Name>
+    <ProjectReference Include="..\Database Maker\DatabaseMaker.gui\DatabaseMaker.gui.csproj">
+      <Project>{732ccd3b-8f66-4b9a-8da9-0f0bb736928f}</Project>
+      <Name>DatabaseMaker.gui</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CoonLib\CoonThermo\CoonThermo.csproj">
-      <Project>{B5B857BE-F4CC-4D0A-84B2-8CF970FECC08}</Project>
-      <Name>CoonThermo</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Database Maker\Database Maker.csproj">
-      <Project>{732CCD3B-8F66-4B9A-8DA9-0F0BB736928F}</Project>
-      <Name>Database Maker</Name>
+    <ProjectReference Include="..\Database Maker\DatabaseMaker.lib\DatabaseMaker.lib.csproj">
+      <Project>{016cc3a6-ea74-4856-8bc5-b9ce9dafeff7}</Project>
+      <Name>DatabaseMaker.lib</Name>
     </ProjectReference>
     <ProjectReference Include="..\DTA Generator\DTA Generator.csproj">
       <Project>{B91DDD59-F211-4815-992C-4CFEC51D36EE}</Project>
@@ -163,55 +210,35 @@
       <Project>{D8A7739D-4CAB-49FD-99C0-88FDEABDEF30}</Project>
       <Name>FDR Optimizer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Lotor\Lotor\Lotor.csproj">
+      <Project>{3653d2eb-f33f-484b-a58e-73030a03f4ba}</Project>
+      <Name>Lotor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Low-Res FDR Optimizer\Low-Res FDR Optimizer.csproj">
       <Project>{542B99D3-D91D-4DFD-9395-2975BB3CF38F}</Project>
       <Name>Low-Res FDR Optimizer</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OMSSA Navigator\OMSSA Navigator.csproj">
-      <Project>{3112B2D8-0048-46C8-BB6D-751CDC1BC7D4}</Project>
-      <Name>OMSSA Navigator</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OmssaLib\OmssaLib.csproj">
-      <Project>{5904AC55-5FC3-4625-8119-14069C53DEF7}</Project>
-      <Name>OmssaLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Protein Herder\Protein Herder.csproj">
-      <Project>{47F472F9-21FF-4C67-8852-E66902A29FAB}</Project>
-      <Name>Protein Herder</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ProteinTagQuant\ProteinTagQuant.csproj">
-      <Project>{000105FC-D4BE-47AD-A09F-6012218D79D8}</Project>
-      <Name>ProteinTagQuant</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TagQuant\TagQuant.csproj">
-      <Project>{298B64E4-F767-4204-A9AC-EFDA8A7BC2E1}</Project>
-      <Name>TagQuant</Name>
+    <ProjectReference Include="..\..\CSMSL\CSMSL\CSMSL.csproj">
+      <Project>{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}</Project>
+      <Name>CSMSL</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="COMPASS.ico" />
-    <Content Include="formatdb.exe">
+    <Content Include="mods.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gallop.wav">
+    <Content Include="Resources\AminoAcids.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="COMPASS.ico" />
+    <None Include="Resources\coon_blue.ico" />
+    <Content Include="Resources\Elements.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="gpl-3.0.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="horse04.wav">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="mods.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="omssacl.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="taxids.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="usermods.xml">
+    <Content Include="Resources\Proteases.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="version history.txt">
@@ -232,7 +259,7 @@
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
+      <Install>false</Install>
     </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
       <Visible>False</Visible>
@@ -241,7 +268,17 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PublishFile Include="Interop.XRAWFILE2Lib">
+    <PublishFile Include="Combinatorics">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>Assembly</FileType>
+    </PublishFile>
+    <PublishFile Include="CSMSL">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -261,7 +298,7 @@
       <IncludeHash>True</IncludeHash>
       <FileType>File</FileType>
     </PublishFile>
-    <PublishFile Include="System.Data.SQLite">
+    <PublishFile Include="Resources\AminoAcids.xml">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -269,9 +306,19 @@
       </TargetPath>
       <PublishState>Include</PublishState>
       <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
+      <FileType>File</FileType>
     </PublishFile>
-    <PublishFile Include="usermods.xml">
+    <PublishFile Include="Resources\Elements.xml">
+      <Visible>False</Visible>
+      <Group>
+      </Group>
+      <TargetPath>
+      </TargetPath>
+      <PublishState>Include</PublishState>
+      <IncludeHash>True</IncludeHash>
+      <FileType>File</FileType>
+    </PublishFile>
+    <PublishFile Include="Resources\Proteases.xml">
       <Visible>False</Visible>
       <Group>
       </Group>
@@ -282,7 +329,14 @@
       <FileType>File</FileType>
     </PublishFile>
   </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

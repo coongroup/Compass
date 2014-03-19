@@ -25,7 +25,7 @@ namespace Coon.Compass.Lotor
         public int[,] BestSiteDeterminingFragments;
         public int[,] SecondBestSiteDeterminingFragments;
 
-        public MassSpectrum Spectrum { get; private set; }
+        public Spectrum Spectrum { get; private set; }
          
         public int StartResidue = 1;
 
@@ -45,25 +45,27 @@ namespace Coon.Compass.Lotor
             }
         }
 
-        public PSM(int scannumber, MSDataFile dataFile) 
+        public string RawFileName { get; private set; }
+
+        public PSM(int scannumber, string rawfileName) 
         {
             ScanNumber = scannumber;
-            MsnDataScan scan = dataFile[scannumber] as MsnDataScan;
+            RawFileName = rawfileName;
+        }
+
+        public void SetRawFile(MSDataFile dataFile)
+        {
+            MsnDataScan scan = dataFile[ScanNumber] as MsnDataScan;
             IsolationMZ = scan.IsolationRange.Mean;
-            Spectrum = scan.MassSpectrum;
+            Spectrum = scan.GetReadOnlySpectrum();
             ScanWidth = scan.MzRange.Width;
         }
 
         /// <summary>
         /// The number of isoforms this PSM has
         /// </summary>
-        public int Isoforms
-        {
-            get
-            {
-                return PeptideIsoforms != null ? PeptideIsoforms.Count : 0;
-            }
-        }
+        public int Isoforms { get; private set; }
+      
 
         public List<Modification> VariabledModifications;
      
@@ -131,11 +133,11 @@ namespace Coon.Compass.Lotor
             }
         }
 
-        public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance, double cutoffThreshold, params int[] chargeStates)
+        public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance, double cutoffThreshold, bool phopshoNeutralLoss, params int[] chargeStates)
         {
             foreach (PeptideIsoform isoform in PeptideIsoforms)
             {
-                isoform.MatchSpectrum(type, tolerance, cutoffThreshold, chargeStates);
+                isoform.MatchSpectrum(type, tolerance, cutoffThreshold,phopshoNeutralLoss, chargeStates);
             }
         }
 
@@ -162,6 +164,8 @@ namespace Coon.Compass.Lotor
                 }
                 PeptideIsoforms.Add(isoform);
             }
+
+            Isoforms = PeptideIsoforms.Count;
             return Isoforms;
         }
 

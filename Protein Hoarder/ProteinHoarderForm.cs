@@ -18,7 +18,7 @@ namespace Coon.Compass.ProteinHoarder
             return Assembly.GetExecutingAssembly().GetName().Version;
         }
 
-        public static string LOG_FILE = "Protein_Herder_Log.txt";
+        public static string LOG_FILE = "Protein_Hoarder_Log.txt";
 
         public ProteinHoarder Hoarder = null;
         public Thread MainThread = null;
@@ -130,6 +130,7 @@ namespace Coon.Compass.ProteinHoarder
             bool duplexQuant = duplexCB.Enabled && duplexCB.Checked;
             bool useMedian = medianvalueCB.Enabled && medianvalueCB.Checked;
             bool useNoiseBandCap = useNBCCB.Enabled && useNBCCB.Checked;
+            bool sequenceCoverageMap = sequenceMapCB.Enabled && sequenceMapCB.Checked;
             AnnotationType annotationType = (AnnotationType)comboBox1.SelectedItem;
             //double interferencecutoff = (double)quantintferenceUD.Value;
             
@@ -144,7 +145,7 @@ namespace Coon.Compass.ProteinHoarder
                 }
             }           
             logTB.Clear();
-            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR,annotationType, useConservative, useQuant, useMedian, duplexQuant,useNoiseBandCap, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion, proteinPerMin);
+            Hoarder = new ProteinHoarder(CsvFiles, fastaFile, outputDirectory, minPeptidesperGroup, maxMissedCleavage, maxFDR, annotationType, useConservative, useQuant, useMedian, duplexQuant, useNoiseBandCap, modstoignore, false, 0.0, includeUnfiltereedResults, ignorePeptidesWithMissingData, semiDigestion, proteinPerMin, sequenceCoverageMap);
             Hoarder.UpdateLog += new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
             Hoarder.UpdateProgress += new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
             MainThread = new Thread(Hoarder.Herd);
@@ -315,6 +316,8 @@ namespace Coon.Compass.ProteinHoarder
                     progressBar.Style = ProgressBarStyle.Continuous;
                     progressBar.Value = 0;
                     WriteLog();
+                    Hoarder.UpdateLog -= hoarder_UpdateLog;
+                    Hoarder.UpdateProgress -= hoarder_UpdateProgress;
                     Hoarder = null;
                 }
                 else if (percent == 0.0)
@@ -331,8 +334,8 @@ namespace Coon.Compass.ProteinHoarder
         }
 
         private void WriteLog()
-        {
-            string filename = Path.Combine(Hoarder.OutputDirectory, LOG_FILE);
+        {            
+            string filename = Path.Combine(Hoarder.OutputDirectory, string.Format("Protein Hoarder Log {0:yyyyMMddhhmmss}.txt", DateTime.Now));
             using (StreamWriter writer = new StreamWriter(filename))
             {
                 writer.WriteLine("===Protein Hoarder v{0}===", GetRunningVersion()); 
@@ -358,8 +361,8 @@ namespace Coon.Compass.ProteinHoarder
             }
             if (Hoarder != null)
             {
-                Hoarder.UpdateLog -= new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
-                Hoarder.UpdateProgress -= new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
+                //Hoarder.UpdateLog -= new EventHandler<StatusEventArgs>(hoarder_UpdateLog);
+                //Hoarder.UpdateProgress -= new EventHandler<ProgressEventArgs>(hoarder_UpdateProgress);
                 Hoarder = null;
             }
             Properties.Settings.Default.Save();

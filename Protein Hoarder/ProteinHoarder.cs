@@ -9,6 +9,7 @@ using CSMSL.Analysis.Identification;
 using CSMSL.IO;
 using CSMSL.Proteomics;
 using LumenWorks.Framework.IO.Csv;
+using System.Collections;
 
 namespace Coon.Compass.ProteinHoarder
 {
@@ -33,9 +34,7 @@ namespace Coon.Compass.ProteinHoarder
         public HashSet<Protease> Proteases;
         public HashSet<Modification> ModificationsToIgnore;
 
-        
-
-        private static Regex omssaRTRegex = new Regex(@"RT_([0-9.]+)_min", RegexOptions.Compiled);
+        private static Regex omssaRTRegex = new Regex(@"([0-9]+(?:.[0-9]+)?)_min", RegexOptions.Compiled);
 
         /// <summary>
         /// Represents all the unique peptide sequences isMapped to all occurrences (PSMs) of that sequence.
@@ -54,6 +53,7 @@ namespace Coon.Compass.ProteinHoarder
         public static bool UseMedianForQuantitation = false;
         public static bool DuplexQuantitation = false;
         public static bool UseOnlyCompleteSets = false;
+        public static bool SequenceCoverageMap = false;
         public static AnnotationType AnnotationType = AnnotationType.None;
 
         public ProteinHoarder(IEnumerable<CsvFile> csvFiles,
@@ -74,7 +74,8 @@ namespace Coon.Compass.ProteinHoarder
             bool includeUnfilteredResults = false,
             bool ignorePeptideWithMissingData = false,
             bool semiDigestion = false,
-            bool proteinPerMinute = false)
+            bool proteinPerMinute = false,
+            bool sequenceCoverageMap = false)
         {
             CsvFiles = new List<CsvFile>(csvFiles);
             FastaFile = fastaFile;
@@ -96,6 +97,7 @@ namespace Coon.Compass.ProteinHoarder
             IgnorePeptideWithMissingData = ignorePeptideWithMissingData;
             SemiDigestion = semiDigestion;
             ProteinsPerMinute = proteinPerMinute;
+            SequenceCoverageMap = sequenceCoverageMap;
         }
         
         /// <summary>
@@ -112,27 +114,31 @@ namespace Coon.Compass.ProteinHoarder
                 Peptides = GetAllUniquePeptides(CsvFiles);
 
                 // 2) Digest Proteins in the Fasta and compare with the Unique Peptides
-                List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases,
-                    SemiDigestion);
-                
-                if (ProteinsPerMinute)
-                {
-                    _proteinGroups = WriteProteinsPerMinute(Peptides.Values.ToList(), proteins, OutputDirectory);
-                }
-                else
-                {
-                    _proteinGroups = GroupProteins(proteins);
-                }
-   
-                // 4) Write out the data
+                List<Protein> proteins = GetMappedProteinsFromFasta(FastaFile, Peptides, Proteases.ToList(), SemiDigestion);
+
+                // 3) Group the proteins together into protein groups
+                _proteinGroups = GroupProteins(proteins);
+                                  
+                // 4) Groups the proteins to experiments
                 Dictionary<string, ExperimentGroup> expgroups = GroupExperiments(CsvFiles, UseQuant);
 
+                // 5) Write out the peptide level data
                 WritePeptides(expgroups, OutputDirectory);
 
+                // 6) Write out the peptide level data
                 WriteGroups(expgroups, OutputDirectory);
                 
-                // 5) Write summary document
-                WriteSummary(expgroups, OutputDirectory);
+                // 7) Write out the summary document
+                if (DuplexQuantitation)
+                    WriteSummary(expgroups, OutputDirectory);
+
+                // 8) Write the proteins per minute file
+                if (ProteinsPerMinute)
+                    WriteProteinsPerMinute(Peptides.Values.ToList(), proteins, OutputDirectory);                
+
+                // 9) Write the sequence maps out
+                if (SequenceCoverageMap)
+                    WriteSequenceMaps(_proteinGroups, OutputDirectory);
                 
             }
             catch (Exception e)
@@ -145,46 +151,177 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
-        private List<ProteinGroup> WriteProteinsPerMinute(List<Peptide> allPeptides, List<Protein> proteins, string outputDirectory)
-        {
-            Log("Writing proteins per minute file...");
+        private void WriteSequenceMaps(List<ProteinGroup> proteinGroups, string outputDirectory)
+        {    
+            string fileName = Path.Combine(outputDirectory, "Seqeunce Coverage Map.txt");
+            Log("Writing file " + fileName);
+            using (StreamWriter writer = new StreamWriter(fileName))
+            {               
+                foreach (ProteinGroup proteinGroup in proteinGroups)
+                {
+                    string sequence = proteinGroup.RepresentativeProtein.Sequence;
+                    string leusequence = proteinGroup.RepresentativeProtein.LeucineSequence;
+                    int length = sequence.Length;
+                    int[] bits = proteinGroup.RepresentativeProtein.GetSequenceCoverage(proteinGroup.Peptides);
+                    ISet<Peptide> peptides = proteinGroup.Peptides;
+
+                    // Write the header data
+                    writer.WriteLine("========");
+                    writer.WriteLine("Proteins: " + proteinGroup.Count);               
+                    writer.WriteLine(proteinGroup.RepresentativeProtein.Description);                        
+                    foreach(Protein prot in proteinGroup) {
+                        if(prot != proteinGroup.RepresentativeProtein)
+                            writer.WriteLine(prot.Description);
+                    }      
+                    writer.WriteLine("Length = {0}", proteinGroup.RepresentativeProtein.Length);
+                    writer.WriteLine("Coverage = {0:g3}%, {1} AA", proteinGroup.SequenceCoverage, bits.Count(bit => bit > 0));    
+                    writer.WriteLine("Redundacy = {0:g3}%", proteinGroup.SequenceRedundacy);
+                    writer.Write("Peptides = {0}", peptides.Count);
+                    int shared = peptides.Count(pep => pep.IsShared);
+                    if (shared > 0)
+                    {
+                        writer.WriteLine(", {0} shared", shared);
+                        writer.WriteLine("Coverage = {0:g3}% (unshared only)",proteinGroup.RepresentativeProtein.CalculateSequenceCoverage(peptides.Where(pep => !pep.IsShared)));
+                    }
+                    else
+                    {
+                        writer.WriteLine();
+                    }
+                    writer.WriteLine("========");
+                   
+                    // Write the amino acid numbers
+                    writer.Write(" 1");
+                    int size = 2;
+                    for (int i = 10; i < length; i += 10)
+                    {                     
+                        for (int j = 0; j < 10 - size; j++)
+                        {
+                            writer.Write(' ');
+                        }
+                        writer.Write(i);
+                        if (i < 100)
+                        {
+                            size = 2;
+                        }
+                        else if (i < 1000)
+                        {
+                            size = 3;
+                        }
+                        else if (i < 10000)
+                        {
+                            size = 4;
+                        }
+                        else
+                        {
+                            size = 5;
+                        }
+                    }
+                    writer.WriteLine();
+
+                    // Write the complete sequence
+                    writer.WriteLine(" "+sequence);
+
+                    // Write the combined mapped sequence           
+                    writer.Write(" ");
+                    for (int i = 0; i < bits.Length; i++)
+                    {                       
+                        writer.Write(bits[i] > 0 ? sequence[i] : ' ');
+                    }
+                    writer.WriteLine();
+                    writer.WriteLine();
+
+                    // Write the each peptide
+                    foreach (Peptide peptide in peptides.OrderBy(pep => leusequence.IndexOf(pep.LeucineSequence, 0)).ThenByDescending(pep => pep.Length))
+                    {
+                        writer.Write((peptide.IsShared) ? "S" : " ");
+                        int start_index = 0;
+                        int end_index = 0;
+                        while (true)
+                        {
+                            int index = leusequence.IndexOf(peptide.LeucineSequence, start_index);
+
+                            if (index < 0)
+                            {
+                                break;
+                            }
+
+                            // Write blank spaces
+                            writer.Write(new string(' ', index - end_index));
+                            writer.Write(peptide.LeucineSequence);
+                            start_index = index + 1;
+                            end_index = index + peptide.Length;
+
+                            //for (int aa = 0; aa < peptide.Length; aa++)
+                            //{
+                            //    writer.Write(peptide.LeucineSequence[aa]);                       
+                            //}
+                            
+                        }
+                        writer.WriteLine();
+                    }
+
+                    // Give some room between proteins
+                    writer.WriteLine();
+                }
+            }
+        }
+
+        private void WriteProteinsPerMinute(List<Peptide> allPeptides, List<Protein> proteins, string outputDirectory)
+        {         
+            string fileName = Path.Combine(outputDirectory, "proteins_per_minute.csv");
+            Log("Writing file " + fileName);
             double maxPeptides = allPeptides.Count;
             List<ProteinGroup> groups = null;
-            using (StreamWriter writer = new StreamWriter(Path.Combine(outputDirectory, "proteins_per_minute.csv")))
+          
+            using (StreamWriter writer = new StreamWriter(fileName))
             {
                 writer.WriteLine("Time (min),Unique Peptides,Protein Groups");
 
                 double i = 0;
-                while(i < 1000000)
-                {
-                    List<Peptide> currentPeptides =
-                        allPeptides.Where(pep => pep.PSMs.Any(psm => psm.RetentionTime <= i)).ToList();
-                    HashSet<Protein> currentProteins = new HashSet<Protein>();
-                    foreach (Peptide peptide in currentPeptides)
+                while(i < 1000)
+                {                
+                    HashSet<Peptide> currentPeptides = new HashSet<Peptide>(allPeptides.Where(pep => pep.PSMs.Any(psm => psm.RetentionTime <= i)));
+                    List<Protein> currentProteins = new List<Protein>();
+
+                    foreach (Peptide peptide in allPeptides)
                     {
                         peptide.ProteinGroups.Clear();
-                       
+                    }
+
+                    if (currentPeptides.Count > 0)
+                    {   
                         foreach (Protein protein in proteins)
                         {
-                            if (protein.Peptides.Contains(peptide))
+                            Protein protein2 = null;
+                            bool first = true;
+                            foreach (Peptide peptide in protein.Peptides)
                             {
-                                currentProteins.Add(protein);
-                                break;
+                                if (currentPeptides.Contains(peptide))
+                                {
+                                    if (first)
+                                    {
+                                        protein2 = new Protein(protein.Description, protein.Sequence);
+                                        currentProteins.Add(protein2);
+                                        first = false;
+                                    }
+                                    protein2.AddPeptide(peptide);
+                                }
                             }
                         }
                     }
-                    groups = GroupProteins(currentProteins.ToList(), false);
+
+                    groups = GroupProteins(currentProteins, false);
 
                     int fdrGroups = groups.Count(g => g.PassesFDR);
 
                     writer.WriteLine(i + "," + currentPeptides.Count + "," + fdrGroups);
                     ProgressUpdate(currentPeptides.Count / maxPeptides);
                     if (currentPeptides.Count >= maxPeptides)
-                        break;
+                        break;                    
                     i++;
                 }
             }
-            return groups;
+            return;
         }
 
         /// <summary>
@@ -196,7 +333,7 @@ namespace Coon.Compass.ProteinHoarder
         private Dictionary<string, Peptide> GetAllUniquePeptides(IEnumerable<CsvFile> csvFiles)
         {
             Log("Reading in unique peptides sequences from all .csv files...");
-            Dictionary<string, Peptide> peptides = new Dictionary<string, Peptide>();
+            Dictionary<string, Peptide> peptides = new Dictionary<string, Peptide>(1 << 16);
             Proteases = new HashSet<Protease>();
             int psmCount = 0;
 
@@ -233,12 +370,14 @@ namespace Coon.Compass.ProteinHoarder
                         int specNum = 0;
                         if (proteomeDiscover)
                         {
-                            rt = double.Parse(reader["RT [min]"]);
+                            if (ProteinsPerMinute)
+                                rt = double.Parse(reader["RT [min]"]);
                         }
                         else
                         {
                             specNum = int.Parse(reader["Spectrum number"]);
-                            rt = double.Parse(omssaRTRegex.Match(reader["Filename/id"]).Groups[1].Value);
+                            if (ProteinsPerMinute)
+                                rt = double.Parse(omssaRTRegex.Match(reader["Filename/id"]).Groups[1].Value);
                         }
 
                         double pvalue = double.Parse(reader[pvalueString]);
@@ -281,7 +420,7 @@ namespace Coon.Compass.ProteinHoarder
                 Log("{0:N0} PSMs were loaded from {1}", csvPsmCount, csvfile);
             }
 
-            Log("{0:N0} unique peptides were found from the {1:N0} PSMs loaded. (I/L ambiguity removed)", peptides.Count, psmCount);
+            Log("{0:N0} unique peptides were found from the {1:N0} PSMs loaded ({2:F1}%). (I/L ambiguity removed)", peptides.Count, psmCount, 100.0 * ((double)peptides.Count / psmCount));
             return peptides;
         }
 
@@ -293,26 +432,28 @@ namespace Coon.Compass.ProteinHoarder
         /// <param name="proteases"></param>
         /// <param name="semiDigestion">Perform a Semi Digestion</param>
         /// <returns>True if all the unique peptides get isMapped to at least one protein, false otherwise</returns>
-        private List<Protein> GetMappedProteinsFromFasta(string fastaFile, Dictionary<string, Peptide> uniquePeptides, IEnumerable<Protease> proteases, bool semiDigestion = false)
+        private List<Protein> GetMappedProteinsFromFasta(string fastaFile, Dictionary<string, Peptide> uniquePeptides, IList<Protease> proteases, bool semiDigestion = false)
         {
             string fastaFileniceName = Path.GetFileName(fastaFile);
             StringBuilder sb = new StringBuilder();
             foreach (Protease protease in proteases)
             {
                 sb.Append(protease.Name);
-                sb.Append('/');
+                sb.Append(',');
             }
             if (sb.Length > 0) { sb.Remove(sb.Length - 1, 1); }
             Log("Performing {0}{1} digestion on {2}...", semiDigestion ? "semi " : "", sb, fastaFileniceName);
-            Peptide.MappedCount = 0;
-            int forwardProteins = 0, decoyProteins = 0, forwardProteinsMapped = 0, decoyProteinsMapped = 0, fastaCounter = 0;
+            //Peptide.MappedCount = 0;
+            int forwardProteins = 0, decoyProteins = 0, forwardProteinsMapped = 0, decoyProteinsMapped = 0, fastaCounter = 0, pepsMapped = 0;
             long totalBytes = new FileInfo(fastaFile).Length;
 
             // A hashset of all proteins that have a peptide that was in the input files
-            Dictionary<Protein, Protein> proteins = new Dictionary<Protein, Protein>();
+            Dictionary<Protein, Protein> proteins = new Dictionary<Protein, Protein>(1 << 13);
 
+            // Min and Max length of peptides
             int minLength = semiDigestion ? 1 : _smallestPeptide - 1;
             int maxLength = semiDigestion ? int.MaxValue : _largestPeptide + 1;
+
             // Open the reader for the protein database in the .fasta format
             using (FastaReader reader = new FastaReader(fastaFile))
             {
@@ -335,52 +476,65 @@ namespace Coon.Compass.ProteinHoarder
                         forwardProteins++;
                     }
 
-                    // Digest the protein's leucine sequences (all I's are now L's) with the given proteases, max missed cleavages, limiting it to the smallest and largest peptide observed (speed improvement)
-                    // *Note each peptide sequence (pep_seq) will be leucine sequences as well
-                    foreach (string pepSeq in AminoAcidPolymer.Digest(prot.LeucineSequence, Proteases, MaxMissedCleavages, minLength, maxLength, semiDigestion: semiDigestion))
+                    // Loop over each protease 
+                    foreach (Protease protease in proteases)
                     {
-                        // Is this one of the unique peptide sequences in the csv files? If not, we don't care about it
-                        Peptide pep;
-                        if (!uniquePeptides.TryGetValue(pepSeq, out pep)) 
-                            continue;
 
-                        // Check to see if this protein has already been added to the list of proteins hit
-                        if(!proteins.ContainsKey(prot)) // returns true if the protein is new to the hashset of proteins
-                        {
-                            proteins.Add(prot, prot);
-                            if (prot.IsDecoy)
+                        // Digest the protein's leucine sequences (all I's are now L's) with the given proteases, max missed cleavages, limiting it to the smallest and largest peptide observed (speed improvement)
+                        // *Note each peptide sequence (pep_seq) will be leucine sequences as well
+                        foreach (string pepSeq in AminoAcidPolymer.Digest(prot.Sequence, protease, MaxMissedCleavages, minLength, maxLength, semiDigestion: semiDigestion))
+                        {      
+                            // Is this one of the unique peptide sequences in the csv files? If not, we don't care about it
+                            Peptide pep;
+                            if (!uniquePeptides.TryGetValue(pepSeq.Replace('I', 'L'), out pep)) 
+                                continue;
+
+                            // Check to see if this protein has already been added to the list of proteins hit
+                            if(!proteins.ContainsKey(prot)) // returns true if the protein is new to the hashset of proteins
                             {
-                                decoyProteinsMapped++;
+                                proteins.Add(prot, prot);
+                                if (prot.IsDecoy)
+                                {
+                                    decoyProteinsMapped++;
+                                }
+                                else
+                                {
+                                    forwardProteinsMapped++;
+                                }
                             }
-                            else
+
+                            // Add the peptide to the protein (internally hashed, so don't worry about duplicates)
+                            prot.AddPeptide(pep);
+
+                            // Mark that this peptide was successfully mapped, this is for error checking purposes
+                            if (!pep.IsMapped)
                             {
-                                forwardProteinsMapped++;
+                                pepsMapped++;
+                                pep.IsMapped = true;
                             }
+                            //pep.MarkAsMapped();
                         }
 
-                        // Add the peptide to the protein
-                        prot.AddPeptide(pep);
-
-                        // Mark that this peptide was successfully isMapped, this is for error checking purposes
-                        pep.MarkAsMapped();
                     }
 
                     // Only call every 100 proteins otherwise you are wasting a lot of time refreshing and not doing actual work
-                    if (fastaCounter <= 100) 
-                        continue;
-
-                    fastaCounter = 0;
-                    ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
+                    if (fastaCounter > 100)
+                    {
+                        fastaCounter = 0;
+                        ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
+                    }
                 }
             }
 
             // Check to see if every peptide is matched, if not try using a brute force search method instead
-            if (uniquePeptides.Count > Peptide.MappedCount)
+            if (uniquePeptides.Count > pepsMapped)
             {
+                // Get all the peptides that weren't mapped
                 List<Peptide> unMapedPeptides = uniquePeptides.Values.Where(p => !p.IsMapped).ToList();
 
                 Log("[WARNING] Couldn't find every peptide using digestion method (wrong enzyme perhaps?), trying brute force search instead on the remaining {0} peptides...", unMapedPeptides.Count);
-                //ProgressUpdate(0);
+                
+                ProgressUpdate(0.1);
                 using (FastaReader reader = new FastaReader(fastaFile))
                 {
                     fastaCounter = 0;
@@ -418,16 +572,20 @@ namespace Coon.Compass.ProteinHoarder
                                 prot.AddPeptide(pep2);
                             }
 
-                            // Mark that this peptide was successfully isMapped, this is for error checking purposes
-                            pep2.MarkAsMapped();
+                            // Mark that this peptide was successfully isMapped, this is for error checking purposes                           
+                            pep2.IsMapped = true;                            
+                            //pep2.MarkAsMapped();
                         }
 
                         fastaCounter++;
+
                         // Only call every 100 proteins otherwise you are wasting a lot of time refreshing and not doing actual work
-                        if (fastaCounter <= 100) 
-                            continue;
-                        fastaCounter = 0;
-                        ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
+                        if (fastaCounter > 100)
+                        {
+                            fastaCounter = 0;
+                            ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
+                        }                          
+                       
                     }
                 }
             
@@ -449,10 +607,13 @@ namespace Coon.Compass.ProteinHoarder
                 }
 
             }
+            
             Log("Every unique peptide was successfully mapped to at least one protein");
             Log("{0:N0} of {1:N0} ({2:F2}%) target proteins were mapped at least once", forwardProteinsMapped, forwardProteins, 100.0 * (double)forwardProteinsMapped / (double)forwardProteins);
             Log("{0:N0} of {1:N0} ({2:F2}%) decoy proteins were mapped at least once", decoyProteinsMapped, decoyProteins, 100.0 * (double)decoyProteinsMapped / (double)decoyProteins);
-            ProgressUpdate(0.0); // force the progress bar to go into marquee mode      
+
+            // force the progress bar to go into marquee mode 
+            ProgressUpdate(0.0);  
                
             // Return a list of all the proteins that were isMapped at least once
             return proteins.Values.ToList();
@@ -550,6 +711,7 @@ namespace Coon.Compass.ProteinHoarder
             // 0.05 B 1   3
             // 0.01 C   2 3
             // Which would mean Protein Group B and C are distinct groups, but share a common peptide (3), peptides 1 and 2 would remain unshared.
+            // Protein Group A is removed, as it its peptides can be explained by groups B and C.
             #region Subsumable
 
             // First, make sure all the peptides know which protein groups they belong too, so we can determined shared peptides
@@ -801,11 +963,7 @@ namespace Coon.Compass.ProteinHoarder
         }
 
         private void WriteSummary(Dictionary<string, ExperimentGroup> expgroups, string outputDirectory)
-        {
-            // Only write it for duplex
-            if (!DuplexQuantitation)
-                return;
-
+        {  
             string filePath = Path.Combine(outputDirectory, "Protein_summary.csv");
             Log("Writing file " + filePath);
 
@@ -893,8 +1051,8 @@ namespace Coon.Compass.ProteinHoarder
                 
                 Log("Writing file " + filteredfilename);
                 StreamWriter filteredwriter = new StreamWriter(filteredfilename);
-                
-                StringBuilder header = new StringBuilder("Protein Group Name,Representative Protein Description,Total Amino Acids,Sequence Coverage (%),Numbers of Proteins,Number of PSMs,Number of Unique Peptides,# PSMs in Experiment,# Unique Seq in Experiment,P-Score");
+
+                StringBuilder header = new StringBuilder("Protein Group Name,Representative Protein Description,Total Amino Acids,Sequence Coverage (%),Sequence Coverage Unshared only (%),Sequence Redundancy (%),Numbers of Proteins,# of PSMs,# of Unique Peptides,# Shared Peptides,# PSMs in Experiment,# Unique Seq in Experiment,# Shared Peptides in Experiment,P-Score");
                 
                 if (exp.UseQuant)
                 {
@@ -1024,6 +1182,7 @@ namespace Coon.Compass.ProteinHoarder
                         }
 
                         int deflineIndex = reader.GetFieldIndex("Defline");
+                        int modIndex = reader.GetFieldIndex("Mods");
                         int startRes = reader.GetFieldIndex("Start");
                         int stopRes = reader.GetFieldIndex("Stop");
                         Peptide pep = null;
@@ -1150,7 +1309,12 @@ namespace Coon.Compass.ProteinHoarder
                                     {
                                         if (i == deflineIndex)
                                         {
-                                            data[i] = pep.BestPG.RepresentativeProtein.Description;
+                                            data[i] = pep.BestPG.RepresentativeProtein.Description;                                         
+                                        }
+                                        else if (i == modIndex)
+                                        {
+                                            if (data[i].Contains(','))
+                                                data[i] = "\"" + data[i] + "\"";
                                         }
                                         else if (i == startRes)
                                         {
@@ -1165,8 +1329,8 @@ namespace Coon.Compass.ProteinHoarder
                                                     .ToString();
                                         }
                                     }
-                                    if(data[i].Contains(','))
-                                        data[i] = "\"" + data[i] + "\"";
+                                    //if(data[i].Contains(','))
+                                    //    data[i] = "\"" + data[i] + "\"";
                                     sb.Append(data[i]);
                                     sb.Append(',');
                                 }

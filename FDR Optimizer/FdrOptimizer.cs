@@ -185,7 +185,7 @@ namespace Coon.Compass.FdrOptimizer
                 overallBestPsms = _allPeptides.ToDictionary(pep => pep.BestMatch);
             }
             
-            summaryWriter.WriteLine("CSV File,Raw File,Total MS Spectra,Total MS/MS Spectra,Average MS/MS Inj Time (ms),Max MS/MS Inj Time (ms),Total Scored Spectra,Total PSMs,Systematic Precursor Mass Error (ppm),Maximum Precursor Mass Error (ppm),E-Value Threshold,PSMs,Decoy PSMs,PSM FDR (%),Peptides,Decoy Peptides,Peptide FDR (%)");
+            summaryWriter.WriteLine("CSV File,Raw File,Total MS Spectra,Total MS/MS Spectra,Average MS/MS Inj Time (ms),Max MS/MS Inj Time (ms),Average # of MS/MS per Cycle, Max # of MS/MS per Cycle,Total Scored Spectra,Total PSMs,Systematic Precursor Mass Error (ppm),Maximum Precursor Mass Error (ppm),E-Value Threshold,PSMs,Decoy PSMs,PSM FDR (%),Peptides,Decoy Peptides,Peptide FDR (%)");
             StringBuilder summaryStringBuilder = new StringBuilder();
             int totalPsms = 0;
             double totalError = 0;
@@ -226,6 +226,10 @@ namespace Coon.Compass.FdrOptimizer
                 summaryStringBuilder.Append(csvFile.AverageMSMSInjectionTime.ToString("F5"));
                 summaryStringBuilder.Append(',');
                 summaryStringBuilder.Append(csvFile.MaxMSMSInjectionTime);
+                summaryStringBuilder.Append(',');
+                summaryStringBuilder.Append(csvFile.AverageMSMSSCansBetweenMS.ToString("F5"));
+                summaryStringBuilder.Append(',');
+                summaryStringBuilder.Append(csvFile.MaxMSMSScansBetweenMS);
                 summaryStringBuilder.Append(',');
                 summaryStringBuilder.Append(csvFile.TotalScans);
                 summaryStringBuilder.Append(',');
@@ -432,7 +436,7 @@ namespace Coon.Compass.FdrOptimizer
                 double psmFDR = 100*batchTotalDecoyPsms/(double) batchTotalPsms;
                 double peptideFDR = 100 *batchTotalDecoyPeptides/(double) batchTotalPeptides;
 
-                summaryWriter.WriteLine("Batched Results,,,,,,,,,,,{0},{1},{2},{3},{4},{5}", batchTotalPsms, batchTotalDecoyPsms, psmFDR, batchTotalPeptides, batchTotalDecoyPeptides, peptideFDR);
+                summaryWriter.WriteLine("Batched Results,,,,,,,,,,,,,{0},{1},{2},{3},{4},{5}", batchTotalPsms, batchTotalDecoyPsms, psmFDR, batchTotalPeptides, batchTotalDecoyPeptides, peptideFDR);
                 Log(string.Format("{0:N0} peptides ({1:N0} decoys FDR = {2:F4}) in total [Batched]", batchTotalPeptides, batchTotalDecoyPeptides, peptideFDR));
             }
 
@@ -520,46 +524,21 @@ namespace Coon.Compass.FdrOptimizer
             increment = Math.Max(increment, minimumIncrement);
 
             double bestCount = 0;
+           
+            for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
+            {
+                int index = Array.BinarySearch(precursorPPMs, ppmError);
+                if (index < 0)
+                    index = ~index;
 
-            //if (true)
-            //{
-                for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
-                {
-                    int index = Array.BinarySearch(precursorPPMs, ppmError);
-                    if (index < 0)
-                        index = ~index;
+                int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index), maximumFalseDisoveryRate);
 
-                    int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index), maximumFalseDisoveryRate);
-
-                    if (count <= bestCount)
-                        continue;
-                    bestCount = count;
-                    bestppmError = ppmError;
-                }
-            //}
-            //else
-            //{
-            //    double increment = (maxPrecursorError - minPrecursorError)/steps;
-            //    while (increment > minimumIncrement)
-            //    {
-            //        for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
-            //        {
-            //            int index = Array.BinarySearch(precursorPPMs, ppmError);
-            //            if (index < 0)
-            //                index = ~index;
-
-            //            int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index), maximumFalseDisoveryRate);
-
-            //            if (count <= bestCount)
-            //                continue;
-            //            bestCount = count;
-            //            bestppmError = ppmError;
-            //        }
-            //        minPrecursorError = Math.Max(bestppmError - increment, 0);
-            //        maxPrecursorError = Math.Min(bestppmError + increment, max);
-            //        increment = (maxPrecursorError - minPrecursorError)/steps;
-            //    }
-            //}
+                if (count <= bestCount)
+                    continue;
+                bestCount = count;
+                bestppmError = ppmError;
+            }
+          
             List<Peptide> filteredPeptides = new List<Peptide>(peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= bestppmError));
 
             // Calculate the e-value threshold for those filtered peptides
@@ -568,7 +547,7 @@ namespace Coon.Compass.FdrOptimizer
             return new Tuple<double, double>(bestppmError, threshold);
         }
 
-        private void Calculate2DFdr(IList<InputFile> csvFiles, bool isBatched = false, int steps = 500, double minimumIncrement = 0.05)
+        private void Calculate2DFdr(IList<InputFile> csvFiles, bool isBatched = false, int steps = 250, double minimumIncrement = 0.05)
         {
             string msg = "Calculating second order FDR threshold";
 

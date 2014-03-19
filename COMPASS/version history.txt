@@ -6,6 +6,15 @@ Wenger CD, Phanstiel DH, Lee MV, Bailey DJ, Coon JJ.
 software tools for OMSSA," Proteomics 11:1074–1084 
 (2011)
 
+1.2.17.0 (Wednesday, March 12, 2013)
+- ProteinHoarder -> 2.4.5.0
+  Two bug fixes. Chymotrypsin digestions were defaulting to brute force search, this is
+  because Chymotrypsin cleaves at 'L', but the program was originally converting
+  all 'I' to 'L', thus making the digestion incorrect.
+
+  Multiple proteases support was originally doing sequential digetsions of the the same
+  peptide population. It is now doing digestion on different populations.
+
 1.2.12.0 (Monday, December 9, 2013)
 - FdrOptimizer -> 2.0.3.0
   Added maximaul ppm error input for capping the maximum ppm error allowed.

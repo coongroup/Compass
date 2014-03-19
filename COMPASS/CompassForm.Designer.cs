@@ -51,13 +51,13 @@
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.toolStripDropDownButton1 = new System.Windows.Forms.ToolStripDropDownButton();
             this.nonbatchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lowResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.batchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lowResToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.highResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -210,8 +210,8 @@
             this.tsbCoondornator.Image = ((System.Drawing.Image)(resources.GetObject("tsbCoondornator.Image")));
             this.tsbCoondornator.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbCoondornator.Name = "tsbCoondornator";
-            this.tsbCoondornator.Size = new System.Drawing.Size(102, 22);
-            this.tsbCoondornator.Text = "Coondornator";
+            this.tsbCoondornator.Size = new System.Drawing.Size(118, 22);
+            this.tsbCoondornator.Text = "Omssa Navigator";
             this.tsbCoondornator.Click += new System.EventHandler(this.tsbCoondornator_Click);
             // 
             // toolStripButton4
@@ -258,6 +258,15 @@
             this.toolStripButton3.Size = new System.Drawing.Size(98, 22);
             this.toolStripButton3.Text = "Phosphinator";
             this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click);
+            // 
+            // toolStripButton5
+            // 
+            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
+            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton5.Name = "toolStripButton5";
+            this.toolStripButton5.Size = new System.Drawing.Size(71, 22);
+            this.toolStripButton5.Text = "Procyon";
+            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // toolStripDropDownButton1
             // 
@@ -308,15 +317,6 @@
             this.highResToolStripMenuItem.Size = new System.Drawing.Size(116, 22);
             this.highResToolStripMenuItem.Text = "high res";
             this.highResToolStripMenuItem.Click += new System.EventHandler(this.highResToolStripMenuItem_Click);
-            // 
-            // toolStripButton5
-            // 
-            this.toolStripButton5.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton5.Image")));
-            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton5.Name = "toolStripButton5";
-            this.toolStripButton5.Size = new System.Drawing.Size(71, 22);
-            this.toolStripButton5.Text = "Procyon";
-            this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
             // CompassForm
             // 

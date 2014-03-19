@@ -110,11 +110,12 @@ namespace Coon.Compass.Lotor
             bool ignoreCTerminal = checkBox2.Checked;
             bool reduceSites = checkBox1.Checked;
             int scoreCutoff = (int)numericUpDown2.Value;
+            bool phosphoNeutralLoss = phosphoNeutralLossCB.Checked && quantifiedModifications.Contains(Phosphorylation);
 
             MassTolerance prodTolerance = GetProductTolerance();
             _lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
                 quantifiedModifications, prodTolerance, scoreCutoff, separateGroups, prodThreshold, ignoreCTerminal, reduceSites,
-                FragmentTypes.b | FragmentTypes.y);
+                FragmentTypes.b | FragmentTypes.y, phosphoNeutralLoss);
             _lotor.UpdateLog += lotor_UpdateLog;
             _lotor.UpdateProgress += lotor_UpdateProgress;
             _lotor.Completed += _lotor_Completed;
@@ -169,7 +170,7 @@ namespace Coon.Compass.Lotor
 
         private readonly HashSet<string> _variableModifications = new HashSet<string>();
 
-        public Modification Phosphorylation = new Modification(new ChemicalFormula("H3PO3").MonoisotopicMass, "Phosphorylation", ModificationSites.S | ModificationSites.T | ModificationSites.Y);
+        public static Modification Phosphorylation = new Modification(new ChemicalFormula("H3PO3").MonoisotopicMass, "Phosphorylation", ModificationSites.S | ModificationSites.T | ModificationSites.Y);
         
         private void UpdateVariableMods()
         {
@@ -252,6 +253,7 @@ namespace Coon.Compass.Lotor
             else
             {
                 logTB.AppendText(string.Format("[{0}]\t{1}\n", DateTime.Now.ToLongTimeString(), msg));
+                logTB.ScrollToCaret();
                 if (isError)
                 {
                     logTB.BackColor = Color.MediumVioletRed;

@@ -79,6 +79,10 @@ namespace Coon.Compass.FdrOptimizer
 
         public int TotalMSscans { get; set; }
 
+        public int MaxMSMSScansBetweenMS {get; set;}
+
+        public double AverageMSMSSCansBetweenMS {get;set;}
+
         public double SystematicPrecursorMassError { get; private set; }
 
         public double MaximumPrecursorMassError { get; set; }
@@ -140,18 +144,28 @@ namespace Coon.Compass.FdrOptimizer
             int count = 0;
             int msms = 0;
             int ms = 0;
+            int localMSMS = -1;
+            List<int> msmsBetweenMS = new List<int>();
             List<double> injectionTimes = new List<double>();
             for(int sn = dataFile.FirstSpectrumNumber; sn < dataFile.LastSpectrumNumber; sn++)
             {
                 int order = dataFile.GetMsnOrder(sn);
                 if (order == 1)
-                    ms++;
+                {
+                    ms++;                
+                    if(localMSMS >= 0)
+                        msmsBetweenMS.Add(localMSMS);
+                    localMSMS = 0;
+                }
                 else
                 {
+                    localMSMS++;
                     msms++;
                     injectionTimes.Add(dataFile.GetInjectionTime(sn));
                 }
             }
+            MaxMSMSScansBetweenMS = msmsBetweenMS.Max();
+            AverageMSMSSCansBetweenMS = msmsBetweenMS.Average();
             TotalMSMSscans = msms;
             TotalMSscans = ms;
             AverageMSMSInjectionTime = injectionTimes.Average();

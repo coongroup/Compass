@@ -1830,7 +1830,7 @@
             // pictureBox2
             // 
             this.pictureBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.pictureBox2.Image = global::OmssaNavigator.Properties.Resources.rotating;
+            //this.pictureBox2.Image = global::OmssaNavigator.Properties.Resources.rotating;
             this.pictureBox2.Location = new System.Drawing.Point(15, 589);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(21, 24);

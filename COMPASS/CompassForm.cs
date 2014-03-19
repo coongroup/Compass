@@ -14,12 +14,12 @@ namespace Coon.Compass
     public partial class CompassForm : Form
     {
         public static Version GetRunningVersion()
-        {
-            if (Debugger.IsAttached)
+        {        
+            if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
             {
-                return Assembly.GetExecutingAssembly().GetName().Version;
+                return System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
             }
-            return System.Deployment.Application.ApplicationDeployment.CurrentDeployment.CurrentVersion;
+            return Assembly.GetExecutingAssembly().GetName().Version;
         }  
 
         public CompassForm()
@@ -58,12 +58,7 @@ namespace Coon.Compass
         private void uwmDepartmentOfChemistryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start("http://chem.wisc.edu/");
-        }
-
-        private void tsbCoondornator_Click(object sender, EventArgs e)
-        {
-            Process.Start(@"\\coongrp\Groups\Condor\Coondornator\Coondornator.application");
-        }
+        }        
 
         private void aboutCompassToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -105,13 +100,7 @@ namespace Coon.Compass
         {
             var phosphintaorForm = new phosphinatorForm {MdiParent = this};
             phosphintaorForm.Show();
-        }
-
-        protected override void OnLoad(EventArgs e)
-        {
-            Text += ' ' + GetRunningVersion().ToString();
-            base.OnLoad(e);
-        }
+        }        
 
         private void toolStripButton4_Click(object sender, EventArgs e)
         {

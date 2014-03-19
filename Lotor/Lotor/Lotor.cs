@@ -31,13 +31,14 @@ namespace Coon.Compass.Lotor
         private readonly bool _ignoreCTerminal;
         private readonly bool _separateProteinGroups;
         private readonly bool _reduceSites;
+        private readonly bool _phosphoNeutralLoss;
         private HashSet<MSDataFile> _dataFiles; 
 
         private int FirstQuantColumn = -1;
         private int LastQuantColumn = -1;
         private string[] headerInfo = null;
 
-        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, int scoreCutoff, bool separateGroups, double productThreshold,bool ignoreCTerminal,bool reduceSites, FragmentTypes fragType)
+        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, int scoreCutoff, bool separateGroups, double productThreshold,bool ignoreCTerminal,bool reduceSites, FragmentTypes fragType, bool phosphoNeutralLoss = false)
         {
             _rawFileDirectory = rawFileDirectory;
             _csvFile = inputcsvFile;
@@ -54,6 +55,7 @@ namespace Coon.Compass.Lotor
             _reduceSites = reduceSites;
             //LocalizedHit.AScoreThreshold = ascore_threshold;
             LocalizedHit.ScoreThreshold = scoreCutoff;
+            _phosphoNeutralLoss = phosphoNeutralLoss;
         }
 
         public void Localize()
@@ -62,9 +64,10 @@ namespace Coon.Compass.Lotor
             Log("Localization Started...");
 
             Log("Ignore C Terimal Mods: " + _ignoreCTerminal);
+            Log("Phospho Neutral Loss: " + _phosphoNeutralLoss);
             Log("Score Threshold: " + _deltaScoreCutoff);
             Log("Product Tolerance: " + _prodTolerance);
-            Log("Product Threshold: " + _productThreshold + "%");
+            Log("Product Threshold: " + (_productThreshold *100)+ "%");
 
             try
             {
@@ -72,7 +75,7 @@ namespace Coon.Compass.Lotor
                 List<PSM> psms = LoadAllPSMs(_csvFile, _rawFileDirectory, _fixedModifications);
                 
                 // 2) Calculate all the best isoforms for all the psms
-                List<LocalizedHit> hits = CalculateBestIsoforms(psms, _fragType, _prodTolerance, _productThreshold);
+                List<LocalizedHit> hits = CalculateBestIsoforms(psms, _fragType, _prodTolerance, _productThreshold, _phosphoNeutralLoss);
 
                 // 3) Compile Results
                 List<Protein> proteins = CompileResults(hits, _csvFile, _outputDirectory, _separateProteinGroups);
@@ -84,7 +87,7 @@ namespace Coon.Compass.Lotor
                 }               
             }
             catch (Exception e)
-            {
+            {                
                 Log(e.Message, true);
             }
             finally
@@ -182,7 +185,7 @@ namespace Coon.Compass.Lotor
                         if(headerInfo[i] == "Channels Detected")
                             LastQuantColumn = i-1;
                     }
-                    string header = string.Join(",", headerInfo) + ",# Isoforms,Localized?,Delta Score,Best Isoform,Spectral Matches,Second Best Isoform,Second Spectral Matches";
+                    string header = string.Join(",", headerInfo) + ",# Isoforms,# of Considered Fragments,Localized?,Delta Score,Best Isoform,Spectral Matches,Second Best Isoform,Second Spectral Matches";
                     writer.WriteLine(header);
                     localizedWriter.WriteLine(header);
                     while (reader.ReadNextRecord())
@@ -222,14 +225,12 @@ namespace Coon.Compass.Lotor
                         }
                         sb.Append(hit.PSM.Isoforms);
                         sb.Append(',');
+                        sb.Append(hit.LocalizedIsoform.Fragments.Count);
+                        sb.Append(',');
                         sb.Append(hit.IsLocalized);
                         sb.Append(',');
                         sb.Append(hit.MatchDifference);
-                        sb.Append(',');
-                        //sb.Append(hit.PValue);
-                        //sb.Append(',');
-                        //sb.Append(hit.NumberOfSiteDeterminingFragments);
-                        //sb.Append(',');
+                        sb.Append(',');                       
                         sb.Append(hit.LocalizedIsoform.SequenceWithModifications);
                         sb.Append(',');
                         sb.Append(hit.LocalizedIsoform.SpectralMatch.Matches);
@@ -256,7 +257,7 @@ namespace Coon.Compass.Lotor
             return proteins.Values.ToList();
         }
 
-        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, FragmentTypes fragType, MassTolerance prod_tolerance, double productThreshold)
+        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, FragmentTypes fragType, MassTolerance prod_tolerance, double productThreshold, bool phosphoNeutralLosses)
         {
             Log("Localizing Best Isoforms...");
             int totalisofromscount = 0;
@@ -281,7 +282,7 @@ namespace Coon.Compass.Lotor
                 //double pvalue = GetPValue(psm, prod_tolerance, productThreshold);
 
                 // Match all the isoforms to the spectrum and log the results
-                psm.MatchIsofroms(fragType, prod_tolerance, productThreshold, 1);
+                psm.MatchIsofroms(fragType, prod_tolerance, productThreshold, phosphoNeutralLosses, 1);
 
                 // Perform the localization for all combinations of isoforms
                 //double[,] res = psm.Calc(pvalue);
@@ -308,6 +309,8 @@ namespace Coon.Compass.Lotor
                 {
                     localized_psm++;
                 }
+
+                psm.PeptideIsoforms.Clear();
 
                 // Progress Bar Stuff
                 if (count <= 50) 
@@ -402,58 +405,72 @@ namespace Coon.Compass.Lotor
 
                     string filename = reader["Filename/id"];
                     string rawname = filename.Split('.')[0];
-                    if (rawFiles.TryGetValue(rawname, out rawFile))
+
+                    int scanNumber = int.Parse(reader["Spectrum number"]);
+
+                    PSM psm = new PSM(scanNumber, rawname);
+                    psm.StartResidue = int.Parse(reader["Start"]);
+                    psm.Charge = int.Parse(reader["Charge"]);
+                    psm.BasePeptide = new Peptide(reader["Peptide"].ToUpper());
+                    psm.Defline = reader["Defline"];
+                    psm.ProteinGroup = reader["Best PG Name"];
+                    psm.NumberOfSharingProteinGroups = int.Parse(reader["# of Sharing PGs"]);
+                    psm.Filename = filename;
+
+                    // Apply all the fix modifications
+                    psm.BasePeptide.SetModifications(fixedMods);
+
+                    int i = 0;
+                    while (i < variableMods.Count)
                     {
-                        if (_dataFiles.Add(rawFile))
-                            rawFile.Open();
-
-                        int scanNumber = int.Parse(reader["Spectrum number"]);
-                                             
-
-                        PSM psm = new PSM(scanNumber, rawFile);
-                        psm.StartResidue = int.Parse(reader["Start"]);
-                        psm.Charge = int.Parse(reader["Charge"]);
-                        psm.BasePeptide = new Peptide(reader["Peptide"].ToUpper());
-                        psm.Defline = reader["Defline"];
-                        psm.ProteinGroup = reader["Best PG Name"];
-                        psm.NumberOfSharingProteinGroups = int.Parse(reader["# of Sharing PGs"]);
-                        psm.Filename = filename;
-
-                        // Apply all the fix modifications
-                        psm.BasePeptide.SetModifications(fixedMods);
-
-                        int i = 0;
-                        while (i < variableMods.Count)
+                        if (fixedMods.Contains(variableMods[i]))
                         {
-                            if (fixedMods.Contains(variableMods[i]))
-                            {
-                                variableMods.RemoveAt(i);
-                            }
-                            else
-                            {
-                                i++;
-                            }
+                            variableMods.RemoveAt(i);
                         }
-
-                        // Save all the variable mod types             
-                        psm.VariabledModifications = variableMods;
-
-                        psms.Add(psm);
+                        else
+                        {
+                            i++;
+                        }
                     }
-                    else
+
+                    // Save all the variable mod types             
+                    psm.VariabledModifications = variableMods;
+
+                    psms.Add(psm);
+                }
+            }
+
+            Log(string.Format("{0:N0} PSMs were loaded....", totalPsms));
+            Log(string.Format("{0:N0} PSMs were kept.... ({1:F2} %)", psms.Count, 100.0 * (double)psms.Count / totalPsms));
+
+            Log("Reading Spectral Data...");
+            ThermoRawFile currentRawFile = null;
+            string currentRawFileName = null;
+            int counter = 0;
+
+            foreach (PSM psm in psms.OrderBy(psm => psm.RawFileName))
+            {
+                string rawfilename = psm.RawFileName;
+
+                if(!rawfilename.Equals(currentRawFileName)) {
+                    currentRawFileName = rawfilename;
+                    if (currentRawFile != null && currentRawFile.IsOpen)
+                        currentRawFile.Dispose();
+
+                    if (!rawFiles.TryGetValue(rawfilename, out currentRawFile))
                     {
-                        throw new NullReferenceException(string.Format("Raw File: {0}.raw was not found! Aborting.", rawname));
+                        throw new NullReferenceException(string.Format("Raw File: {0}.raw was not found! Aborting.", rawfilename));
                     }
+                    currentRawFile.Open();
                 }
 
-            }
-            Log(string.Format("{0:N0} PSMs were loaded....", totalPsms));
-            Log(string.Format("{0:N0} PSMs were kept.... ({1:F2} %)", psms.Count, 100.0*(double)psms.Count / totalPsms));
-
-            foreach (MSDataFile datFile in _dataFiles)
-            {
-                datFile.Dispose();              
-            }
+                psm.SetRawFile(currentRawFile);
+                counter++;
+                if(counter % 25 == 0)
+                {
+                    ProgressUpdate((double)counter / psms.Count);
+                }
+            }       
 
             return psms;
         }
@@ -464,7 +481,7 @@ namespace Coon.Compass.Lotor
         {
             // Get the width of the product ion tolerance at the isolation mz;
             double productToleranceWidth = prod_tolerance.GetMassRange(psm.IsolationMZ).Width;
-            double cutoffThreshold = psm.Spectrum.BasePeak.Intensity*cutoff;
+            double cutoffThreshold = psm.Spectrum.GetBasePeakIntensity()*cutoff;
             return Math.Min(1.0, psm.Spectrum.Count(peak => peak.Intensity >= cutoffThreshold)*2*productToleranceWidth/psm.ScanWidth);
         }
 

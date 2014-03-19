@@ -5,17 +5,20 @@ using CSMSL;
 using CSMSL.Analysis.Identification;
 using CSMSL.Proteomics;
 using CSMSL.Spectral;
+using CSMSL.Chemistry;
 
 namespace Coon.Compass.Lotor
 {
     public class PeptideIsoform : Peptide, IComparable<PeptideIsoform>
     {
-        public MassSpectrum Spectrum;
+        private ChemicalFormula H3PO4 = new ChemicalFormula("H3PO4");
+
+        public Spectrum Spectrum;
         public int Charge;
         public SpectrumFragmentsMatch SpectralMatch;
         public int SiteDeterminingFragments;
 
-        public PeptideIsoform(Peptide peptide, MassSpectrum spectrum, int charge)
+        public PeptideIsoform(Peptide peptide, Spectrum spectrum, int charge)
             : base(peptide) 
         {           
             Spectrum = spectrum;
@@ -26,9 +29,25 @@ namespace Coon.Compass.Lotor
 
         public HashSet<Fragment> MatchedFragments; 
 
-        public void MatchSpectrum(FragmentTypes fragmentTypes, MassTolerance tolerance, double cutoffThreshold, params int[] chargeStates)
+        public void MatchSpectrum(FragmentTypes fragmentTypes, MassTolerance tolerance, double cutoffThreshold, bool phosphoNeutralLoss, params int[] chargeStates)
         {
             Fragments = Fragment(fragmentTypes).OrderBy(f => f.ToString()).ToList();
+                      
+            if (phosphoNeutralLoss)
+            {
+                List<Fragment> toAdd = new List<Fragment>();
+                foreach (Fragment frag in Fragments)
+                {
+                    if (frag.Modifications.Contains(lotorForm.Phosphorylation))
+                    {
+                        var newFrag = new Fragment(frag.Type, frag.Number, frag.MonoisotopicMass - H3PO4.MonoisotopicMass, frag.Parent, frag.Modifications, "Phopsho Neutral loss -H3PO4");
+                        newFrag.Modifications.Remove(lotorForm.Phosphorylation);
+                        toAdd.Add(newFrag);
+                    }
+                }
+                Fragments.AddRange(toAdd);
+            }
+
             SpectralMatch = new SpectrumFragmentsMatch(Spectrum);
             var matches = SpectralMatch.MatchFragments(Fragments, tolerance, cutoffThreshold, chargeStates);
             MatchedFragments = new HashSet<Fragment>(matches);

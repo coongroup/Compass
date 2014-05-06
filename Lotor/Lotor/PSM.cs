@@ -57,7 +57,7 @@ namespace Coon.Compass.Lotor
         {
             MsnDataScan scan = dataFile[ScanNumber] as MsnDataScan;
             IsolationMZ = scan.IsolationRange.Mean;
-            Spectrum = scan.GetReadOnlySpectrum();
+            Spectrum = dataFile.GetReadOnlyMZSpectrum(ScanNumber, true);
             ScanWidth = scan.MzRange.Width;
         }
 
@@ -133,7 +133,7 @@ namespace Coon.Compass.Lotor
             }
         }
 
-        public void MatchIsofroms(FragmentTypes type, MassTolerance tolerance, double cutoffThreshold, bool phopshoNeutralLoss, params int[] chargeStates)
+        public void MatchIsofroms(FragmentTypes type, Tolerance tolerance, double cutoffThreshold, bool phopshoNeutralLoss, params int[] chargeStates)
         {
             foreach (PeptideIsoform isoform in PeptideIsoforms)
             {
@@ -144,7 +144,7 @@ namespace Coon.Compass.Lotor
         public int GenerateIsoforms(bool ignoreCTerminalMods = false)
         {
             PeptideIsoforms = new HashSet<PeptideIsoform>();
-            foreach (PeptideIsoform isoform in BasePeptide.GenerateIsoforms(VariabledModifications.ToArray()).Select(pep => new PeptideIsoform(pep, Spectrum, Charge)))
+            foreach (PeptideIsoform isoform in BasePeptide.GenerateIsoforms(true,VariabledModifications.ToArray()).Select(pep => new PeptideIsoform(pep, Spectrum, Charge)))
             {
                 if (ignoreCTerminalMods)
                 {

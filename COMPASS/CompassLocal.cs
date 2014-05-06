@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,7 +11,7 @@ namespace Coon.Compass
     {
         protected override void OnLoad(EventArgs e)
         {
-            Text = "COMPASS " + GetRunningVersion().ToString() + " (Internal Version)";
+            Text = string.Format("COMPASS {0}-bit (v{1} Internal)", IntPtr.Size*8, GetRunningVersion());
             tsbCoondornator.Text = "Coondornator";
             base.OnLoad(e);
         }

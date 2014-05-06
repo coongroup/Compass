@@ -277,7 +277,8 @@ namespace Coon.Compass.FdrOptimizer
 
         protected override void OnLoad(EventArgs e)
         {
-            Text += " (" + Assembly.GetExecutingAssembly().GetName().Version + ")";
+            Text = string.Format("FDR Optimizer {0}-bit (v{1})", IntPtr.Size*8, Assembly.GetExecutingAssembly().GetName().Version);
+           
             UpdateModsListboxes();
             comboBox1.DataSource = Enum.GetValues(typeof(UniquePeptideType));
             comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifications;

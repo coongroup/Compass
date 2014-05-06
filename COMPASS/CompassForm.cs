@@ -58,7 +58,12 @@ namespace Coon.Compass
         private void uwmDepartmentOfChemistryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start("http://chem.wisc.edu/");
-        }        
+        }
+
+        private void sourceCodeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://github.com/dbaileychess/Compass");
+        }
 
         private void aboutCompassToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -131,6 +136,8 @@ namespace Coon.Compass
             var procyonForm = new ProcyonForm { MdiParent = this };
             procyonForm.Show();
         }
+
+       
 
     }
 }

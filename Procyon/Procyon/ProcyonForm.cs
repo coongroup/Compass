@@ -10,7 +10,6 @@ using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
 using LumenWorks.Framework.IO.Csv;
-using Meta.Numerics.Statistics;
 using CSMSL.IO;
 
 namespace Coon.Compass.Procyon
@@ -664,7 +663,7 @@ namespace Coon.Compass.Procyon
         {
             try
             {
-                if (!TestUniqueNames(AnalysisGroups))
+                if (!TestUniqueNames(AnalysisGroups)) //This will make sure that each of the unique names are in fact unique
                 {
                     LoadUserInputs();
 
@@ -757,7 +756,6 @@ namespace Coon.Compass.Procyon
 
             //Get the value to use for the 
             ValueForComparison = ValueType.MeanNormalizedLog2Change;
-
             if(intensityFoldChange.Checked) { ValueForComparison = ValueType.IntensityFoldChange; }
             else if (intensityLog2.Checked) { ValueForComparison = ValueType.IntensityLog2Change; }
             if (meanNormFoldChange.Checked) { ValueForComparison = ValueType.MeanNormalizedFoldChange; }
@@ -771,7 +769,6 @@ namespace Coon.Compass.Procyon
                     string denominatorGroupString = row.Cells[1].Value.ToString();
 
                     bool testSignificance = true;
-
                     if (numeratorGroupString.Equals("All"))
                     {
                         foreach (string groupNumber in Numerators)
@@ -789,7 +786,6 @@ namespace Coon.Compass.Procyon
                     else
                     {
                         Comparison comparison = new Comparison(numeratorGroupString, denominatorGroupString, testSignificance);
-
                         Comparisons.Add(comparison);
                     }
                 }
@@ -996,11 +992,7 @@ namespace Coon.Compass.Procyon
 
                                 double a = double.Parse(reader[header]);
 
-                                //if (a == 0)
-                                //{
-                                //    int b = 0;
-                                //}
-
+                                
                                 quantFile.HeadertoValueDict[header].Add(double.Parse(reader[header]));
                                 quantEntry.SampleValues.Add(header, double.Parse(reader[header]));
 
@@ -1375,7 +1367,7 @@ namespace Coon.Compass.Procyon
                 {
                     while (reader.ReadNextRecord())
                     {
-                        if (reader["Linkage"].Equals("Connection"))
+                        if (reader["Linkage"].Equals("Connection") || reader["Linkage"].Equals("Interaction"))
                         {
                             string uniprotID = reader["ID"];
                             string goIDList = reader["Contents"];
@@ -1444,6 +1436,7 @@ namespace Coon.Compass.Procyon
 
             UniProtXml uniprotXml = new UniProtXml(databaseFile);
 
+            Dictionary<string, List<string>> ensemblToUniprotDict = new Dictionary<string, List<string>>();
             foreach (entry uniprotEntry in uniprotXml.Entries)
             {
                 List<string> uniprotIDs = new List<string>();
@@ -1453,70 +1446,110 @@ namespace Coon.Compass.Procyon
                     uniprotIDs.Add(acession);
                 }
 
-                if(annotationsToAdd.Contains(AnnotationType.Keywords))
+                if (uniprotEntry.keyword != null)
                 {
-                    foreach (keywordType keyword in uniprotEntry.keyword)
+                    if (annotationsToAdd.Contains(AnnotationType.Keywords))
                     {
-                        string keywordID = keyword.id;
-                        AnnotationEntry outEntry = null;
+                        foreach (keywordType keyword in uniprotEntry.keyword)
+                        {
+                            string keywordID = keyword.id;
+                            AnnotationEntry outEntry = null;
 
-                        if (AnnotationEntryDict.TryGetValue(keywordID, out outEntry))
-                        {
-                            annotationEntries.Add(outEntry);
-                        }
-                        else
-                        {
-                            AnnotationEntry addEntry = new AnnotationEntry(keywordID, keyword.Value, AnnotationType.Keywords);
-                            annotationEntries.Add(addEntry);
-                            AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
+                            if (AnnotationEntryDict.TryGetValue(keywordID, out outEntry))
+                            {
+                                annotationEntries.Add(outEntry);
+                            }
+                            else
+                            {
+                                AnnotationEntry addEntry = new AnnotationEntry(keywordID, keyword.Value, AnnotationType.Keywords);
+                                annotationEntries.Add(addEntry);
+                                AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
+                            }
                         }
                     }
                 }
 
-                foreach (dbReferenceType goTerm in uniprotEntry.dbReference)
+                if (uniprotEntry.dbReference != null)
                 {
-                    if (goTerm.type.Equals("GO"))
+                    foreach (dbReferenceType goTerm in uniprotEntry.dbReference)
                     {
-                        string goID = goTerm.id;
-                        AnnotationEntry outEntry = null;
+                        if (goTerm.type.Equals("GO"))
+                        {
+                            string goID = goTerm.id;
+                            AnnotationEntry outEntry = null;
 
-                        if(AnnotationEntryDict.TryGetValue(goID, out outEntry))
-                        {
-                            annotationEntries.Add(outEntry);
-                        }
-                        else
-                        {
-                            string goName = null;
-                            AnnotationType goType = AnnotationType.GOCellularComponent;
-                            foreach (propertyType property in goTerm.property)
+                            if (AnnotationEntryDict.TryGetValue(goID, out outEntry))
                             {
-                                if (property.type.Equals("term"))
+                                annotationEntries.Add(outEntry);
+                            }
+                            else
+                            {
+                                string goName = null;
+                                AnnotationType goType = AnnotationType.GOCellularComponent;
+                                foreach (propertyType property in goTerm.property)
                                 {
-                                    string goString = property.value;
-                                    string[] goArray = goString.Split(':');
+                                    if (property.type.Equals("term"))
+                                    {
+                                        string goString = property.value;
+                                        string[] goArray = goString.Split(':');
 
-                                    if (goArray[0].Equals("C"))
-                                    {
-                                        goType = AnnotationType.GOCellularComponent;
-                                    }
-                                    else if (goArray[0].Equals("F"))
-                                    {
-                                        goType = AnnotationType.GOMolecularFunction;
-                                    }
-                                    else if (goArray[0].Equals("P"))
-                                    {
-                                        goType = AnnotationType.GOBiologicalProcesses;
-                                    }
+                                        if (goArray[0].Equals("C"))
+                                        {
+                                            goType = AnnotationType.GOCellularComponent;
+                                        }
+                                        else if (goArray[0].Equals("F"))
+                                        {
+                                            goType = AnnotationType.GOMolecularFunction;
+                                        }
+                                        else if (goArray[0].Equals("P"))
+                                        {
+                                            goType = AnnotationType.GOBiologicalProcesses;
+                                        }
 
-                                    goName = goArray[1];
+                                        goName = goArray[1];
+                                    }
+                                }
+
+                                if (annotationsToAdd.Contains(goType))
+                                {
+                                    AnnotationEntry addEntry = new AnnotationEntry(goID, goName, goType);
+                                    annotationEntries.Add(addEntry);
+                                    AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
                                 }
                             }
+                        }
 
-                            if (annotationsToAdd.Contains(goType))
+                        if (goTerm.type.Equals("Ensembl"))
+                        {
+                            foreach (propertyType property in goTerm.property)
                             {
-                                AnnotationEntry addEntry = new AnnotationEntry(goID, goName, goType);
-                                annotationEntries.Add(addEntry);
-                                AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
+                                if (property.type.Equals("protein sequence ID"))
+                                {
+                                    string ensemblID = property.value;
+
+                                    AnnotationEntry addEntry = new AnnotationEntry(ensemblID, "Ensembl ID", AnnotationType.EnsemblID);
+
+                                    List<string> outList1 = null;
+                                    if (ensemblToUniprotDict.TryGetValue(ensemblID, out outList1))
+                                    {
+                                        foreach (string id in uniprotIDs)
+                                        {
+                                            if(!outList1.Contains(id))
+                                            {
+                                                outList1.Add(id);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        List<string> addList = new List<string>();
+                                        foreach (string id in uniprotIDs)
+                                        {
+                                            addList.Add(id);
+                                        }
+                                        ensemblToUniprotDict.Add(ensemblID, addList);
+                                    }
+                                }
                             }
                         }
                     }
@@ -1558,7 +1591,95 @@ namespace Coon.Compass.Procyon
                 }
             }
 
+            //Import the Protein Interactions
+            string interactionFile = "C:\\Users\\Chris\\Desktop\\Programs\\Mouse_Protein_Interactions.csv";
+            Dictionary<string, Dictionary<string, int>> ProteinInteractionDict = ImportProteinInteractionDictionary(interactionFile);
+            foreach (KeyValuePair<string, Dictionary<string, int>> kvp in ProteinInteractionDict)
+            {
+                List<string> outList = null;
+                if (ensemblToUniprotDict.TryGetValue(kvp.Key, out outList))
+                {
+                    foreach (string primaryUniprotID in outList)
+                    {
+                        //Grab the annotation list for the uniprot ID
+                        Dictionary<AnnotationType, List<string>> outDict = null;
+                        if (UniprotIDtoAnnotationList.TryGetValue(primaryUniprotID, out outDict))
+                        {
+                            List<string> outList2 = null;
+                            if (outDict.TryGetValue(AnnotationType.ProteinInteraction, out outList2))
+                            {
+                                foreach (string secondaryProtein in kvp.Value.Keys)
+                                {
+                                    List<string> outList3 = null;
+                                    if (ensemblToUniprotDict.TryGetValue(secondaryProtein, out outList3))
+                                    {
+                                        foreach (string secondaryUniprotID in outList3)
+                                        {
+                                            outList2.Add(secondaryUniprotID);
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                List<string> addList = new List<string>();
+                                foreach (string secondaryProtein in kvp.Value.Keys)
+                                {
+                                    List<string> outList3 = null;
+                                    if (ensemblToUniprotDict.TryGetValue(secondaryProtein, out outList3))
+                                    {
+                                        foreach (string secondaryUniprotID in outList3)
+                                        {
+                                            addList.Add(secondaryUniprotID);
+                                        }
+                                    }
+                                }
+
+                                outDict.Add(AnnotationType.ProteinInteraction, addList);
+                            }
+                        }
+                    }
+                }
+            }
+
             uniprotXml.Dispose();
+        }
+
+        private Dictionary<string, Dictionary<string, int>> ImportProteinInteractionDictionary(string interactionFile)
+        {
+            Dictionary<string, Dictionary<string, int>> retDict = new Dictionary<string, Dictionary<string, int>>();
+
+            using (CsvReader reader = new CsvReader(new StreamReader(interactionFile), true))
+            {
+                while (reader.ReadNextRecord())
+                {
+                    string primaryProteinRaw = reader["protein1"];
+                    string secondaryProteinRaw = reader["protein2"];
+                    string[] primaryProteinArray = primaryProteinRaw.Split('.');
+                    string[] secondaryProteinArray = secondaryProteinRaw.Split('.');
+                    string primaryProtein = primaryProteinArray[1];
+                    string secondaryProtein = secondaryProteinArray[1];
+                    int score = int.Parse(reader["combined_score"]);
+
+                    int scoreThreshold = 750;
+                    if (score > scoreThreshold)
+                    {
+                        Dictionary<string, int> outDict = null;
+                        if (retDict.TryGetValue(primaryProtein, out outDict))
+                        {
+                            outDict.Add(secondaryProtein, score);
+                        }
+                        else
+                        {
+                            Dictionary<string, int> addDict = new Dictionary<string, int>();
+                            addDict.Add(secondaryProtein, score);
+                            retDict.Add(primaryProtein, addDict);
+                        }
+                    }
+                }
+            }
+
+            return retDict;
         }
 
         private void ImportSavedProcyonDatabase(string databaseFile)
@@ -1567,7 +1688,7 @@ namespace Coon.Compass.Procyon
             {
                 while (reader.ReadNextRecord())
                 {
-                    if (reader["Linkage"].Equals("Connection"))
+                    if (reader["Linkage"].Equals("Connection") || reader["Linkage"].Equals("Interaction"))
                     {
                         string uniprotID = reader["ID"];
                         string goIDList = reader["Contents"];
@@ -1981,12 +2102,20 @@ namespace Coon.Compass.Procyon
                                     string goHash = kvp3.Key;
                                     double qvalue = kvp3.Value;
 
-                                    AnnotationEntry annotationEntry = AnnotationEntryDict[goHash];
-
                                     StringBuilder sb = new StringBuilder();
                                     sb.Append(goType);
                                     sb.Append(',');
-                                    sb.Append(annotationEntry.Name.Replace(',', '.'));
+
+                                    if(goType.Equals(AnnotationType.ProteinInteraction))
+                                    {
+                                        sb.Append(goHash);
+                                    }
+                                    else
+                                    {
+                                        AnnotationEntry annotationEntry = AnnotationEntryDict[goHash];
+                                        sb.Append(annotationEntry.Name.Replace(',', '.'));
+                                    }
+                                    
                                     sb.Append(',');
                                     sb.Append(qvalue);
 
@@ -2110,7 +2239,16 @@ namespace Coon.Compass.Procyon
                     foreach (KeyValuePair<AnnotationType, List<string>> kvp2 in kvp.Value)
                     {
                         StringBuilder sb = new StringBuilder();
-                        sb.Append("Connection");
+
+                        if(kvp2.Key.Equals(AnnotationType.ProteinInteraction))
+                        {
+                            sb.Append("Interaction");
+                        }
+                        else
+                        {
+                            sb.Append("Connection");
+                        }
+
                         sb.Append(',');
                         sb.Append(kvp.Key);
                         sb.Append(',');

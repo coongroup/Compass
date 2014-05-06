@@ -12,7 +12,7 @@ namespace Coon.Compass
     {
         protected override void OnLoad(EventArgs e)
         {
-            Text = "COMPASS " + GetRunningVersion().ToString();
+            Text = string.Format("COMPASS {0}-bit (v{1})", IntPtr.Size * 8, GetRunningVersion());
             tsbCoondornator.Text = "OMSSA Navigator";
             base.OnLoad(e);
         }

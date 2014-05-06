@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -192,6 +193,13 @@ namespace Coon.Compass.DatabaseMaker
 
             // Clearing the 'Output Folder' TextBox
             txtOutput.Text = "";
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            Text = string.Format("Database Maker {0}-bit (v{1})", IntPtr.Size * 8, Assembly.GetExecutingAssembly().GetName().Version.ToString(3));
+           
+            base.OnLoad(e);
         }
     }
 

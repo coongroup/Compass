@@ -2,6 +2,7 @@
 using System.Text;
 using System.Linq;
 using CSMSL.Chemistry;
+using CSMSL.Proteomics;
 
 namespace Coon.Compass.Lotor
 {
@@ -35,11 +36,45 @@ namespace Coon.Compass.Lotor
             }
         }
 
+        public string GetProteinLine()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(ProteinGroup);
+            sb.Append(',');
+            sb.Append(Defline);
+            sb.Append(",\"");
+            int count = 0;
+            int psmsLocalized = 0;
+            foreach (KeyValuePair<string, List<LocalizedHit>> kvp in Hits.OrderBy(kvp => kvp.Key))
+            {
+                if (string.IsNullOrEmpty(kvp.Key))
+                    continue;
+
+                int localized = kvp.Value.Count(hit => hit.IsLocalized);
+                if (localized == 0)
+                    continue;
+
+                sb.Append(kvp.Key);
+                sb.Append(",");
+                psmsLocalized += localized;
+                count++;
+            }
+            if (count > 0)
+            {
+                sb.Remove(sb.Length - 1, 1);
+            }
+            sb.Append("\",");
+            sb.Append(count);
+            sb.Append(',');
+            sb.Append(psmsLocalized);
+            return sb.ToString();
+        }
+
         public string Print(int quantStart, int quantEnd)
         {
             bool quant = quantStart >= 0;
             StringBuilder sb = new StringBuilder();
-            foreach (KeyValuePair<string, List<LocalizedHit>> kvp in Hits)
+            foreach (KeyValuePair<string, List<LocalizedHit>> kvp in Hits.OrderBy(kvp => kvp.Key))
             {
                 if (string.IsNullOrEmpty(kvp.Key))
                     continue;
@@ -101,21 +136,49 @@ namespace Coon.Compass.Lotor
         {
             StringBuilder sb = new StringBuilder();
             IMass[] mods = hit.LocalizedIsoform.GetModifications();
+            bool first = false;
             for(int resNumber = 1; resNumber < mods.Length-1; resNumber++)
             {
                 IMass mod = mods[resNumber];
-                if (mod == null || Lotor.FixedModifications.Contains(mod)) 
+                if (mod == null) 
                     continue;
+                              
+                ModificationCollection modCollection = mod as ModificationCollection;
+                if (modCollection != null)
+                {
+                    IMass trueMod = mod;
+                    bool passes = false;
+                    foreach (IMass mod2 in modCollection)
+                    {
+
+                        if (Lotor.QuantifiedModifications.Contains(mod2))
+                        {
+                            trueMod = mod2;
+                            passes = true;
+                            break;  
+                        }
+                    }
+                    if (!passes)
+                        continue;
+                    mod = trueMod;
+                }
+                else
+                {
+                    if (Lotor.FixedModifications.Contains(mod) || !Lotor.QuantifiedModifications.Contains(mod))
+                        continue;                  
+                }
+
                 int fullResidueNumber = hit.PSM.StartResidue + resNumber - 1;
                 char res = hit.LocalizedIsoform.Sequence[resNumber-1];
+                if (first)
+                {
+                    sb.Append(" & ");              
+                }
                 sb.Append(res);
                 sb.Append(fullResidueNumber);
-                sb.Append(" [" + mod + "] &");
-            }
-            if (sb.Length > 0)
-            {
-                sb.Remove(sb.Length - 1, 1);
-            }
+                sb.Append("[" + mod + "]");
+                first = true;
+            }          
             return sb.ToString();
         }
 

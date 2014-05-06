@@ -61,6 +61,7 @@
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
+            this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
@@ -246,10 +247,10 @@
             this.groupBox4.Controls.Add(this.masstolerancelabel);
             this.groupBox4.Location = new System.Drawing.Point(131, 173);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(168, 78);
+            this.groupBox4.Size = new System.Drawing.Size(145, 78);
             this.groupBox4.TabIndex = 91;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Reporter Tag Mass Tolerances";
+            this.groupBox4.Text = "Reporter Tag Tolerances";
             // 
             // label23
             // 
@@ -424,14 +425,25 @@
             // 
             // groupBox6
             // 
+            this.groupBox6.Controls.Add(this.checkBox2);
             this.groupBox6.Controls.Add(this.checkBox1);
             this.groupBox6.Controls.Add(this.noisebandcapCB);
-            this.groupBox6.Location = new System.Drawing.Point(305, 175);
+            this.groupBox6.Location = new System.Drawing.Point(282, 175);
             this.groupBox6.Name = "groupBox6";
-            this.groupBox6.Size = new System.Drawing.Size(237, 76);
+            this.groupBox6.Size = new System.Drawing.Size(260, 76);
             this.groupBox6.TabIndex = 94;
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Misc.";
+            // 
+            // checkBox2
+            // 
+            this.checkBox2.AutoSize = true;
+            this.checkBox2.Location = new System.Drawing.Point(123, 42);
+            this.checkBox2.Name = "checkBox2";
+            this.checkBox2.Size = new System.Drawing.Size(87, 17);
+            this.checkBox2.TabIndex = 94;
+            this.checkBox2.Text = "Output Purity";
+            this.checkBox2.UseVisualStyleBackColor = true;
             // 
             // checkBox1
             // 
@@ -611,6 +623,7 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.CheckBox checkBox2;
 
 
     }

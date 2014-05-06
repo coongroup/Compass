@@ -21,9 +21,11 @@ namespace Coon.Compass.TagQuant
         public bool DontQuantifyETD;
         public bool NoisebandCap;
         public bool MS3Quant;
+        public bool CalculatePurity;
+        public double PurityWindowInTh = 2;
         public SortedList<double, TagInformation> UsedTags;
-        public MassTolerance ItMassTolerance;
-        public MassTolerance FtMassTolerance;
+        public Tolerance ItMassTolerance;
+        public Tolerance FtMassTolerance;
         public string OutputDirectory;
         public string RawFileDirectory;
         public int ETDQuantPosition;
@@ -38,8 +40,8 @@ namespace Coon.Compass.TagQuant
         private const double Carbon1213Difference = Constants.Carbon13 - Constants.Carbon;
 
         public TagQuant(string outputDirectory, string rawFileDirectory, IEnumerable<string> inputFiles,
-            IEnumerable<TagInformation> tags, MassTolerance itTolerance, MassTolerance ftTolerance, bool isMS3Quant = false,
-            int etdQuantPosition = 0, bool nosiebasecap = false, bool isETDQuantified = true)
+            IEnumerable<TagInformation> tags, Tolerance itTolerance, Tolerance ftTolerance, bool isMS3Quant = false,
+            int etdQuantPosition = 0, bool nosiebasecap = false, bool isETDQuantified = true, bool calculatePurity = false)
         {
             RawFileDirectory = rawFileDirectory;
             OutputDirectory = outputDirectory;
@@ -48,6 +50,7 @@ namespace Coon.Compass.TagQuant
             NoisebandCap = nosiebasecap;
             DontQuantifyETD = isETDQuantified;
             MS3Quant = isMS3Quant;
+            CalculatePurity = calculatePurity;
 
             ItMassTolerance = itTolerance;
             FtMassTolerance = ftTolerance;
@@ -160,7 +163,7 @@ namespace Coon.Compass.TagQuant
                 {
                     Log(string.Format("\t{0:F1}\t{1:F1}\t{2:F1}\t{3:F1}", data[i, 0], data[i, 1], data[i, 2], data[i, 3]));
                 }
-                Log("\nPurity Matrix (determinant = "+correction.Determinant().ToString("g4")+")");
+                Log("\nPurity Matrix");
                 double[,] purityMatrix = correction.GetMatrix();
                 for (int i = 0; i < purityMatrix.GetLength(0); i++)
                 {
@@ -239,6 +242,11 @@ namespace Coon.Compass.TagQuant
                         string header = string.Join(",", headerColumns);
                         sb.Append(header);
 
+                        if (CalculatePurity)
+                        {
+                            sb.Append(",Precursor Purity (%)");
+                        }
+
                         // Raw Intensities
                         foreach (TagInformation tag in UsedTags.Values)
                         {
@@ -305,6 +313,13 @@ namespace Coon.Compass.TagQuant
                             List<QuantPeak> peaks =
                                 (from TagInformation tag in UsedTags.Values select psm[tag]).ToList();
 
+                            // Print out precrusor purity if requested
+                            if (CalculatePurity)
+                            {
+                                sb.Append(',');
+                                sb.Append(psm.Purity*100);
+                            }
+
                             // Raw Intensities
                             foreach (QuantPeak peak in peaks)
                             {
@@ -365,8 +380,7 @@ namespace Coon.Compass.TagQuant
                 OnUpdateLog("Processing File "+filePath+"...");
                 QuantFile quantFile = new QuantFile(filePath);
                 StreamReader basestreamReader = new StreamReader(filePath);
-     
-
+                int oldProgress = -1;
                 using (CsvReader reader = new CsvReader(basestreamReader, true))
                 {
                     while (reader.ReadNextRecord()) // go through csv and raw file to extract the info we want
@@ -385,7 +399,14 @@ namespace Coon.Compass.TagQuant
                             rawFile.Open();
                         }
 
-                        //// Set default fragmentation to CAD / HCD
+                        int progress = (int) (100*(double)basestreamReader.BaseStream.Position/basestreamReader.BaseStream.Length);
+                        if (progress != oldProgress)
+                        {
+                            OnProgressUpdate(progress);
+                            oldProgress = progress;
+                        }
+
+                    //// Set default fragmentation to CAD / HCD
                         //FragmentationMethod ScanFragMethod = filenameID.Contains(".ETD.")
                         //    ? FragmentationMethod.ETD
                         //    : FragmentationMethod.CAD;
@@ -398,6 +419,17 @@ namespace Coon.Compass.TagQuant
                         
                         // Get the scan object for the sequence ms2 scan
                         MsnDataScan quantitationMsnScan = rawFile[scanNumber] as MsnDataScan;
+
+                        double purity = 1;
+                        if (CalculatePurity)
+                        {
+                            double mz = quantitationMsnScan.PrecursorMz;
+                            int charge = quantitationMsnScan.PrecursorCharge;
+                            DoubleRange isolationRange = MzRange.FromDa(mz, PurityWindowInTh);
+
+                            MSDataScan parentScan = rawFile[quantitationMsnScan.ParentScanNumber];
+                            purity = DeterminePurity(parentScan, mz, charge, isolationRange);
+                        }
 
                         if (quantitationMsnScan == null)
                         {
@@ -424,7 +456,7 @@ namespace Coon.Compass.TagQuant
                             }
                         }
 
-                        MassTolerance massTolerance = quantitationMsnScan.MzAnalyzer == MZAnalyzerType.IonTrap2D ? ItMassTolerance : FtMassTolerance;
+                        Tolerance Tolerance = quantitationMsnScan.MzAnalyzer == MZAnalyzerType.IonTrap2D ? ItMassTolerance : FtMassTolerance;
                         bool isETD = quantitationMsnScan.DissociationType == DissociationType.ETD;
 
                         double injectionTime = quantitationMsnScan.InjectionTime;
@@ -459,7 +491,7 @@ namespace Coon.Compass.TagQuant
                                 ? tag.MassEtd
                                 : tag.MassCAD;
 
-                            var peak = massSpectrum.GetClosestPeak(tagMz, massTolerance);
+                            var peak = massSpectrum.GetClosestPeak(tagMz, Tolerance);
 
                             QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise,
                                 peak == null && NoisebandCap);
@@ -469,7 +501,7 @@ namespace Coon.Compass.TagQuant
 
                         PurityCorrect(peaks, isDecoy);
 
-                        PSM psm = new PSM(filenameID, scanNumber, peaks);
+                        PSM psm = new PSM(filenameID, scanNumber, peaks, purity);
                         quantFile.AddPSM(psm);
                     }
                 }
@@ -483,6 +515,35 @@ namespace Coon.Compass.TagQuant
                 Log("PSMs Loaded:\t" + quantFile.Psms.Count );
                 yield return quantFile;
             }
+        }
+
+        private double DeterminePurity(MSDataScan scan, double mz, int charge, DoubleRange isolationRange)
+        {
+            var miniSpectrum = scan.GetReadOnlySpectrum().Extract(isolationRange);
+
+            double expectedSpacing = Constants.C13C12Difference/charge;
+            double min = expectedSpacing*0.95;
+            double max = expectedSpacing*1.05;
+
+            double totalIntensity = 0;
+            double precursorIntensity = 0;
+            foreach (MZPeak peak in miniSpectrum)
+            {
+                double difference = (peak.MZ - mz) * charge;
+                double difference_Rounded = Math.Round(difference);
+                double expected_difference = difference_Rounded * Constants.C13C12Difference;
+                double Difference_ppm = (Math.Abs((expected_difference - difference) / (mz * charge))) * 1000000;
+
+                if (Difference_ppm <= 25)
+                {
+                    precursorIntensity += peak.Intensity;
+                }
+
+                totalIntensity += peak.Intensity;
+            }
+         
+
+            return precursorIntensity / totalIntensity;
         }
 
         private void PurityCorrect(IEnumerable<QuantPeak> peaks, bool isDecoy)

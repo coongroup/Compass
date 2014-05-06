@@ -42,6 +42,7 @@
             this.uwmDepartmentOfChemistryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutCOMPASSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sourceCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbDatabaseMaker = new System.Windows.Forms.ToolStripButton();
             this.tsbDtaGenerator = new System.Windows.Forms.ToolStripButton();
@@ -70,7 +71,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(984, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1184, 24);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -155,7 +156,8 @@
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutCOMPASSToolStripMenuItem});
+            this.aboutCOMPASSToolStripMenuItem,
+            this.sourceCodeToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -163,9 +165,16 @@
             // aboutCOMPASSToolStripMenuItem
             // 
             this.aboutCOMPASSToolStripMenuItem.Name = "aboutCOMPASSToolStripMenuItem";
-            this.aboutCOMPASSToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.aboutCOMPASSToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.aboutCOMPASSToolStripMenuItem.Text = "&About COMPASS";
             this.aboutCOMPASSToolStripMenuItem.Click += new System.EventHandler(this.aboutCompassToolStripMenuItem_Click);
+            // 
+            // sourceCodeToolStripMenuItem
+            // 
+            this.sourceCodeToolStripMenuItem.Name = "sourceCodeToolStripMenuItem";
+            this.sourceCodeToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.sourceCodeToolStripMenuItem.Text = "View Source Code";
+            this.sourceCodeToolStripMenuItem.Click += new System.EventHandler(this.sourceCodeToolStripMenuItem_Click);
             // 
             // toolStrip1
             // 
@@ -183,7 +192,7 @@
             this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(984, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1184, 25);
             this.toolStrip1.TabIndex = 3;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -322,7 +331,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(984, 762);
+            this.ClientSize = new System.Drawing.Size(1184, 962);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -369,6 +378,7 @@
         private System.Windows.Forms.ToolStripMenuItem lowResToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem highResToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton toolStripButton5;
+        private System.Windows.Forms.ToolStripMenuItem sourceCodeToolStripMenuItem;
 
     }
 }

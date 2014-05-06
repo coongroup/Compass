@@ -239,6 +239,8 @@ namespace Coon.Compass.ProteinHoarder
                 sb.Append(',');
                 if (uniquepeps != null) sb.Append(uniquepeps.Count);
                 sb.Append(',');
+                sb.Append(uniquepeps.Count(pep => pep.IsShared));
+                sb.Append(',');
             }
             sb.Append(PScore.ToString(CultureInfo.InvariantCulture));
             if (exp != null && exp.UseQuant)
@@ -250,9 +252,7 @@ namespace Coon.Compass.ProteinHoarder
                     sb.Append(quant.PSMs);
                     sb.Append(',');
                     sb.Append(quant.UniquePeptides.Count);
-                    sb.Append(',');
-                    sb.Append(quant.UniquePeptides.Count(pep => pep.IsShared));
-                    sb.Append(',');
+                    sb.Append(',');                   
                     sb.Append(quant.ToOutput(duplexQuant, exp.MeidanLog2Ratio, useOnlyCompleteSets));
                 }
                 else

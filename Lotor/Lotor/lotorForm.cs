@@ -38,8 +38,8 @@ namespace Coon.Compass.Lotor
         {
             Text = string.Format("Lotor ({0})", GetRunningVersion());
 
-            comboBox1.DataSource = Enum.GetValues(typeof(MassToleranceType));
-            comboBox1.SelectedItem = MassToleranceType.DA;
+            comboBox1.DataSource = Enum.GetValues(typeof(ToleranceType));
+            comboBox1.SelectedItem = ToleranceType.DA;
 
             foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
@@ -112,7 +112,7 @@ namespace Coon.Compass.Lotor
             int scoreCutoff = (int)numericUpDown2.Value;
             bool phosphoNeutralLoss = phosphoNeutralLossCB.Checked && quantifiedModifications.Contains(Phosphorylation);
 
-            MassTolerance prodTolerance = GetProductTolerance();
+            Tolerance prodTolerance = GetProductTolerance();
             _lotor = new Lotor(rawFileDirectory, inputcsvfile, outputDirectory, fixedModifications,
                 quantifiedModifications, prodTolerance, scoreCutoff, separateGroups, prodThreshold, ignoreCTerminal, reduceSites,
                 FragmentTypes.b | FragmentTypes.y, phosphoNeutralLoss);
@@ -146,11 +146,11 @@ namespace Coon.Compass.Lotor
             localizeB.Enabled = true;
         }
 
-        public MassTolerance GetProductTolerance()
+        public Tolerance GetProductTolerance()
         {
             double value = (double)numericUpDown1.Value;
-            MassToleranceType type = (MassToleranceType)comboBox1.SelectedItem;
-            return new MassTolerance(type, value);
+            ToleranceType type = (ToleranceType)comboBox1.SelectedItem;
+            return new Tolerance(type, value);
         }
         
         public void LoadUserMods(string userModFile)

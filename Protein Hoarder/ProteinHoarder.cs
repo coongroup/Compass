@@ -140,6 +140,7 @@ namespace Coon.Compass.ProteinHoarder
                 if (SequenceCoverageMap)
                     WriteSequenceMaps(_proteinGroups, OutputDirectory);
                 
+                
             }
             catch (Exception e)
             {
@@ -153,12 +154,17 @@ namespace Coon.Compass.ProteinHoarder
 
         private void WriteSequenceMaps(List<ProteinGroup> proteinGroups, string outputDirectory)
         {    
-            string fileName = Path.Combine(outputDirectory, "Seqeunce Coverage Map.txt");
+            string fileName = Path.Combine(outputDirectory, "Sequence Coverage Map.txt");
             Log("Writing file " + fileName);
+            string csvFile = Path.Combine(outputDirectory, "data.csv");
+            using(StreamWriter csvWriter = new StreamWriter(csvFile))
             using (StreamWriter writer = new StreamWriter(fileName))
-            {               
-                foreach (ProteinGroup proteinGroup in proteinGroups)
+            {
+                csvWriter.WriteLine("protein,position,count,coverage,protein name,# peptides");
+                int proteinID = 0;
+                foreach (ProteinGroup proteinGroup in proteinGroups.Where(g => !g.IsDecoy).OrderBy(g => g.LongestProteinLen))
                 {
+                    proteinID++;
                     string sequence = proteinGroup.RepresentativeProtein.Sequence;
                     string leusequence = proteinGroup.RepresentativeProtein.LeucineSequence;
                     int length = sequence.Length;
@@ -186,7 +192,9 @@ namespace Coon.Compass.ProteinHoarder
                     else
                     {
                         writer.WriteLine();
-                    }
+                    }                    
+              
+
                     writer.WriteLine("========");
                    
                     // Write the amino acid numbers
@@ -223,11 +231,36 @@ namespace Coon.Compass.ProteinHoarder
 
                     // Write the combined mapped sequence           
                     writer.Write(" ");
+                    int startIndex = -1;
+                    bool started = false;
                     for (int i = 0; i < bits.Length; i++)
-                    {                       
-                        writer.Write(bits[i] > 0 ? sequence[i] : ' ');
+                    {
+                        if (bits[i] > 0)
+                        {
+                            writer.Write(sequence[i]);
+                            if(!started)
+                            {
+                                startIndex = i;
+                                started = true;
+                            }
+                        }
+                        else
+                        {
+                            if (started)
+                            {
+                                started = false;
+                                csvWriter.WriteLine("{0},{1},{2},{3},{4},{5}", proteinID, startIndex, i - startIndex, proteinGroup.SequenceCoverage, proteinGroup.Description, peptides.Count);
+                            }
+                            writer.Write(' ');
+                        }
+
+                    }
+                    if (started)
+                    {
+                        csvWriter.WriteLine("{0},{1},{2},{3},{4},{5}", proteinID, startIndex, bits.Length - startIndex, proteinGroup.SequenceCoverage, proteinGroup.Description, peptides.Count);
                     }
                     writer.WriteLine();
+
                     writer.WriteLine();
 
                     // Write the each peptide
@@ -235,7 +268,6 @@ namespace Coon.Compass.ProteinHoarder
                     {
                         writer.Write((peptide.IsShared) ? "S" : " ");
                         int start_index = 0;
-                        int end_index = 0;
                         while (true)
                         {
                             int index = leusequence.IndexOf(peptide.LeucineSequence, start_index);
@@ -246,18 +278,17 @@ namespace Coon.Compass.ProteinHoarder
                             }
 
                             // Write blank spaces
-                            writer.Write(new string(' ', index - end_index));
+                            writer.Write(new string(' ', index));
                             writer.Write(peptide.LeucineSequence);
                             start_index = index + 1;
-                            end_index = index + peptide.Length;
-
+                            writer.WriteLine();
                             //for (int aa = 0; aa < peptide.Length; aa++)
                             //{
                             //    writer.Write(peptide.LeucineSequence[aa]);                       
                             //}
                             
                         }
-                        writer.WriteLine();
+                       
                     }
 
                     // Give some room between proteins

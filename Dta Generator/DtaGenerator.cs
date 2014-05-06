@@ -553,12 +553,15 @@ namespace Coon.Compass.DtaGenerator
                 //    }
                 //}                
 
-
+                var data = new double[0, 0];
                 object labels = null;
                 object flags = null;
-                raw.GetLabelData(ref labels, ref flags, ref scanNumber);
+                try
+                {                    
+                    raw.GetLabelData(ref labels, ref flags, ref scanNumber);
 
-                var data = (double[,])labels;
+                    data = (double[,])labels;
+                } catch (Exception) { }
 
                 // Check it high res, if not, get the low resolution spectrum
                 if (data.Length == 0)

@@ -184,7 +184,7 @@ namespace Coon.Compass.FdrOptimizer
                     double theoreticalMass = psm.MonoisotopicMass;
                     int nominalMassOffset;
                     double adjustedIsolationMass;
-                    MassTolerance tolerancePPM = MassTolerance.CalculatePrecursorMassError(theoreticalMass,
+                    Tolerance tolerancePPM = Tolerance.CalculatePrecursorMassError(theoreticalMass,
                         isolationMass, out nominalMassOffset, out adjustedIsolationMass);
                     psm.AdjustedIsolationMass = adjustedIsolationMass;
                     psm.IsotopeSelected = nominalMassOffset;

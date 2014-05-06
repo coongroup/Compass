@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Coon.Compass.Procyon.alglib;
-using Meta.Numerics;
 using Meta.Numerics.Statistics;
 
 
@@ -228,7 +224,7 @@ namespace Coon.Compass.Procyon
             }
 
             bool significantOnQValue = false;
-            if (thresholdTypeString.Equals("q-Value"))
+            if (thresholdTypeString.Equals("P-Value"))
             {
                 significantOnQValue = true;
             }
@@ -323,7 +319,15 @@ namespace Coon.Compass.Procyon
                             {
                                 foreach (string goID in goTermsToadd)
                                 {
-                                    quantEntry.AddAnnotation(annotationType, annotationEntryDict[goID]);
+                                    if (annotationType.Equals(AnnotationType.ProteinInteraction))
+                                    {
+                                        AnnotationEntry addEntry = new AnnotationEntry(goID, goID, AnnotationType.ProteinInteraction);
+                                        quantEntry.AddAnnotation(annotationType, addEntry);
+                                    }
+                                    else
+                                    {
+                                        quantEntry.AddAnnotation(annotationType, annotationEntryDict[goID]);
+                                    }
                                 }
                             }
                         }

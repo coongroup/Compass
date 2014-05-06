@@ -27,9 +27,9 @@ namespace Coon.Compass.Lotor
 
         public List<Fragment> Fragments;
 
-        public HashSet<Fragment> MatchedFragments; 
+        public HashSet<Fragment> MatchedFragments;
 
-        public void MatchSpectrum(FragmentTypes fragmentTypes, MassTolerance tolerance, double cutoffThreshold, bool phosphoNeutralLoss, params int[] chargeStates)
+        public void MatchSpectrum(FragmentTypes fragmentTypes, Tolerance tolerance, double cutoffThreshold, bool phosphoNeutralLoss, params int[] chargeStates)
         {
             Fragments = Fragment(fragmentTypes).OrderBy(f => f.ToString()).ToList();
                       

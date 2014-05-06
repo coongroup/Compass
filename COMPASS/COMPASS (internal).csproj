@@ -30,8 +30,8 @@
     <PublisherName>CoonWare</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>7</ApplicationRevision>
-    <ApplicationVersion>1.2.18.%2a</ApplicationVersion>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>1.4.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -51,7 +51,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release %28Internal%29\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -100,13 +100,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompassLocal.cs">
@@ -170,14 +166,6 @@
       <Project>{298b64e4-f767-4204-a9ac-efda8a7bc2e1}</Project>
       <Name>TagQuant</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\CSMSL\CSMSL\IO\OMSSA\OMSSA.csproj">
-      <Project>{45a71e18-42e8-41a4-9479-2852c4186993}</Project>
-      <Name>OMSSA</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\CSMSL\CSMSL\IO\Thermo\Thermo.csproj">
-      <Project>{24dc85ff-e97b-4140-9614-77dd8fddd32f}</Project>
-      <Name>Thermo</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Batch FDR Optimizer\Batch FDR Optimizer.csproj">
       <Project>{1C59E65F-570C-4020-B1B4-261E527BFE46}</Project>
       <Name>Batch FDR Optimizer</Name>
@@ -189,10 +177,6 @@
     <ProjectReference Include="..\Database Maker\DatabaseMaker.gui\DatabaseMaker.gui.csproj">
       <Project>{732ccd3b-8f66-4b9a-8da9-0f0bb736928f}</Project>
       <Name>DatabaseMaker.gui</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Database Maker\DatabaseMaker.lib\DatabaseMaker.lib.csproj">
-      <Project>{016cc3a6-ea74-4856-8bc5-b9ce9dafeff7}</Project>
-      <Name>DatabaseMaker.lib</Name>
     </ProjectReference>
     <ProjectReference Include="..\DTA Generator\DTA Generator.csproj">
       <Project>{B91DDD59-F211-4815-992C-4CFEC51D36EE}</Project>
@@ -209,10 +193,6 @@
     <ProjectReference Include="..\Low-Res FDR Optimizer\Low-Res FDR Optimizer.csproj">
       <Project>{542B99D3-D91D-4DFD-9395-2975BB3CF38F}</Project>
       <Name>Low-Res FDR Optimizer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\CSMSL\CSMSL\CSMSL.csproj">
-      <Project>{3C8C9F05-9C19-4251-95FA-05D7EDC8CAE6}</Project>
-      <Name>CSMSL</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -260,16 +240,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <PublishFile Include="Combinatorics">
-      <Visible>False</Visible>
-      <Group>
-      </Group>
-      <TargetPath>
-      </TargetPath>
-      <PublishState>Include</PublishState>
-      <IncludeHash>True</IncludeHash>
-      <FileType>Assembly</FileType>
-    </PublishFile>
     <PublishFile Include="CSMSL">
       <Visible>False</Visible>
       <Group>

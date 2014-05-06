@@ -15,6 +15,7 @@ namespace Coon.Compass.Procyon
         KEGGPathway = 3,
         ProteinInteraction = 4,
         Keywords = 5,
-        None = 6
+        EnsemblID = 6,
+        None = 7
     }
 }

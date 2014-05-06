@@ -327,8 +327,9 @@ namespace Coon.Compass.TagQuant
             //bool DontQuantifyETD = false;// ComboBoxETDoptions.Text == "Don't Quantify";
             bool noisebandCap = noisebandcapCB.Checked; // Check for noise-band capping
             bool ms3Quant = checkBox1.Checked;
+            bool calculatePurity = checkBox2.Checked;
 
-            TagQuant tagQuant = new TagQuant(textOutputFolder.Text, textRawFolder.Text, listBox1.Items.OfType<string>(), tagsToUse, MassTolerance.FromDA(ITerror), MassTolerance.FromDA(FTerror),ms3Quant,nosiebasecap:noisebandCap);
+            TagQuant tagQuant = new TagQuant(textOutputFolder.Text, textRawFolder.Text, listBox1.Items.OfType<string>(), tagsToUse, Tolerance.FromDA(ITerror), Tolerance.FromDA(FTerror), ms3Quant, nosiebasecap: noisebandCap, calculatePurity: calculatePurity);
             tagQuant.ProgressChanged += tagQuant_ProgressChanged;
             tagQuant.OnFinished += tagQuant_OnFinished;
             tagQuant.UpdateLog += tagQuant_UpdateLog;

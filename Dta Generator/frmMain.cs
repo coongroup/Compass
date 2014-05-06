@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -230,7 +231,7 @@ namespace Coon.Compass.DtaGenerator
 
         protected override void OnLoad(EventArgs e)
         {
-            Text = string.Format("DTA Generator ({0}) running {1} cores", GetRunningVersion(), Environment.ProcessorCount);
+            Text = string.Format("Dta Generator {0}-bit (v{1}) running {2} cores", IntPtr.Size * 8, Assembly.GetExecutingAssembly().GetName().Version, Environment.ProcessorCount);
             base.OnLoad(e);
         }
     }

@@ -335,7 +335,7 @@
             "GO-Molecular Function",
             "GO-Biological Processes",
             "KEGG Pathway (Not Available)",
-            "Protein Interaction (Not Available)",
+            "Protein Interaction",
             "Keywords"});
             this.goTermsCheckListBox.Location = new System.Drawing.Point(583, 179);
             this.goTermsCheckListBox.Name = "goTermsCheckListBox";
@@ -405,7 +405,7 @@
             this.annotationSigTextBox.Name = "annotationSigTextBox";
             this.annotationSigTextBox.Size = new System.Drawing.Size(60, 20);
             this.annotationSigTextBox.TabIndex = 38;
-            this.annotationSigTextBox.Text = "0.05";
+            this.annotationSigTextBox.Text = "0.02";
             this.annotationSigTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label10

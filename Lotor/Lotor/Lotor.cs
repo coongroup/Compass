@@ -16,7 +16,7 @@ namespace Coon.Compass.Lotor
 {
     public class Lotor
     {
-        private readonly MassTolerance _prodTolerance;
+        private readonly Tolerance _prodTolerance;
         private readonly string _rawFileDirectory;
         private readonly string _csvFile;
         private readonly string _outputDirectory;
@@ -24,7 +24,7 @@ namespace Coon.Compass.Lotor
         private readonly List<Modification> _fixedModifications;
         public static List<Modification> QuantifiedModifications; 
         private DateTime _startTime;
-        private readonly double _ascoreThreshold;
+        //private readonly double _ascoreThreshold;
         private readonly int _deltaScoreCutoff;
         private readonly double _productThreshold;
         private readonly FragmentTypes _fragType;
@@ -38,7 +38,7 @@ namespace Coon.Compass.Lotor
         private int LastQuantColumn = -1;
         private string[] headerInfo = null;
 
-        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, MassTolerance prod_Tolerance, int scoreCutoff, bool separateGroups, double productThreshold,bool ignoreCTerminal,bool reduceSites, FragmentTypes fragType, bool phosphoNeutralLoss = false)
+        public Lotor(string rawFileDirectory, string inputcsvFile, string outputDirectory, List<Modification> fixedModifications, List<Modification> quantifiedModifications, Tolerance prod_Tolerance, int scoreCutoff, bool separateGroups, double productThreshold,bool ignoreCTerminal,bool reduceSites, FragmentTypes fragType, bool phosphoNeutralLoss = false)
         {
             _rawFileDirectory = rawFileDirectory;
             _csvFile = inputcsvFile;
@@ -105,7 +105,8 @@ namespace Coon.Compass.Lotor
 
         private void WriteResults(List<Protein> proteins, string csvFile, string outDirectory, int firstQuant, int lastQuant)
         {
-            using (StreamWriter localizeWriter = new StreamWriter(Path.Combine(outDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_localized_reduced.csv")))                
+            using (StreamWriter localizeWriter = new StreamWriter(Path.Combine(outDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_localized_reduced.csv")))
+            using (StreamWriter proteinWriter = new StreamWriter(Path.Combine(outDirectory, Path.GetFileNameWithoutExtension(csvFile) + "_localized_reduced_proteins.csv")))                
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append("Protein Group,Defline,Isoform,Sites,PSMs Identified,PSMs Localized");
@@ -118,9 +119,15 @@ namespace Coon.Compass.Lotor
                     }
                 }
                 localizeWriter.WriteLine(sb.ToString());
+                proteinWriter.WriteLine("Protein Group,Defline,Isoforms,# of Localized Isoforms,# of Localized PSMs");
                 foreach (Protein prot in proteins)
                 {
-                    localizeWriter.WriteLine(prot.Print(firstQuant, lastQuant));
+                    string value = prot.Print(firstQuant, lastQuant);
+                    if (!string.IsNullOrWhiteSpace(value))
+                    {
+                        localizeWriter.WriteLine(value);
+                        proteinWriter.WriteLine(prot.GetProteinLine());
+                    }
                 }
             }
         }
@@ -185,7 +192,7 @@ namespace Coon.Compass.Lotor
                         if(headerInfo[i] == "Channels Detected")
                             LastQuantColumn = i-1;
                     }
-                    string header = string.Join(",", headerInfo) + ",# Isoforms,# of Considered Fragments,Localized?,Delta Score,Best Isoform,Spectral Matches,Second Best Isoform,Second Spectral Matches";
+                    string header = string.Join(",", headerInfo) + ",# Isoforms,# of Considered Fragments,Localized?,Delta Score,Best Isoform,Spectral Matches,% TIC,Second Best Isoform,Second Spectral Matches,Second % TIC";
                     writer.WriteLine(header);
                     localizedWriter.WriteLine(header);
                     while (reader.ReadNextRecord())
@@ -234,7 +241,8 @@ namespace Coon.Compass.Lotor
                         sb.Append(hit.LocalizedIsoform.SequenceWithModifications);
                         sb.Append(',');
                         sb.Append(hit.LocalizedIsoform.SpectralMatch.Matches);
-
+                        sb.Append(',');
+                        sb.Append(hit.LocalizedIsoform.SpectralMatch.PercentTIC);
                         if (hit.PSM.Isoforms > 1)
                         {
                             //sb.Append(',');
@@ -243,6 +251,8 @@ namespace Coon.Compass.Lotor
                             sb.Append(hit.SecondBestPeptideIsoform.SequenceWithModifications);
                             sb.Append(',');
                             sb.Append(hit.SecondBestPeptideIsoform.SpectralMatch.Matches);
+                            sb.Append(',');
+                            sb.Append(hit.SecondBestPeptideIsoform.SpectralMatch.PercentTIC);
                             //sb.Append(',');
                             //sb.Append(hit.SecondBestPeptideSDFCount);
                         }
@@ -257,7 +267,7 @@ namespace Coon.Compass.Lotor
             return proteins.Values.ToList();
         }
 
-        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, FragmentTypes fragType, MassTolerance prod_tolerance, double productThreshold, bool phosphoNeutralLosses)
+        private List<LocalizedHit> CalculateBestIsoforms(List<PSM> psms, FragmentTypes fragType, Tolerance prod_tolerance, double productThreshold, bool phosphoNeutralLosses)
         {
             Log("Localizing Best Isoforms...");
             int totalisofromscount = 0;
@@ -380,7 +390,6 @@ namespace Coon.Compass.Lotor
             _dataFiles = new HashSet<MSDataFile>();
 
             List<PSM> psms = new List<PSM>();
-            ThermoRawFile rawFile = null;
 
             int totalPsms = 0;
 
@@ -477,10 +486,10 @@ namespace Coon.Compass.Lotor
              
         #region Statics
 
-        public static double GetPValue(PSM psm, MassTolerance prod_tolerance, double cutoff)
+        public static double GetPValue(PSM psm, Tolerance prod_tolerance, double cutoff)
         {
             // Get the width of the product ion tolerance at the isolation mz;
-            double productToleranceWidth = prod_tolerance.GetMassRange(psm.IsolationMZ).Width;
+            double productToleranceWidth = prod_tolerance.GetRange(psm.IsolationMZ).Width;
             double cutoffThreshold = psm.Spectrum.GetBasePeakIntensity()*cutoff;
             return Math.Min(1.0, psm.Spectrum.Count(peak => peak.Intensity >= cutoffThreshold)*2*productToleranceWidth/psm.ScanWidth);
         }

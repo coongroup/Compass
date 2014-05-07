@@ -531,7 +531,7 @@ namespace Coon.Compass.FdrOptimizer
                 if (index < 0)
                     index = ~index;
 
-                int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index), maximumFalseDisoveryRate);
+                int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index).ToList(), maximumFalseDisoveryRate);
 
                 if (count <= bestCount)
                     continue;

@@ -38,10 +38,10 @@ namespace Coon.Compass.Lotor
                 List<Fragment> toAdd = new List<Fragment>();
                 foreach (Fragment frag in Fragments)
                 {
-                    if (frag.Modifications.Contains(lotorForm.Phosphorylation))
+                    List<IMass> mods = frag.GetModifications().ToList();
+                    if (mods.Contains(lotorForm.Phosphorylation))
                     {
-                        var newFrag = new Fragment(frag.Type, frag.Number, frag.MonoisotopicMass - H3PO4.MonoisotopicMass, frag.Parent, frag.Modifications, "Phopsho Neutral loss -H3PO4");
-                        newFrag.Modifications.Remove(lotorForm.Phosphorylation);
+                        var newFrag = new Fragment(frag.Type, frag.Number, frag.MonoisotopicMass - H3PO4.MonoisotopicMass, frag.Parent);
                         toAdd.Add(newFrag);
                     }
                 }

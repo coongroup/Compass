@@ -549,11 +549,11 @@ namespace Coon.Compass.ProteinHoarder
                     }
 
                     // Only call every 100 proteins otherwise you are wasting a lot of time refreshing and not doing actual work
-                    if (fastaCounter > 100)
-                    {
-                        fastaCounter = 0;
-                        ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
-                    }
+                    //if (fastaCounter > 100)
+                    //{
+                    //    fastaCounter = 0;
+                    //    ProgressUpdate((double)reader.Position / totalBytes);
+                    //}
                 }
             }
 
@@ -610,12 +610,12 @@ namespace Coon.Compass.ProteinHoarder
 
                         fastaCounter++;
 
-                        // Only call every 100 proteins otherwise you are wasting a lot of time refreshing and not doing actual work
-                        if (fastaCounter > 100)
-                        {
-                            fastaCounter = 0;
-                            ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
-                        }                          
+                        //// Only call every 100 proteins otherwise you are wasting a lot of time refreshing and not doing actual work
+                        //if (fastaCounter > 100)
+                        //{
+                        //    fastaCounter = 0;
+                        //    ProgressUpdate((double)reader.BaseStream.Position / totalBytes);
+                        //}                          
                        
                     }
                 }

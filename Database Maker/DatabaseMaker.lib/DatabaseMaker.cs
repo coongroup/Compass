@@ -204,8 +204,6 @@ namespace Coon.Compass.DatabaseMaker
                             log.WriteLine();
                             log.WriteLine(fasta.Description);
                             log.WriteLine();
-                            log.WriteLine("At line " + mismatch + ", in file '" + fasta_file + "'");
-                            log.WriteLine();
                             InvalidHeader(fasta);
                         }
                     }
@@ -228,7 +226,7 @@ namespace Coon.Compass.DatabaseMaker
                             Writer.Write(fasta);
                         }
 
-                    } mismatch = reader.LineNumber;
+                    } 
 
                 }
                 

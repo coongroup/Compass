@@ -10,21 +10,7 @@ namespace Compass.Coondornator
     {
         static void Main(string[] args)
         {
-            CondorSubmitFile submitFile = new CondorSubmitFile();
-            Console.WriteLine(submitFile.SubmitFileHeader("executable", "requirements"));
-            submitFile.Requirements.Add("Derek Rocks");
-            submitFile.Requirements.Add("Biking is fun"); 
-            string result = submitFile.ToString();
-
-            Console.WriteLine("User Password");
-            string password = GetPassword();
-            Console.WriteLine();
-            using (ServerConnection connection = new ServerConnection("coongrp.ad.biotech.wisc.edu", "dbailey", password))
-            {
-                Console.WriteLine(string.Join("\n", connection.GetBlastDatabases()));
-            }
-            Console.ReadKey();
-            
+     
         }
 
         private static string GetPassword()

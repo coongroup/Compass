@@ -188,7 +188,7 @@ namespace Coon.Compass.DatabaseMaker
 
             using (FastaReader reader = new FastaReader(fasta_file))
             {
-                int mismatch = 0;
+                
                 foreach (Fasta fasta in reader.ReadNextFasta())
                 {
                     Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Compass.Coondornator;
 
 namespace Coon.Compass
 {
@@ -18,7 +19,8 @@ namespace Coon.Compass
 
         private void tsbCoondornator_Click(object sender, EventArgs e)
         {
-            Process.Start(@"\\coongrp\Groups\Condor\Coondornator\Coondornator.application");           
+            var coondornatorForm = new CoondornatorForm { MdiParent = this };
+            coondornatorForm.Show();            
         }
     }
 }

@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace Compass.Coondornator
 {
-    public class DatabaseFile : File
+    public class UserModFile : File
     {
-        public DatabaseFile(string filePath)
+        public UserModFile(string filePath)
             : base(filePath) { }
-
-
-
     }
 }

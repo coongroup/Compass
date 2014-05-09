@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Coondornator>
+  <OmssaParameterLines>
+    <OmssaParameterLine name="Default">
+      <DatabaseName></DatabaseName>
+      <UserMod></UserMod>
+      <OmssaParameter name="e">0</OmssaParameter>
+      <OmssaParameter name="v">3</OmssaParameter>
+      <OmssaParameter name="mf">3</OmssaParameter>
+      <OmssaParameter name="mv">1</OmssaParameter>
+      <OmssaParameter name="teppm" />
+      <OmssaParameter name="to">0.35</OmssaParameter>
+      <OmssaParameter name="te">10</OmssaParameter>
+      <OmssaParameter name="tem">4</OmssaParameter>
+      <OmssaParameter name="tom">0</OmssaParameter>
+    </OmssaParameterLine>
+  </OmssaParameterLines>
+</Coondornator>

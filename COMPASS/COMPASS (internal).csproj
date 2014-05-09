@@ -30,8 +30,8 @@
     <PublisherName>CoonWare</PublisherName>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>1</ApplicationRevision>
-    <ApplicationVersion>1.4.1.%2a</ApplicationVersion>
+    <ApplicationRevision>4</ApplicationRevision>
+    <ApplicationVersion>1.4.2.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -102,6 +102,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
@@ -150,6 +151,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Coondornator\Coondornator.gui\Coondornator.gui.csproj">
+      <Project>{626e1e63-5b21-43af-a5bb-f93aa43df5a9}</Project>
+      <Name>Coondornator.gui</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Phosphinator\Phosphinator.csproj">
       <Project>{18c3ae3c-e032-4fe9-ad14-e602ba663be4}</Project>
       <Name>Phosphinator</Name>

@@ -466,20 +466,41 @@ namespace Coon.Compass.TagQuant
                         {
                             // Noise is pretty constant over a small region, find the noise of the center of all isobaric tags
                             MassRange range = new MassRange(UsedTags.Keys[0], UsedTags.Keys[UsedTags.Count - 1]);
-                            ThermoLabeledPeak peak = massSpectrum.GetClosestPeak(range) as ThermoLabeledPeak;
-                            if (peak != null)
+
+                            ThermoSpectrum thermoSpectrum = massSpectrum as ThermoSpectrum;
+                            if (thermoSpectrum != null)
                             {
-                                noise = peak.Noise;
-                            }
-                            else
-                            {
-                                peak = massSpectrum.FirstPeak as ThermoLabeledPeak;
-                                if (peak == null)
+                                var peak = thermoSpectrum.GetClosestPeak(range);
+                                if (peak != null)
                                 {
-                                    throw new ArgumentException("Either the spectrum (#" + quantitationMsnScan.SpectrumNumber+") has no m/z peaks, or they are low-resolution data without noise information");
+                                    noise = peak.Noise;
                                 }
-                                noise = peak.Noise;
+                                else
+                                {
+                                    throw new ArgumentException("Spectrum (#" + quantitationMsnScan.SpectrumNumber + ") has no m/z peaks");
+                                }
+                            } 
+                            else 
+                            {
+                                throw new ArgumentException("Spectrum (#" + quantitationMsnScan.SpectrumNumber+") , or they are low-resolution data without noise information");
                             }
+
+
+                            //ThermoLabeledPeak peak = massSpectrum.GetClosestPeak(range) as ThermoLabeledPeak;
+
+                            //if (peak != null)
+                            //{
+                            //    noise = peak.Noise;
+                            //}
+                            //else
+                            //{
+                            //    peak = massSpectrum as ThermoLabeledPeak;
+                            //    if (peak == null)
+                            //    {
+                            //        throw new ArgumentException("Either the spectrum (#" + quantitationMsnScan.SpectrumNumber+") has no m/z peaks, or they are low-resolution data without noise information");
+                            //    }
+                            //    noise = peak.Noise;
+                            //}
                         }
 
                         //Dictionary<TagInformation, QuantPeak> peaks = new Dictionary<TagInformation, QuantPeak>();
@@ -491,10 +512,11 @@ namespace Coon.Compass.TagQuant
                                 ? tag.MassEtd
                                 : tag.MassCAD;
 
-                            var peak = massSpectrum.GetClosestPeak(tagMz, Tolerance);
 
-                            QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise,
-                                peak == null && NoisebandCap);
+
+                            var peak = massSpectrum.GetClosestPeak(Tolerance.GetRange(tagMz));
+
+                            QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise, peak == null && NoisebandCap);
 
                             peaks[tag.UniqueTagNumber] = qPeak;
                         }

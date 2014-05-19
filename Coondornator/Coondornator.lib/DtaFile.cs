@@ -98,7 +98,7 @@ namespace Compass.Coondornator
                         }
                     }
 
-                    writer.Write(line);
+                    writer.WriteLine(line);
                 }
             }
             writer.Close();

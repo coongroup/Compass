@@ -13,7 +13,7 @@ namespace Compass.Coondornator
     public class OmssaParameterLine
     {
         // TODO make it so only valid commands are captured
-        private static readonly Regex omssaRegex = new Regex(@"-(\w+)(?:\s([\d.-]+))?(?:\s|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex omssaRegex = new Regex(@"-(\w+)(?:\s([\d.,-]+))?(?:\s|$)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private static readonly Regex validateOmssaLine = new Regex("^(" + omssaRegex + ")+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public string Name { get; private set; }

@@ -1,5 +1,6 @@
 //#define Aaron_Experiment
 
+using CSMSL.Spectral;
 using MSFileReaderLib;
 using System;
 using System.Collections.Generic;
@@ -677,13 +678,13 @@ namespace Coon.Compass.DtaGenerator
 
                 if (sequestDtaOutput || omssaTxtOutput || mascotMgfOutput)
                 {
-                    var all_peaks = new List<MSPeak>();
+                    var all_peaks = new List<MZPeak>();
 
                     for (int i = 0; i < data.GetUpperBound(1); i++)
                     {
                         double mz = data[0, i];
                         double intensity = data[1, i];
-                        all_peaks.Add(new MSPeak(mz, intensity));
+                        all_peaks.Add(new MZPeak(mz, intensity));
                     }
 
                     double retention_time_min = double.NaN;
@@ -695,7 +696,7 @@ namespace Coon.Compass.DtaGenerator
 
                     foreach (int charge_i in charges)
                     {
-                        var peaks = new List<MSPeak>(all_peaks);
+                        var peaks = new List<MZPeak>(all_peaks);
 
                         string dta_filepath = Path.GetFileNameWithoutExtension(filepath) +
                                               '.' + mass_analyzer + '.' + fragmentation_method +
@@ -711,27 +712,7 @@ namespace Coon.Compass.DtaGenerator
                         // precursor cleaning
                         if (cleanPrecursor || (enableEtdPreProcessing && isETD))
                         {
-                            int p = 0;
-
-                            double lowMZ = precursorMZ - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
-                            double highMZ = precursorMZ + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
-
-                            while (p < peaks.Count)
-                            {
-                                double mz = peaks[p].MZ;
-                                if (mz < lowMZ)
-                                {
-                                    p++;
-                                }
-                                else if (mz > highMZ)
-                                {
-                                    break;
-                                }
-                                else
-                                {
-                                    peaks.RemoveAt(p);
-                                }
-                            }
+                            CleanPrecursor(peaks, precursorMZ);
                         }
 
                         // Neutral Loss Cleaning
@@ -1241,7 +1222,7 @@ namespace Coon.Compass.DtaGenerator
 
                             writer.WriteLine((precursor_mass + PROTON_MASS).ToString("0.00000") + ' ' + charge_i);
 
-                            foreach (MSPeak peak in peaks)
+                            foreach (MZPeak peak in peaks)
                             {
                                 writer.WriteLine(" {0:0.0000} {1:0.00}", peak.MZ, peak.Intensity);
                             }
@@ -1269,7 +1250,7 @@ namespace Coon.Compass.DtaGenerator
                             mgf.WriteLine("PEPMASS=" + precursorMZ.ToString("0.00000"));
                             mgf.WriteLine("CHARGE=" + charge_i.ToString("0+;0-"));
                                                        
-                            foreach (MSPeak peak in peaks)
+                            foreach (MZPeak peak in peaks)
                             {
                                 mgf.WriteLine("{0:0.00000} {1:0.00}", peak.MZ, peak.Intensity);
                             }
@@ -1448,6 +1429,31 @@ namespace Coon.Compass.DtaGenerator
                 log.Close();
             }         
             onFinishedFile(new FilepathEventArgs(filepath));
+        }
+
+        public static void CleanPrecursor(List<MZPeak> peaks, double precursorMZ)
+        {
+            int p = 0;
+
+            double lowMZ = precursorMZ - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
+            double highMZ = precursorMZ + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
+
+            while (p < peaks.Count)
+            {
+                double mz = peaks[p].MZ;
+                if (mz < lowMZ)
+                {
+                    p++;
+                }
+                else if (mz > highMZ)
+                {
+                    break;
+                }
+                else
+                {
+                    peaks.RemoveAt(p);
+                }
+            }
         }
 
         private static double MassFromMZ(double mz, int charge)

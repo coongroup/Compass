@@ -21,16 +21,26 @@ namespace Coon.Compass.DtaGenerator
         private DtaReader _dtaFile;
         
         private BindingList<Dta> _dtas;
+        private BindingList<int> _scanNumbers;
 
         public DtaViewerForm()
         {
             InitializeComponent();
 
-            _dtas = new BindingList<Dta>();
-            listBox1.DataSource = _dtas;
-            listBox1.DisplayMember = "ID";
+            //_dtas = new BindingList<Dta>();
+            //listBox1.DataSource = _dtas;
+            //listBox1.DisplayMember = "ID";
+
+            _scanNumbers = new BindingList<int>();
+            listBox1.DataSource = _scanNumbers;
             zedGraphControl1.ZoomEvent += ZoomEvent;
             zedGraphControl2.ZoomEvent += ZoomEvent;
+
+
+            zedGraphControl1.GraphPane.XAxis.Title.Text = "m/z";
+            zedGraphControl2.GraphPane.XAxis.Title.Text = "m/z";
+            zedGraphControl1.GraphPane.YAxis.Title.Text = "Intensity";
+            zedGraphControl2.GraphPane.YAxis.Title.Text = "Intensity";
         }
 
         private void ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
@@ -46,34 +56,49 @@ namespace Coon.Compass.DtaGenerator
                 zedGraphControl1.AxisChange();
             }
         }
-
-
-        private void Plot(Dta dta)
+        
+        private void Plot(int spectrumNumber, bool rescale = true)
         {
-            MSDataScan scan = _rawFile[dta.ID];
-
+        
             zedGraphControl1.GraphPane.CurveList.Clear();
             zedGraphControl2.GraphPane.CurveList.Clear();
 
-            var rawSpectrum = scan.MassSpectrum;
-            var cleanSpectrum = dta.Spectrum;
+            var rawSpectrum = _rawFile.GetMzSpectrum(spectrumNumber);
+            
+            List<MZPeak> peaks = rawSpectrum.ToList();
 
+            double precursorMZ = _rawFile.GetPrecusorMz(spectrumNumber);
+
+            if (checkBox1.Checked)
+            {
+                DtaGenerator.CleanPrecursor(peaks, precursorMZ);
+            }
+
+
+            var cleanSpectrum = new Spectrum(peaks.Select(p => p.MZ).ToArray(), peaks.Select(p => p.Intensity).ToArray(), false);
+   
             zedGraphControl1.GraphPane.AddStick("Raw", rawSpectrum.GetMasses(), rawSpectrum.GetIntensities(), Color.Black);
             zedGraphControl2.GraphPane.AddStick("Cleaned", cleanSpectrum.GetMasses(), cleanSpectrum.GetIntensities(), Color.Black);
 
-            double minmz = Math.Min(rawSpectrum.FirstMz, cleanSpectrum.FirstMz);
-            double maxmz = Math.Max(rawSpectrum.LastMZ, cleanSpectrum.LastMZ);
+            if (rescale)
+            {
+                zedGraphControl1.GraphPane.XAxis.Scale.Min = rawSpectrum.FirstMz;
+                zedGraphControl2.GraphPane.XAxis.Scale.Min = rawSpectrum.FirstMz;
+                zedGraphControl1.GraphPane.XAxis.Scale.Max = rawSpectrum.LastMZ;
+                zedGraphControl2.GraphPane.XAxis.Scale.Max = rawSpectrum.LastMZ;
+            }
 
-            zedGraphControl1.GraphPane.XAxis.Scale.Min = minmz;
-            zedGraphControl2.GraphPane.XAxis.Scale.Min = minmz;
-            zedGraphControl1.GraphPane.XAxis.Scale.Max = maxmz;
-            zedGraphControl2.GraphPane.XAxis.Scale.Max = maxmz;
+            zedGraphControl1.GraphPane.Title.Text = _rawFile.GetScanFilter(spectrumNumber);
+            //zedGraphControl2.GraphPane.Title.Text = dta.Name;
 
             zedGraphControl1.Invalidate();
-            zedGraphControl1.AxisChange();
-
             zedGraphControl2.Invalidate();
+
+
+            zedGraphControl1.AxisChange();
             zedGraphControl2.AxisChange();
+
+            _currentIndex = spectrumNumber;
         }
 
         private void LoadRawFile(string filePath)
@@ -83,31 +108,24 @@ namespace Coon.Compass.DtaGenerator
            
             _rawFile = new ThermoRawFile(filePath);
             _rawFile.Open();
+
+             _scanNumbers.Clear();
+            _scanNumbers.RaiseListChangedEvents = false;
+            for (int i = _rawFile.FirstSpectrumNumber; i < _rawFile.LastSpectrumNumber; i++)
+            {
+                if (_rawFile.GetMsnOrder(i) > 1)
+                {
+                    _scanNumbers.Add(i);
+                }
+            }
+            _scanNumbers.RaiseListChangedEvents = true;
+            _scanNumbers.ResetBindings();
+           
+            
             textBox1.Text = filePath;
         }
 
-        private Task<List<Dta>> LoadDtaFile(string filePath)
-        {
-            Task<List<Dta>> t = new Task<List<Dta>>(() =>
-            {
-                List<Dta> dtas = new List<Dta>();
-                int counter = 0;
-                using (_dtaFile = new DtaReader(filePath))
-                {
-                    foreach (var dta in _dtaFile.ReadNextDta())
-                    {
-                        dtas.Add(dta);
-                        if (counter++ > 500)
-                            break;
-                    }
-                }
-                return dtas;
-            });
-            t.Start();
-  
-            textBox2.Text = filePath;
-            return t;
-        }
+    
 
         private void DtaViewerForm_DragEnter(object sender, DragEventArgs e)
         {
@@ -124,7 +142,7 @@ namespace Coon.Compass.DtaGenerator
             }
         }
 
-        private async void DtaViewerForm_DragDrop(object sender, DragEventArgs e)
+        private void DtaViewerForm_DragDrop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -133,26 +151,30 @@ namespace Coon.Compass.DtaGenerator
                     return;
 
                 LoadRawFile(data.First(f => Path.GetExtension(f).Equals(".raw")));
-                List<Dta> dtas = await LoadDtaFile(data.First(f => Path.GetExtension(f).Equals(".txt")));
-
-                _dtas.RaiseListChangedEvents = false;
-                _dtas.Clear();
-                foreach (var dta in dtas)
-                {
-                    _dtas.Add(dta);
-                }
-                _dtas.RaiseListChangedEvents = true;
-                _dtas.ResetBindings();
+         
             }
         }
 
+        private int _currentIndex = -1;
+
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var dta = listBox1.SelectedValue as Dta;
-            if (dta == null)
-                return;
+            var i = (int)listBox1.SelectedValue;
 
-            Plot(dta);
+            Plot(i);
+        }
+
+        public void Refresh()
+        {
+            if (_currentIndex >= 0)
+            {
+                Plot(_currentIndex, false);
+            }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            Refresh();
         }
     }
 }

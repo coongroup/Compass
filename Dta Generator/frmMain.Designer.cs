@@ -66,6 +66,7 @@ namespace Coon.Compass.DtaGenerator
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
+            this.button1 = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             this.grpOutputOptions.SuspendLayout();
             this.grpPeakFilteringOptions.SuspendLayout();
@@ -159,6 +160,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.grpOutputOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpOutputOptions.Controls.Add(this.button1);
             this.grpOutputOptions.Controls.Add(this.includeLogCB);
             this.grpOutputOptions.Controls.Add(this.chkMascotMgfOutput);
             this.grpOutputOptions.Controls.Add(this.chkSequestDtaOutput);
@@ -491,6 +493,16 @@ namespace Coon.Compass.DtaGenerator
             this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
             this.ofdRawFiles.Multiselect = true;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(469, 45);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 109;
+            this.button1.Text = "Viewer";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // frmMain
             // 
             this.AllowDrop = true;
@@ -570,6 +582,7 @@ namespace Coon.Compass.DtaGenerator
         private System.Windows.Forms.ToolStripMenuItem clearAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearSelectedToolStripMenuItem;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.Button button1;
     }
 }
 

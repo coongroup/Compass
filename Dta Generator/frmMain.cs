@@ -234,5 +234,10 @@ namespace Coon.Compass.DtaGenerator
             Text = string.Format("Dta Generator {0}-bit (v{1}) running {2} cores", IntPtr.Size * 8, Assembly.GetExecutingAssembly().GetName().Version, Environment.ProcessorCount);
             base.OnLoad(e);
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            new DtaViewerForm().Show();
+        }
     }
 }

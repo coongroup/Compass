@@ -1,5 +1,8 @@
 //#define Aaron_Experiment
 
+using System.Linq;
+using CSMSL;
+using CSMSL.Chemistry;
 using CSMSL.Spectral;
 using MSFileReaderLib;
 using System;
@@ -17,11 +20,11 @@ namespace Coon.Compass.DtaGenerator
         private const double PEAK_IDENTIFICATION_MASS_TOLERANCE = 0.01;
 
         // precursor cleaning constants
-        private const double LOW_PRECURSOR_CLEANING_WINDOW_MZ = 5.0;
-        private const double HIGH_PRECURSOR_CLEANING_WINDOW_MZ = 5.0;
+        public const double LOW_PRECURSOR_CLEANING_WINDOW_MZ = 5.0;
+        public const double HIGH_PRECURSOR_CLEANING_WINDOW_MZ = 5.0;
 
         // ETD pre-processing constants
-        private const double LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA = 60.0;
+        public const double LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA = 60.0;
 
         // negative ETD pre-processing constants
         private const double NETD_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA = 50.0;
@@ -707,8 +710,12 @@ namespace Coon.Compass.DtaGenerator
                                               retention_time_s.ToString("0.0") + "_s" +
                                               ".dta";
 
-                        double precursor_mass = MassFromMZ(precursorMZ, charge_i);
+                        double precursorMass = Mass.MassFromMz(precursorMZ, charge_i);
                         
+                        Polarity polarity = scan_filter.Contains(" - ") ? Polarity.Negative : Polarity.Positive;
+
+                        int precursorZ = charge_i;
+
                         // precursor cleaning
                         if (cleanPrecursor || (enableEtdPreProcessing && isETD))
                         {
@@ -721,7 +728,7 @@ namespace Coon.Compass.DtaGenerator
                             var mzs = new List<KeyValuePair<double, double>>();
                             foreach (double nl_mass in neutralLosses)
                             {
-                                double mz = precursorMZ - MZFromMass(nl_mass, charge_i);
+                                double mz = precursorMZ - Mass.MzFromMass(nl_mass, charge_i);
                                 double min = mz - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
                                 double max = mz + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
                                 mzs.Add(new KeyValuePair<double, double>(min, max));
@@ -754,101 +761,7 @@ namespace Coon.Compass.DtaGenerator
                         // ETD pre-processing
                         if (enableEtdPreProcessing && isETD)
                         {
-                            // negative ETD
-                            if (scan_filter.Contains(" - "))
-                            {
-                                int p1 = 0;
-                                while (p1 < peaks.Count)
-                                {
-                                    double mz = peaks[p1].MZ;
-
-                                    bool clean = false;
-
-                                    for (int reduced_precursor_charge = -2;
-                                        reduced_precursor_charge >= charge_i + 1;
-                                        reduced_precursor_charge--)
-                                    {
-                                        if (mz >=
-                                            MZFromMass(
-                                                precursor_mass - NETD_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
-                                                reduced_precursor_charge) &&
-                                            mz <=
-                                            MZFromMass(
-                                                precursor_mass + NETD_HIGH_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
-                                                reduced_precursor_charge))
-                                        {
-                                            clean = true;
-                                            break;
-                                        }
-
-                                        if (mz >=
-                                            MZFromMass(precursor_mass + NETD_ADDUCT_CLEANING_WINDOW_DA,
-                                                reduced_precursor_charge) - NETD_ADDUCT_LOW_CLEANING_WINDOW_MZ &&
-                                            mz <=
-                                            MZFromMass(precursor_mass + NETD_ADDUCT_CLEANING_WINDOW_DA,
-                                                reduced_precursor_charge) + NETD_ADDUCT_LOW_CLEANING_WINDOW_MZ)
-                                        {
-                                            clean = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (!clean)
-                                    {
-                                        if (mz >=
-                                            MZFromMass(precursor_mass, -1) -
-                                            NETD_SINGLY_CHARGED_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_MZ)
-                                        {
-                                            clean = true;
-                                        }
-                                    }
-
-                                    if (clean)
-                                    {
-                                        peaks.RemoveAt(p1);
-                                    }
-                                    else
-                                    {
-                                        p1++;
-                                    }
-                                }
-                            }
-                            // positive ETD
-                            else
-                            {
-                                int p1 = 0;
-                                while (p1 < peaks.Count)
-                                {
-                                    double mz = peaks[p1].MZ;
-
-                                    bool clean = false;
-
-                                    for (int reduced_precursor_charge = 1;
-                                        reduced_precursor_charge <= charge_i - 1;
-                                        reduced_precursor_charge++)
-                                    {
-                                        if (mz >=
-                                            MZFromMass(precursor_mass - LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
-                                                reduced_precursor_charge) &&
-                                            mz <
-                                            MZFromMass(precursor_mass, reduced_precursor_charge) +
-                                            HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
-                                        {
-                                            clean = true;
-                                            break;
-                                        }
-                                    }
-
-                                    if (clean)
-                                    {
-                                        peaks.RemoveAt(p1);
-                                    }
-                                    else
-                                    {
-                                        p1++;
-                                    }
-                                }
-                            }
+                            CleanETD(peaks, precursorMass, precursorZ, polarity, LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA, HIGH_PRECURSOR_CLEANING_WINDOW_MZ);
                         }
 
                         // TMT duplex cleaning
@@ -1220,7 +1133,7 @@ namespace Coon.Compass.DtaGenerator
                             writer.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
                             writer.WriteLine();
 
-                            writer.WriteLine((precursor_mass + PROTON_MASS).ToString("0.00000") + ' ' + charge_i);
+                            writer.WriteLine((precursorMass + PROTON_MASS).ToString("0.00000") + ' ' + charge_i);
 
                             foreach (MZPeak peak in peaks)
                             {
@@ -1431,41 +1344,154 @@ namespace Coon.Compass.DtaGenerator
             onFinishedFile(new FilepathEventArgs(filepath));
         }
 
-        public static void CleanPrecursor(List<MZPeak> peaks, double precursorMZ)
+        public static void CleanPrecursor(List<MZPeak> peaks, double precursorMZ, double lowWindow = LOW_PRECURSOR_CLEANING_WINDOW_MZ, double highWidnow = HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
         {
+            double lowMZ = precursorMZ - lowWindow;
+            double highMZ = precursorMZ + highWidnow;
+            MzRange range = new MzRange(lowMZ, highMZ);
+            CleanPeaks(peaks, new List<MzRange>() { range });
+        }
+
+        private static void CleanPeaks(List<MZPeak> peaks, IList<MzRange> ranges)
+        {
+            if (ranges.Count < 1)
+                return;
+
+            double min = ranges.Min(r => r.Minimum);
+            double max = ranges.Max(r => r.Maximum);
+
             int p = 0;
-
-            double lowMZ = precursorMZ - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
-            double highMZ = precursorMZ + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
-
             while (p < peaks.Count)
             {
                 double mz = peaks[p].MZ;
-                if (mz < lowMZ)
+                if (mz < min)
                 {
                     p++;
                 }
-                else if (mz > highMZ)
+                else if (mz > max)
                 {
                     break;
                 }
                 else
                 {
-                    peaks.RemoveAt(p);
+                    if (ranges.Any(range => range.Contains(mz)))
+                    {
+                        peaks.RemoveAt(p);
+                    }
+                    else
+                    {
+                        p++;
+                    }
                 }
             }
         }
 
-        private static double MassFromMZ(double mz, int charge)
+        public static void CleanETD(List<MZPeak> peaks, double precursorMass, int precursorZ, Polarity polarity, double lowWindow, double highWindow)
         {
-            return mz*Math.Abs(charge) - charge*PROTON_MASS;
-        }
+            List<MzRange> cleanRanges = new List<MzRange>();
 
-        private static double MZFromMass(double mass, int charge)
-        {
-            return (mass + charge*PROTON_MASS)/Math.Abs(charge);
-        }
+            int sign = (int)polarity;
 
+            for (int z = sign; sign*z < sign*precursorZ; z += sign)
+            {
+                double lowMZ = Mass.MzFromMass(precursorMass - lowWindow, z);
+                double highMZ = Mass.MzFromMass(precursorMass + highWindow, z);
+                cleanRanges.Add(new MzRange(lowMZ, highMZ));
+            }
+
+            CleanPeaks(peaks, cleanRanges);
+
+          
+
+
+                //// negative ETD
+                //if (polarity == Polarity.Negative)
+                //{
+                //    int p1 = 0;
+                //    while (p1 < peaks.Count)
+                //    {
+                //        double mz = peaks[p1].MZ;
+
+                //        bool clean = false;
+
+                //        for (int reduced_precursor_charge = -2; reduced_precursor_charge >= precursorZ + 1; reduced_precursor_charge--)
+                //        {
+                //            if (mz >= Mass.MzFromMass(
+                //                    precursorMass - NETD_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
+                //                    reduced_precursor_charge) &&
+                //                mz <=
+                //                 Mass.MzFromMass(
+                //                    precursorMass + NETD_HIGH_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
+                //                    reduced_precursor_charge))
+                //            {
+                //                clean = true;
+                //                break;
+                //            }
+
+                //            if (mz >=
+                //                 Mass.MzFromMass(precursorMass + NETD_ADDUCT_CLEANING_WINDOW_DA,
+                //                    reduced_precursor_charge) - NETD_ADDUCT_LOW_CLEANING_WINDOW_MZ &&
+                //                mz <=
+                //                 Mass.MzFromMass(precursorMass + NETD_ADDUCT_CLEANING_WINDOW_DA,
+                //                    reduced_precursor_charge) + NETD_ADDUCT_LOW_CLEANING_WINDOW_MZ)
+                //            {
+                //                clean = true;
+                //                break;
+                //            }
+                //        }
+
+                //        if (!clean)
+                //        {
+                //            if (mz >=
+                //                 Mass.MzFromMass(precursorMass, -1) -
+                //                NETD_SINGLY_CHARGED_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_MZ)
+                //            {
+                //                clean = true;
+                //            }
+                //        }
+
+                //        if (clean)
+                //        {
+                //            peaks.RemoveAt(p1);
+                //        }
+                //        else
+                //        {
+                //            p1++;
+                //        }
+                //    }
+                //}
+                //// positive ETD
+                //else
+                //{
+                //    int p1 = 0;
+                //    while (p1 < peaks.Count)
+                //    {
+                //        double mz = peaks[p1].MZ;
+
+                //        bool clean = false;
+
+                //        for (int reduced_precursor_charge = 1; reduced_precursor_charge <= precursorZ - 1; reduced_precursor_charge++)
+                //        {
+                //            if (mz >= Mass.MzFromMass(precursorMass - LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA, reduced_precursor_charge) &&
+                //                mz < Mass.MzFromMass(precursorMass, reduced_precursor_charge) + HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
+                //            {
+                //                clean = true;
+                //                break;
+                //            }
+                //        }
+
+                //        if (clean)
+                //        {
+                //            peaks.RemoveAt(p1);
+                //        }
+                //        else
+                //        {
+                //            p1++;
+                //        }
+                //    }
+                //}
+        }
+    
         private static IEnumerable<int> AllIndicesOf(string s, char c)
         {
             for (int i = 0; i < s.Length; i++)

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CSMSL.Chemistry;
 using CSMSL.IO;
 using CSMSL.IO.Thermo;
 using CSMSL.Spectral;
@@ -27,6 +28,7 @@ namespace Coon.Compass.DtaGenerator
         {
             InitializeComponent();
 
+           
             //_dtas = new BindingList<Dta>();
             //listBox1.DataSource = _dtas;
             //listBox1.DisplayMember = "ID";
@@ -35,12 +37,32 @@ namespace Coon.Compass.DtaGenerator
             listBox1.DataSource = _scanNumbers;
             zedGraphControl1.ZoomEvent += ZoomEvent;
             zedGraphControl2.ZoomEvent += ZoomEvent;
-
-
+            
             zedGraphControl1.GraphPane.XAxis.Title.Text = "m/z";
             zedGraphControl2.GraphPane.XAxis.Title.Text = "m/z";
             zedGraphControl1.GraphPane.YAxis.Title.Text = "Intensity";
             zedGraphControl2.GraphPane.YAxis.Title.Text = "Intensity";
+
+            zedGraphControl1.GraphPane.XAxis.MajorTic.IsInside = false;
+            zedGraphControl1.GraphPane.XAxis.MinorTic.IsInside = false;
+            zedGraphControl2.GraphPane.XAxis.MajorTic.IsInside = false;
+            zedGraphControl2.GraphPane.XAxis.MinorTic.IsInside = false;
+
+            RestoreSettings();
+        }
+
+        private void RestoreSettings()
+        {
+            numericUpDown1.Value = (decimal)DtaGenerator.LOW_PRECURSOR_CLEANING_WINDOW_MZ;
+            numericUpDown2.Value = (decimal)DtaGenerator.HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
+            numericUpDown3.Value = (decimal)DtaGenerator.LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA;
+            numericUpDown4.Value = (decimal)DtaGenerator.HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
+
+           
+            if (_currentIndex >= 0)
+            {
+                Plot(_currentIndex, false);
+            }
         }
 
         private void ZoomEvent(ZedGraphControl sender, ZoomState oldState, ZoomState newState)
@@ -59,7 +81,6 @@ namespace Coon.Compass.DtaGenerator
         
         private void Plot(int spectrumNumber, bool rescale = true)
         {
-        
             zedGraphControl1.GraphPane.CurveList.Clear();
             zedGraphControl2.GraphPane.CurveList.Clear();
 
@@ -67,14 +88,29 @@ namespace Coon.Compass.DtaGenerator
             
             List<MZPeak> peaks = rawSpectrum.ToList();
 
+            Polarity polarity = _rawFile.GetPolarity(spectrumNumber);
             double precursorMZ = _rawFile.GetPrecusorMz(spectrumNumber);
+            int precursorZ = _rawFile.GetPrecusorCharge(spectrumNumber);
+            double precursorMass = Mass.MassFromMz(precursorMZ, precursorZ);
+        
+            textBox2.Text = precursorMZ.ToString("f5");
+            textBox3.Text = ((polarity == Polarity.Positive) ? "+" : "") + precursorZ.ToString("N0");
+            textBox4.Text = precursorMass.ToString("f5");
 
             if (checkBox1.Checked)
             {
-                DtaGenerator.CleanPrecursor(peaks, precursorMZ);
+                double lowMZ = (double)numericUpDown1.Value;
+                double highMZ = (double)numericUpDown2.Value;
+                DtaGenerator.CleanPrecursor(peaks, precursorMZ, lowMZ, highMZ);
             }
 
-
+            if (checkBox2.Checked)
+            {
+                double lowMZ = (double)numericUpDown3.Value;
+                double highMZ = (double)numericUpDown4.Value;
+                DtaGenerator.CleanETD(peaks, precursorMass, precursorZ, polarity, lowMZ, highMZ);
+            }
+            
             var cleanSpectrum = new Spectrum(peaks.Select(p => p.MZ).ToArray(), peaks.Select(p => p.Intensity).ToArray(), false);
    
             zedGraphControl1.GraphPane.AddStick("Raw", rawSpectrum.GetMasses(), rawSpectrum.GetIntensities(), Color.Black);
@@ -94,10 +130,12 @@ namespace Coon.Compass.DtaGenerator
             zedGraphControl1.Invalidate();
             zedGraphControl2.Invalidate();
 
-
             zedGraphControl1.AxisChange();
             zedGraphControl2.AxisChange();
 
+            zedGraphControl1.SetScrollRangeFromData();
+            zedGraphControl2.SetScrollRangeFromData();
+            
             _currentIndex = spectrumNumber;
         }
 
@@ -159,12 +197,15 @@ namespace Coon.Compass.DtaGenerator
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var i = (int)listBox1.SelectedValue;
+            object o = listBox1.SelectedValue;
+            if (o == null)
+                return;
+            var i = (int)o;
 
             Plot(i);
         }
 
-        public void Refresh()
+        private void Refreshed(object sender, EventArgs e)
         {
             if (_currentIndex >= 0)
             {
@@ -172,9 +213,9 @@ namespace Coon.Compass.DtaGenerator
             }
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e)
         {
-            Refresh();
+            RestoreSettings();
         }
     }
 }

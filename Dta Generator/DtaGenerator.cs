@@ -119,6 +119,8 @@ namespace Coon.Compass.DtaGenerator
         public readonly double EtdLowDa;
         public readonly double EtdHighDa;
 
+        public readonly List<MzRange> RangesToRemove; 
+
         public DtaGenerator(IList<string> rawFilepaths,
             int minimumAssumedPrecursorChargeState, int maximumAssumedPrecursorChargeState,
             bool cleanPrecursor, bool enableEtdPreProcessing,
@@ -127,6 +129,7 @@ namespace Coon.Compass.DtaGenerator
             bool sequestDtaOutput, bool omssaTxtOutput, bool mascotMgfOutput,
             string outputFolder,
             List<double> neutralLosses,
+            List<MzRange> rangesToRemove, 
             bool includeLog = true,
             double clnPrecursorLowMz = LOW_PRECURSOR_CLEANING_WINDOW_MZ,
             double clnPrecursorHighMz = HIGH_PRECURSOR_CLEANING_WINDOW_MZ,
@@ -149,6 +152,8 @@ namespace Coon.Compass.DtaGenerator
             this.outputFolder = outputFolder;
             this.neutralLosses = neutralLosses;
             IncludeLog = includeLog;
+
+            RangesToRemove = rangesToRemove;
 
             CleanPrecursorLowMz = clnPrecursorLowMz;
             CleanPrecursorHighMz = clnPrecursorHighMz;
@@ -722,7 +727,7 @@ namespace Coon.Compass.DtaGenerator
                     int precursorZ = charge;
                     
                     // List of mass ranges to exclude
-                    List<IRange<double>> mzRangesToRemove = new List<IRange<double>>();
+                    List<IRange<double>> mzRangesToRemove = new List<IRange<double>>(RangesToRemove);
 
                     // Precursor cleaning
                     if (cleanPrecursor || (enableEtdPreProcessing && isETD))
@@ -1116,21 +1121,26 @@ namespace Coon.Compass.DtaGenerator
                         StreamWriter writer = null;
                         if (!txt_outputs.TryGetValue(txt_filepath, out writer))
                         {
-                            writer = new StreamWriter(txt_filepath);                                
+                            writer = new StreamWriter(new FileStream(txt_filepath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.None));                                
                             txt_outputs.Add(txt_filepath, writer);
                         }   
 
                         writer.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
                         writer.WriteLine();
 
-                        writer.WriteLine("{0:0.00000} {1:N0}", precursorMass + PROTON_MASS, charge); ;
-                        
+                        writer.WriteLine("{0:0.00000} {1:N0}", precursorMass + PROTON_MASS, charge);
+
+                        sb.Clear();
                         for (int i = 0; i < cleanSpectrumLength; i++)
                         {
-                            writer.WriteLine(" {0:0.0000} {1:0.00}", mzs[i], intenisties[i]);
+                            sb.Append(mzs[i].ToString("F4"));
+                            sb.Append(' ');
+                            sb.Append(intenisties[i].ToString("F2"));
+                            sb.AppendLine();
+                            //writer.WriteLine(" {0:0.0000} {1:0.00}", mzs[i], intenisties[i]);
                         }
-                     
-                        writer.WriteLine();
+                        writer.WriteLine(sb.ToString());
+              
                         writer.WriteLine();
                     }
 

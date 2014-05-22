@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
@@ -135,6 +136,8 @@ namespace Coon.Compass.DtaGenerator
                 nlmass.Add(kvp.Value);
             }
 
+            List<MzRange> rangesToRemove = listBox1.Items.Cast<MzRange>().ToList();
+
             DtaGenerator dta_generator = new DtaGenerator(raw_filepaths,
                 minimum_assumed_precursor_charge_state, maximum_assumed_precursor_charge_state,
                 clean_precursor, enable_etd_preprocessing,
@@ -143,6 +146,7 @@ namespace Coon.Compass.DtaGenerator
                 sequest_dta_output, omssa_text_output, mascot_mgf_output,
                 output_folder,
                 nlmass,
+                rangesToRemove,
                 includeLog,
                 clnPrecursorLowMZ, clnPrecursorHighMZ,
                 etdLowDa, etdHighDa);

@@ -401,7 +401,7 @@ namespace Coon.Compass.DtaGenerator
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(134, 26);
+            this.label7.Location = new System.Drawing.Point(134, 54);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(50, 13);
             this.label7.TabIndex = 134;
@@ -415,7 +415,7 @@ namespace Coon.Compass.DtaGenerator
             0,
             0,
             131072});
-            this.numericUpDown6.Location = new System.Drawing.Point(185, 24);
+            this.numericUpDown6.Location = new System.Drawing.Point(185, 52);
             this.numericUpDown6.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -425,7 +425,7 @@ namespace Coon.Compass.DtaGenerator
             this.numericUpDown6.Size = new System.Drawing.Size(58, 20);
             this.numericUpDown6.TabIndex = 131;
             this.numericUpDown6.Value = new decimal(new int[] {
-            5,
+            205,
             0,
             0,
             0});
@@ -433,7 +433,7 @@ namespace Coon.Compass.DtaGenerator
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(134, 51);
+            this.label8.Location = new System.Drawing.Point(134, 28);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(48, 13);
             this.label8.TabIndex = 133;
@@ -447,7 +447,7 @@ namespace Coon.Compass.DtaGenerator
             0,
             0,
             131072});
-            this.numericUpDown5.Location = new System.Drawing.Point(185, 49);
+            this.numericUpDown5.Location = new System.Drawing.Point(185, 26);
             this.numericUpDown5.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -457,7 +457,7 @@ namespace Coon.Compass.DtaGenerator
             this.numericUpDown5.Size = new System.Drawing.Size(58, 20);
             this.numericUpDown5.TabIndex = 132;
             this.numericUpDown5.Value = new decimal(new int[] {
-            5,
+            200,
             0,
             0,
             0});

@@ -177,8 +177,11 @@ namespace Coon.Compass.FdrOptimizer
                 SortedMaxSizedContainer<PSM> psms = kvp.Value;
                
                 double isolationMZ = dataFile.GetPrecusorMz(scanNumber);
+                Polarity polarity = dataFile.GetPolarity(scanNumber);
+
                 foreach (PSM psm in psms)
                 {
+                    psm.Charge *= (int)polarity; // For negative mode ions
                     psm.IsolationMz = isolationMZ;
                     double isolationMass = Mass.MassFromMz(isolationMZ, psm.Charge);
                     double theoreticalMass = psm.MonoisotopicMass;

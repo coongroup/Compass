@@ -15,8 +15,6 @@ namespace Coon.Compass.DtaGenerator
 {
     public class DtaGenerator
     {
-        private const double PROTON_MASS = 1.00727638;
-
         private const double PEAK_IDENTIFICATION_MASS_TOLERANCE = 0.01;
 
         // precursor cleaning constants
@@ -273,16 +271,15 @@ namespace Coon.Compass.DtaGenerator
 
                 _totalProgress = rawFilepaths.Count * 1000;
                 _currentProgress = 0;
-
-                //foreach (string msDataFile in rawFilepaths)
-                //{
-                //    ProcessFile(msDataFile, IncludeLog, groupByActivationEnergyTime);
-                //}   
-            
-                Parallel.ForEach<string>(rawFilepaths, msDataFile =>
+                
+                if (rawFilepaths.Count == 1)
                 {
-                    ProcessFile(msDataFile, IncludeLog, groupByActivationEnergyTime);
-                });                               
+                    ProcessFile(rawFilepaths[0], IncludeLog, groupByActivationEnergyTime);
+                }
+                else
+                {
+                    Parallel.ForEach(rawFilepaths, msDataFile => ProcessFile(msDataFile, IncludeLog, groupByActivationEnergyTime));
+                }
             }
             catch (Exception ex)
             {
@@ -533,22 +530,13 @@ namespace Coon.Compass.DtaGenerator
                 var header_label_strings = (string[])header_labels;
                 var header_value_strings = (string[])header_values;
 
+                // Charge State Determination
                 Polarity polarity = scan_filter.Contains(" - ") ? Polarity.Negative : Polarity.Positive;
-
                 object chargeObj = null;
-               
                 raw.GetTrailerExtraValueForScanNum(scanNumber, "Charge State:", ref chargeObj);
                 int charge = Convert.ToInt32(chargeObj);
-
-                //var charges = new List<int>();
                 if (charge == 0 || no_precursor_scan)
                 {
-                    //for (int assumed_charge_state = minimumAssumedPrecursorChargeState;
-                    //    assumed_charge_state <= maximumAssumedPrecursorChargeState;
-                    //    assumed_charge_state++)
-                    //{
-                    //    charges.Add(assumed_charge_state);
-                   // }
                     charge = 2; // Default to 2
                 }
 
@@ -1128,16 +1116,13 @@ namespace Coon.Compass.DtaGenerator
                         writer.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
                         writer.WriteLine();
 
-                        writer.WriteLine("{0:0.00000} {1:N0}", precursorMass + PROTON_MASS, charge);
+                        writer.WriteLine("{0:0.00000} {1:N0}", precursorMass + Constants.Proton, charge);
 
                         sb.Clear();
                         for (int i = 0; i < cleanSpectrumLength; i++)
                         {
-                            sb.Append(mzs[i].ToString("F4"));
-                            sb.Append(' ');
-                            sb.Append(intenisties[i].ToString("F2"));
+                            sb.AppendFormat(" {0:F4} {1:F2}", mzs[i], intenisties[i]);
                             sb.AppendLine();
-                            //writer.WriteLine(" {0:0.0000} {1:0.00}", mzs[i], intenisties[i]);
                         }
                         writer.WriteLine(sb.ToString());
               

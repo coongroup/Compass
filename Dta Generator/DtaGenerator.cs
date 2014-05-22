@@ -113,6 +113,12 @@ namespace Coon.Compass.DtaGenerator
         public static bool NeutralLossesIncluded = false;
         private readonly string LogFolder;
 
+        public readonly double CleanPrecursorLowMz;
+        public readonly double CleanPrecursorHighMz;
+
+        public readonly double EtdLowDa;
+        public readonly double EtdHighDa;
+
         public DtaGenerator(IList<string> rawFilepaths,
             int minimumAssumedPrecursorChargeState, int maximumAssumedPrecursorChargeState,
             bool cleanPrecursor, bool enableEtdPreProcessing,
@@ -121,7 +127,11 @@ namespace Coon.Compass.DtaGenerator
             bool sequestDtaOutput, bool omssaTxtOutput, bool mascotMgfOutput,
             string outputFolder,
             List<double> neutralLosses,
-            bool includeLog = true)
+            bool includeLog = true,
+            double clnPrecursorLowMz = LOW_PRECURSOR_CLEANING_WINDOW_MZ,
+            double clnPrecursorHighMz = HIGH_PRECURSOR_CLEANING_WINDOW_MZ,
+            double etdLowDa = LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
+            double etdHighDa = HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
         {
             this.rawFilepaths = rawFilepaths;
             this.minimumAssumedPrecursorChargeState = minimumAssumedPrecursorChargeState;
@@ -139,6 +149,12 @@ namespace Coon.Compass.DtaGenerator
             this.outputFolder = outputFolder;
             this.neutralLosses = neutralLosses;
             IncludeLog = includeLog;
+
+            CleanPrecursorLowMz = clnPrecursorLowMz;
+            CleanPrecursorHighMz = clnPrecursorHighMz;
+
+            EtdLowDa = etdLowDa;
+            EtdHighDa = etdHighDa;
 
             LogFolder = Path.Combine(outputFolder, "log");
             NeutralLossesIncluded = (neutralLosses != null && neutralLosses.Count > 0);
@@ -279,6 +295,8 @@ namespace Coon.Compass.DtaGenerator
             StreamWriter log = null;          
             Dictionary<string, StreamWriter> txt_outputs = null;
             Dictionary<string, StreamWriter> mgf_outputs = null;
+
+            StringBuilder sb = new StringBuilder();
 
             string filepath = msDataFile;
             onStartingFile(new FilepathEventArgs(filepath));
@@ -510,25 +528,28 @@ namespace Coon.Compass.DtaGenerator
                 var header_label_strings = (string[])header_labels;
                 var header_value_strings = (string[])header_values;
 
+                Polarity polarity = scan_filter.Contains(" - ") ? Polarity.Negative : Polarity.Positive;
 
                 object chargeObj = null;
+               
                 raw.GetTrailerExtraValueForScanNum(scanNumber, "Charge State:", ref chargeObj);
                 int charge = Convert.ToInt32(chargeObj);
 
-                var charges = new List<int>();
+                //var charges = new List<int>();
                 if (charge == 0 || no_precursor_scan)
                 {
-                    for (int assumed_charge_state = minimumAssumedPrecursorChargeState;
-                        assumed_charge_state <= maximumAssumedPrecursorChargeState;
-                        assumed_charge_state++)
-                    {
-                        charges.Add(assumed_charge_state);
-                    }
+                    //for (int assumed_charge_state = minimumAssumedPrecursorChargeState;
+                    //    assumed_charge_state <= maximumAssumedPrecursorChargeState;
+                    //    assumed_charge_state++)
+                    //{
+                    //    charges.Add(assumed_charge_state);
+                   // }
+                    charge = 2; // Default to 2
                 }
-                else
-                {
-                    charges.Add(charge);
-                }
+
+                // Flip the sign
+                charge *= (int)polarity;
+               
                                 
                 //int charge = 0;
                 //if (header_label_strings != null && header_value_strings != null)
@@ -651,7 +672,7 @@ namespace Coon.Compass.DtaGenerator
                     {
                         dta_counts.Add(mass_analyzer, 0);
                     }
-                    dta_counts[mass_analyzer] += charges.Count;
+                    dta_counts[mass_analyzer] += 1;
 
                     if (!spectrum_counts.ContainsKey(fragmentation_method))
                     {
@@ -663,7 +684,7 @@ namespace Coon.Compass.DtaGenerator
                     {
                         dta_counts.Add(fragmentation_method, 0);
                     }
-                    dta_counts[fragmentation_method] += charges.Count;
+                    dta_counts[fragmentation_method] += 1;
 
                     if (!spectrum_counts.ContainsKey(mass_analyzer + ' ' + fragmentation_method))
                     {
@@ -675,504 +696,473 @@ namespace Coon.Compass.DtaGenerator
                     {
                         dta_counts.Add(mass_analyzer + ' ' + fragmentation_method, 0);
                     }
-                    dta_counts[mass_analyzer + ' ' + fragmentation_method] += charges.Count;
+                    dta_counts[mass_analyzer + ' ' + fragmentation_method] += 1;
                 }
-
-
+                
                 if (sequestDtaOutput || omssaTxtOutput || mascotMgfOutput)
                 {
-                    var all_peaks = new List<MZPeak>();
-
-                    for (int i = 0; i < data.GetUpperBound(1); i++)
-                    {
-                        double mz = data[0, i];
-                        double intensity = data[1, i];
-                        all_peaks.Add(new MZPeak(mz, intensity));
-                    }
-
+                    Spectrum spectrum = new Spectrum(data);
+                    
                     double retention_time_min = double.NaN;
                     raw.RTFromScanNum(scanNumber, ref retention_time_min);
                     double retention_time_s = retention_time_min * 60;
-
-                    bool isHCD = fragmentation_method.StartsWith("HCD");
-                    bool isETD = fragmentation_method.StartsWith("ETD") || fragmentation_method.StartsWith("ECD");
-
-                    foreach (int charge_i in charges)
-                    {
-                        var peaks = new List<MZPeak>(all_peaks);
-
-                        string dta_filepath = Path.GetFileNameWithoutExtension(filepath) +
-                                              '.' + mass_analyzer + '.' + fragmentation_method +
-                                              '.' + scanNumber + '.' +
-                                              scanNumber + '.' +
-                                              charge_i + '.' +
-                                              "RT_" + retention_time_min.ToString("0.000") + "_min_" +
-                                              retention_time_s.ToString("0.0") + "_s" +
-                                              ".dta";
-
-                        double precursorMass = Mass.MassFromMz(precursorMZ, charge_i);
-                        
-                        Polarity polarity = scan_filter.Contains(" - ") ? Polarity.Negative : Polarity.Positive;
-
-                        int precursorZ = charge_i;
-
-                        // precursor cleaning
-                        if (cleanPrecursor || (enableEtdPreProcessing && isETD))
-                        {
-                            CleanPrecursor(peaks, precursorMZ);
-                        }
-
-                        // Neutral Loss Cleaning
-                        if (NeutralLossesIncluded)
-                        {
-                            var mzs = new List<KeyValuePair<double, double>>();
-                            foreach (double nl_mass in neutralLosses)
-                            {
-                                double mz = precursorMZ - Mass.MzFromMass(nl_mass, charge_i);
-                                double min = mz - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
-                                double max = mz + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
-                                mzs.Add(new KeyValuePair<double, double>(min, max));
-                            }
-                            int p = 0;
-                            while (p < peaks.Count)
-                            {
-                                double mz = peaks[p].MZ;
-                                if (mz >= precursorMZ)
-                                {
-                                    break;
-                                }
-                                bool removed = false;
-                                foreach (var minmax in mzs)
-                                {
-                                    if (mz >= minmax.Key && mz <= minmax.Value)
-                                    {
-                                        peaks.RemoveAt(p);
-                                        removed = true;
-                                        break;
-                                    }
-                                }
-                                if (!removed)
-                                {
-                                    p++;
-                                }
-                            }
-                        }
-
-                        // ETD pre-processing
-                        if (enableEtdPreProcessing && isETD)
-                        {
-                            CleanETD(peaks, precursorMass, precursorZ, polarity, LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA, HIGH_PRECURSOR_CLEANING_WINDOW_MZ);
-                        }
-
-                        // TMT duplex cleaning
-                        if (cleanTmtDuplex)
-                        {
-                            if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
-                                fragmentation_method.StartsWith("HCD"))
-                            {
-                                for (int reduced_charge_i = charge_i - 1;
-                                    reduced_charge_i >= 1;
-                                    reduced_charge_i--)
-                                {
-                                    double precursor_tmt_duplex_tag_cleaning_mz = precursorMZ * reduced_charge_i -
-                                                                                  TMT_DUPLEX_CAD_TAG_LOSS_DA /
-                                                                                  reduced_charge_i;
-
-                                    int p1 = 0;
-                                    while (p1 < peaks.Count)
-                                    {
-                                        double mz = peaks[p1].MZ;
-
-                                        if ((mz >=
-                                             MINIMUM_TMT_DUPLEX_CAD_REPORTER_MZ -
-                                             TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             MAXIMUM_TMT_DUPLEX_CAD_REPORTER_MZ +
-                                             TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >= TMT_DUPLEX_CAD_TAG_MZ - TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <= TMT_DUPLEX_CAD_TAG_MZ + TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >=
-                                             precursor_tmt_duplex_tag_cleaning_mz -
-                                             TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             precursor_tmt_duplex_tag_cleaning_mz +
-                                             TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                        {
-                                            peaks.RemoveAt(p1);
-                                        }
-                                        else
-                                        {
-                                            p1++;
-                                        }
-                                    }
-                                }
-                            }
-                            else if (fragmentation_method.StartsWith("ETD"))
-                            {
-                                for (int reduced_charge_i = charge_i - 1;
-                                    reduced_charge_i >= 1;
-                                    reduced_charge_i--)
-                                {
-                                    double precursor_tmt_duplex_reporter_loss_cleaning_mz = precursorMZ * charge_i -
-                                                                                            TMT_DUPLEX_ETD_REPORTER_LOSS_DA /
-                                                                                            reduced_charge_i;
-                                    double precursor_tmt_duplex_tag_loss_cleaning_mz = precursorMZ * charge_i -
-                                                                                       TMT_DUPLEX_ETD_TAG_LOSS_DA /
-                                                                                       reduced_charge_i;
-
-                                    int p1 = 0;
-                                    while (p1 < peaks.Count)
-                                    {
-                                        double mz = peaks[p1].MZ;
-                                        if ((mz >=
-                                             MINIMUM_TMT_DUPLEX_ETD_REPORTER_MZ -
-                                             TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             MAXIMUM_TMT_DUPLEX_ETD_REPORTER_MZ +
-                                             TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >= TMT_DUPLEX_ETD_TAG_MZ - TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <= TMT_DUPLEX_ETD_TAG_MZ + TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >=
-                                             precursor_tmt_duplex_reporter_loss_cleaning_mz -
-                                             TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             precursor_tmt_duplex_reporter_loss_cleaning_mz +
-                                             TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >=
-                                             precursor_tmt_duplex_tag_loss_cleaning_mz -
-                                             TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             precursor_tmt_duplex_tag_loss_cleaning_mz +
-                                             TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                        {
-                                            peaks.RemoveAt(p1);
-                                        }
-                                        else
-                                        {
-                                            p1++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // iTRAQ 4-plex cleaning
-                        if (cleanItraq4Plex)
-                        {
-                            if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
-                                fragmentation_method.StartsWith("HCD"))
-                            {
-                                double precursor_itraq_4plex_tag_cleaning_mz = precursorMZ * charge_i -
-                                                                               ITRAQ_4PLEX_CAD_TAG_LOSS_DA;
-
-                                int p1 = 0;
-                                while (p1 < peaks.Count)
-                                {
-                                    double mz = peaks[p1].MZ;
-
-                                    if ((mz >=
-                                         MINIMUM_ITRAQ_4PLEX_CAD_REPORTER_MZ -
-                                         ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         MAXIMUM_ITRAQ_4PLEX_CAD_REPORTER_MZ +
-                                         ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >= ITRAQ_4PLEX_CAD_TAG_MZ - ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <= ITRAQ_4PLEX_CAD_TAG_MZ + ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >=
-                                         precursor_itraq_4plex_tag_cleaning_mz -
-                                         ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         precursor_itraq_4plex_tag_cleaning_mz +
-                                         ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                    {
-                                        peaks.RemoveAt(p1);
-                                    }
-                                    else
-                                    {
-                                        p1++;
-                                    }
-                                }
-                            }
-                            else if (fragmentation_method.StartsWith("ETD"))
-                            {
-                                double precursor_itraq_4plex_reporter_loss_cleaning_mz = precursorMZ * charge_i -
-                                                                                         ITRAQ_4PLEX_ETD_REPORTER_LOSS_DA;
-                                double precursor_itraq_4plex_tag_loss_cleaning_mz = precursorMZ * charge_i -
-                                                                                    ITRAQ_4PLEX_ETD_TAG_LOSS_DA;
-
-                                int p1 = 0;
-                                while (p1 < peaks.Count)
-                                {
-                                    double mz = peaks[p1].MZ;
-                                    if ((mz >=
-                                         MINIMUM_ITRAQ_4PLEX_ETD_REPORTER_MZ -
-                                         ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         MAXIMUM_ITRAQ_4PLEX_ETD_REPORTER_MZ +
-                                         ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >= ITRAQ_4PLEX_ETD_TAG_MZ - ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <= ITRAQ_4PLEX_ETD_TAG_MZ + ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >=
-                                         precursor_itraq_4plex_reporter_loss_cleaning_mz -
-                                         ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         precursor_itraq_4plex_reporter_loss_cleaning_mz +
-                                         ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >=
-                                         precursor_itraq_4plex_tag_loss_cleaning_mz -
-                                         ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         precursor_itraq_4plex_tag_loss_cleaning_mz +
-                                         ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                    {
-                                        peaks.RemoveAt(p1);
-                                    }
-                                    else
-                                    {
-                                        p1++;
-                                    }
-                                }
-                            }
-                        }
-
-                        // TMT 6-plex cleaning
-                        if (cleanTmt6Plex)
-                        {
-                            if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
-                                fragmentation_method.StartsWith("HCD"))
-                            {
-                                for (int reduced_charge_i = charge_i - 1;
-                                    reduced_charge_i >= 1;
-                                    reduced_charge_i--)
-                                {
-                                    double precursor_tmt_6plex_tag_cleaning_mz = precursorMZ * reduced_charge_i -
-                                                                                 TMT_6PLEX_CAD_TAG_LOSS_DA /
-                                                                                 reduced_charge_i;
-
-                                    int p1 = 0;
-                                    while (p1 < peaks.Count)
-                                    {
-                                        double mz = peaks[p1].MZ;
-
-                                        if ((mz >=
-                                             MINIMUM_TMT_6PLEX_CAD_REPORTER_MZ -
-                                             TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             MAXIMUM_TMT_6PLEX_CAD_REPORTER_MZ +
-                                             TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >= TMT_6PLEX_CAD_TAG_MZ - TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <= TMT_6PLEX_CAD_TAG_MZ + TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >=
-                                             precursor_tmt_6plex_tag_cleaning_mz -
-                                             TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             precursor_tmt_6plex_tag_cleaning_mz +
-                                             TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                        {
-                                            peaks.RemoveAt(p1);
-                                        }
-                                        else
-                                        {
-                                            p1++;
-                                        }
-                                    }
-                                }
-                            }
-                            else if (fragmentation_method.StartsWith("ETD"))
-                            {
-                                for (int reduced_charge_i = charge_i - 1;
-                                    reduced_charge_i >= 1;
-                                    reduced_charge_i--)
-                                {
-                                    double precursor_tmt_6plex_reporter_loss_cleaning_mz = precursorMZ * charge_i -
-                                                                                           TMT_6PLEX_ETD_REPORTER_LOSS_DA /
-                                                                                           reduced_charge_i;
-                                    double precursor_tmt_6plex_tag_loss_cleaning_mz = precursorMZ * charge_i -
-                                                                                      TMT_6PLEX_ETD_TAG_LOSS_DA /
-                                                                                      reduced_charge_i;
-
-                                    int p1 = 0;
-                                    while (p1 < peaks.Count)
-                                    {
-                                        double mz = peaks[p1].MZ;
-                                        if ((mz >=
-                                             MINIMUM_TMT_6PLEX_ETD_REPORTER_MZ -
-                                             TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             MAXIMUM_TMT_6PLEX_ETD_REPORTER_MZ +
-                                             TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >= TMT_6PLEX_ETD_TAG_MZ - TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <= TMT_6PLEX_ETD_TAG_MZ + TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >=
-                                             precursor_tmt_6plex_reporter_loss_cleaning_mz -
-                                             TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             precursor_tmt_6plex_reporter_loss_cleaning_mz +
-                                             TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ)
-                                            ||
-                                            (mz >=
-                                             precursor_tmt_6plex_tag_loss_cleaning_mz -
-                                             TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                             &&
-                                             mz <=
-                                             precursor_tmt_6plex_tag_loss_cleaning_mz +
-                                             TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                        {
-                                            peaks.RemoveAt(p1);
-                                        }
-                                        else
-                                        {
-                                            p1++;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        // iTRAQ 8-plex cleaning
-                        if (cleanItraq8Plex)
-                        {
-                            if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
-                                fragmentation_method.StartsWith("HCD"))
-                            {
-                                double precursor_itraq_4plex_tag_cleaning_mz = precursorMZ * charge_i -
-                                                                               ITRAQ_8PLEX_CAD_TAG_LOSS_DA;
-
-                                int p1 = 0;
-                                while (p1 < peaks.Count)
-                                {
-                                    double mz = peaks[p1].MZ;
-
-                                    if ((mz >=
-                                         MINIMUM_ITRAQ_8PLEX_CAD_REPORTER_MZ -
-                                         ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         MAXIMUM_ITRAQ_8PLEX_CAD_REPORTER_MZ +
-                                         ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >= ITRAQ_8PLEX_CAD_TAG_MZ - ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <= ITRAQ_8PLEX_CAD_TAG_MZ + ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ)
-                                        ||
-                                        (mz >=
-                                         precursor_itraq_4plex_tag_cleaning_mz -
-                                         ITRAQ_8PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
-                                         &&
-                                         mz <=
-                                         precursor_itraq_4plex_tag_cleaning_mz +
-                                         ITRAQ_8PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
-                                    {
-                                        peaks.RemoveAt(p1);
-                                    }
-                                    else
-                                    {
-                                        p1++;
-                                    }
-                                }
-                            }
-                        }
                     
-                        if (sequestDtaOutput)
+                    bool isETD = fragmentation_method.StartsWith("ETD") || fragmentation_method.StartsWith("ECD");
+                    
+                    string dta_filepath = Path.GetFileNameWithoutExtension(filepath) +
+                                            '.' + mass_analyzer + '.' + fragmentation_method +
+                                            '.' + scanNumber + '.' +
+                                            scanNumber + '.' +
+                                            charge + '.' +
+                                            "RT_" + retention_time_min.ToString("0.000") + "_min_" +
+                                            retention_time_s.ToString("0.0") + "_s" +
+                                            ".dta";
+
+                    double precursorMass = Mass.MassFromMz(precursorMZ, charge);
+                    int precursorZ = charge;
+                    
+                    // List of mass ranges to exclude
+                    List<IRange<double>> mzRangesToRemove = new List<IRange<double>>();
+
+                    // Precursor cleaning
+                    if (cleanPrecursor || (enableEtdPreProcessing && isETD))
+                    {
+                        CleanPrecursor(mzRangesToRemove, precursorMZ, CleanPrecursorLowMz, CleanPrecursorHighMz);
+                    }
+
+                    // Neutral Loss cleaning
+                    if (NeutralLossesIncluded)
+                    {
+                        foreach (double mass in neutralLosses)
                         {
-                            using (StreamWriter dta = new StreamWriter(Path.Combine(outputFolder, dta_filepath)))
-                            {
-                                if (dta_content_sb.Length > 0)
-                                {
-                                    dta.Write(dta_content_sb.ToString());
-                                }
-                            }
-                        }
-
-                        if (omssaTxtOutput)
-                        {
-                            string txt_filepath = Path.Combine(outputFolder, base_output_filename + ".txt");
-
-                            StreamWriter writer = null;
-                            if (!txt_outputs.TryGetValue(txt_filepath, out writer))
-                            {
-                                writer = new StreamWriter(txt_filepath);                                
-                                txt_outputs.Add(txt_filepath, writer);
-                            }                          
-
-
-                            writer.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
-                            writer.WriteLine();
-
-                            writer.WriteLine((precursorMass + PROTON_MASS).ToString("0.00000") + ' ' + charge_i);
-
-                            foreach (MZPeak peak in peaks)
-                            {
-                                writer.WriteLine(" {0:0.0000} {1:0.00}", peak.MZ, peak.Intensity);
-                            }
-
-                            writer.WriteLine();
-                            writer.WriteLine();
-                        }
-
-                        if (mascotMgfOutput)
-                        {
-                            string mgf_filepath = Path.Combine(outputFolder,
-                                base_output_filename + ".mgf");
-
-                            if (!mgf_outputs.ContainsKey(mgf_filepath))
-                            {
-                                mgf_outputs.Add(mgf_filepath, new StreamWriter(mgf_filepath));
-                            }
-
-                            StreamWriter mgf = mgf_outputs[mgf_filepath];
-                                                       
-                            mgf.WriteLine("BEGIN IONS");
-                            mgf.WriteLine("Title=" + Path.GetFileNameWithoutExtension(dta_filepath));
-                            mgf.WriteLine("SCANS=" + scanNumber);
-                            mgf.WriteLine("RTINSECONDS=" + retention_time_s);
-                            mgf.WriteLine("PEPMASS=" + precursorMZ.ToString("0.00000"));
-                            mgf.WriteLine("CHARGE=" + charge_i.ToString("0+;0-"));
-                                                       
-                            foreach (MZPeak peak in peaks)
-                            {
-                                mgf.WriteLine("{0:0.00000} {1:0.00}", peak.MZ, peak.Intensity);
-                            }
-                           
-                            mgf.WriteLine("END IONS");
-                            mgf.WriteLine();
+                            double mz = precursorMZ - Mass.MzFromMass(mass, charge);
+                            double min = mz - LOW_PRECURSOR_CLEANING_WINDOW_MZ;
+                            double max = mz + HIGH_PRECURSOR_CLEANING_WINDOW_MZ;
+                            mzRangesToRemove.Add(new MzRange(min, max));
                         }
                     }
+
+                    // ETD pre-processing
+                    if (enableEtdPreProcessing && isETD)
+                    {
+                        CleanETD(mzRangesToRemove, precursorMass, precursorZ, EtdLowDa, EtdHighDa);
+                    }
+
+                    //// TMT duplex cleaning
+                    //if (cleanTmtDuplex)
+                    //{
+                    //    if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
+                    //        fragmentation_method.StartsWith("HCD"))
+                    //    {
+                    //        for (int reduced_charge_i = charge - 1;
+                    //            reduced_charge_i >= 1;
+                    //            reduced_charge_i--)
+                    //        {
+                    //            double precursor_tmt_duplex_tag_cleaning_mz = precursorMZ * reduced_charge_i -
+                    //                                                            TMT_DUPLEX_CAD_TAG_LOSS_DA /
+                    //                                                            reduced_charge_i;
+
+                    //            int p1 = 0;
+                    //            while (p1 < peaks.Count)
+                    //            {
+                    //                double mz = peaks[p1].MZ;
+
+                    //                if ((mz >=
+                    //                        MINIMUM_TMT_DUPLEX_CAD_REPORTER_MZ -
+                    //                        TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        MAXIMUM_TMT_DUPLEX_CAD_REPORTER_MZ +
+                    //                        TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >= TMT_DUPLEX_CAD_TAG_MZ - TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <= TMT_DUPLEX_CAD_TAG_MZ + TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >=
+                    //                        precursor_tmt_duplex_tag_cleaning_mz -
+                    //                        TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        precursor_tmt_duplex_tag_cleaning_mz +
+                    //                        TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //                {
+                    //                    peaks.RemoveAt(p1);
+                    //                }
+                    //                else
+                    //                {
+                    //                    p1++;
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    else if (fragmentation_method.StartsWith("ETD"))
+                    //    {
+                    //        for (int reduced_charge_i = charge - 1;
+                    //            reduced_charge_i >= 1;
+                    //            reduced_charge_i--)
+                    //        {
+                    //            double precursor_tmt_duplex_reporter_loss_cleaning_mz = precursorMZ * charge -
+                    //                                                                    TMT_DUPLEX_ETD_REPORTER_LOSS_DA /
+                    //                                                                    reduced_charge_i;
+                    //            double precursor_tmt_duplex_tag_loss_cleaning_mz = precursorMZ * charge -
+                    //                                                                TMT_DUPLEX_ETD_TAG_LOSS_DA /
+                    //                                                                reduced_charge_i;
+
+                    //            int p1 = 0;
+                    //            while (p1 < peaks.Count)
+                    //            {
+                    //                double mz = peaks[p1].MZ;
+                    //                if ((mz >=
+                    //                        MINIMUM_TMT_DUPLEX_ETD_REPORTER_MZ -
+                    //                        TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        MAXIMUM_TMT_DUPLEX_ETD_REPORTER_MZ +
+                    //                        TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >= TMT_DUPLEX_ETD_TAG_MZ - TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <= TMT_DUPLEX_ETD_TAG_MZ + TMT_DUPLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >=
+                    //                        precursor_tmt_duplex_reporter_loss_cleaning_mz -
+                    //                        TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        precursor_tmt_duplex_reporter_loss_cleaning_mz +
+                    //                        TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >=
+                    //                        precursor_tmt_duplex_tag_loss_cleaning_mz -
+                    //                        TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        precursor_tmt_duplex_tag_loss_cleaning_mz +
+                    //                        TMT_DUPLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //                {
+                    //                    peaks.RemoveAt(p1);
+                    //                }
+                    //                else
+                    //                {
+                    //                    p1++;
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+                    //// iTRAQ 4-plex cleaning
+                    //if (cleanItraq4Plex)
+                    //{
+                    //    if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
+                    //        fragmentation_method.StartsWith("HCD"))
+                    //    {
+                    //        double precursor_itraq_4plex_tag_cleaning_mz = precursorMZ * charge -
+                    //                                                        ITRAQ_4PLEX_CAD_TAG_LOSS_DA;
+
+                    //        int p1 = 0;
+                    //        while (p1 < peaks.Count)
+                    //        {
+                    //            double mz = peaks[p1].MZ;
+
+                    //            if ((mz >=
+                    //                    MINIMUM_ITRAQ_4PLEX_CAD_REPORTER_MZ -
+                    //                    ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    MAXIMUM_ITRAQ_4PLEX_CAD_REPORTER_MZ +
+                    //                    ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >= ITRAQ_4PLEX_CAD_TAG_MZ - ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <= ITRAQ_4PLEX_CAD_TAG_MZ + ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >=
+                    //                    precursor_itraq_4plex_tag_cleaning_mz -
+                    //                    ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    precursor_itraq_4plex_tag_cleaning_mz +
+                    //                    ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //            {
+                    //                peaks.RemoveAt(p1);
+                    //            }
+                    //            else
+                    //            {
+                    //                p1++;
+                    //            }
+                    //        }
+                    //    }
+                    //    else if (fragmentation_method.StartsWith("ETD"))
+                    //    {
+                    //        double precursor_itraq_4plex_reporter_loss_cleaning_mz = precursorMZ * charge -
+                    //                                                                    ITRAQ_4PLEX_ETD_REPORTER_LOSS_DA;
+                    //        double precursor_itraq_4plex_tag_loss_cleaning_mz = precursorMZ * charge -
+                    //                                                            ITRAQ_4PLEX_ETD_TAG_LOSS_DA;
+
+                    //        int p1 = 0;
+                    //        while (p1 < peaks.Count)
+                    //        {
+                    //            double mz = peaks[p1].MZ;
+                    //            if ((mz >=
+                    //                    MINIMUM_ITRAQ_4PLEX_ETD_REPORTER_MZ -
+                    //                    ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    MAXIMUM_ITRAQ_4PLEX_ETD_REPORTER_MZ +
+                    //                    ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >= ITRAQ_4PLEX_ETD_TAG_MZ - ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <= ITRAQ_4PLEX_ETD_TAG_MZ + ITRAQ_4PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >=
+                    //                    precursor_itraq_4plex_reporter_loss_cleaning_mz -
+                    //                    ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    precursor_itraq_4plex_reporter_loss_cleaning_mz +
+                    //                    ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >=
+                    //                    precursor_itraq_4plex_tag_loss_cleaning_mz -
+                    //                    ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    precursor_itraq_4plex_tag_loss_cleaning_mz +
+                    //                    ITRAQ_4PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //            {
+                    //                peaks.RemoveAt(p1);
+                    //            }
+                    //            else
+                    //            {
+                    //                p1++;
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+                    //// TMT 6-plex cleaning
+                    //if (cleanTmt6Plex)
+                    //{
+                    //    if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
+                    //        fragmentation_method.StartsWith("HCD"))
+                    //    {
+                    //        for (int reduced_charge_i = charge - 1;
+                    //            reduced_charge_i >= 1;
+                    //            reduced_charge_i--)
+                    //        {
+                    //            double precursor_tmt_6plex_tag_cleaning_mz = precursorMZ * reduced_charge_i -
+                    //                                                            TMT_6PLEX_CAD_TAG_LOSS_DA /
+                    //                                                            reduced_charge_i;
+
+                    //            int p1 = 0;
+                    //            while (p1 < peaks.Count)
+                    //            {
+                    //                double mz = peaks[p1].MZ;
+
+                    //                if ((mz >=
+                    //                        MINIMUM_TMT_6PLEX_CAD_REPORTER_MZ -
+                    //                        TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        MAXIMUM_TMT_6PLEX_CAD_REPORTER_MZ +
+                    //                        TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >= TMT_6PLEX_CAD_TAG_MZ - TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <= TMT_6PLEX_CAD_TAG_MZ + TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >=
+                    //                        precursor_tmt_6plex_tag_cleaning_mz -
+                    //                        TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        precursor_tmt_6plex_tag_cleaning_mz +
+                    //                        TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //                {
+                    //                    peaks.RemoveAt(p1);
+                    //                }
+                    //                else
+                    //                {
+                    //                    p1++;
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //    else if (fragmentation_method.StartsWith("ETD"))
+                    //    {
+                    //        for (int reduced_charge_i = charge - 1;
+                    //            reduced_charge_i >= 1;
+                    //            reduced_charge_i--)
+                    //        {
+                    //            double precursor_tmt_6plex_reporter_loss_cleaning_mz = precursorMZ * charge -
+                    //                                                                    TMT_6PLEX_ETD_REPORTER_LOSS_DA /
+                    //                                                                    reduced_charge_i;
+                    //            double precursor_tmt_6plex_tag_loss_cleaning_mz = precursorMZ * charge -
+                    //                                                                TMT_6PLEX_ETD_TAG_LOSS_DA /
+                    //                                                                reduced_charge_i;
+
+                    //            int p1 = 0;
+                    //            while (p1 < peaks.Count)
+                    //            {
+                    //                double mz = peaks[p1].MZ;
+                    //                if ((mz >=
+                    //                        MINIMUM_TMT_6PLEX_ETD_REPORTER_MZ -
+                    //                        TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        MAXIMUM_TMT_6PLEX_ETD_REPORTER_MZ +
+                    //                        TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >= TMT_6PLEX_ETD_TAG_MZ - TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <= TMT_6PLEX_ETD_TAG_MZ + TMT_6PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >=
+                    //                        precursor_tmt_6plex_reporter_loss_cleaning_mz -
+                    //                        TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        precursor_tmt_6plex_reporter_loss_cleaning_mz +
+                    //                        TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ)
+                    //                    ||
+                    //                    (mz >=
+                    //                        precursor_tmt_6plex_tag_loss_cleaning_mz -
+                    //                        TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                        &&
+                    //                        mz <=
+                    //                        precursor_tmt_6plex_tag_loss_cleaning_mz +
+                    //                        TMT_6PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //                {
+                    //                    peaks.RemoveAt(p1);
+                    //                }
+                    //                else
+                    //                {
+                    //                    p1++;
+                    //                }
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
+                    //// iTRAQ 8-plex cleaning
+                    //if (cleanItraq8Plex)
+                    //{
+                    //    if (fragmentation_method.StartsWith("CID") || fragmentation_method.StartsWith("PQD") ||
+                    //        fragmentation_method.StartsWith("HCD"))
+                    //    {
+                    //        double precursor_itraq_4plex_tag_cleaning_mz = precursorMZ * charge -
+                    //                                                        ITRAQ_8PLEX_CAD_TAG_LOSS_DA;
+
+                    //        int p1 = 0;
+                    //        while (p1 < peaks.Count)
+                    //        {
+                    //            double mz = peaks[p1].MZ;
+
+                    //            if ((mz >=
+                    //                    MINIMUM_ITRAQ_8PLEX_CAD_REPORTER_MZ -
+                    //                    ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    MAXIMUM_ITRAQ_8PLEX_CAD_REPORTER_MZ +
+                    //                    ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >= ITRAQ_8PLEX_CAD_TAG_MZ - ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <= ITRAQ_8PLEX_CAD_TAG_MZ + ITRAQ_8PLEX_CLEANING_MASS_TOLERANCE_MZ)
+                    //                ||
+                    //                (mz >=
+                    //                    precursor_itraq_4plex_tag_cleaning_mz -
+                    //                    ITRAQ_8PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ
+                    //                    &&
+                    //                    mz <=
+                    //                    precursor_itraq_4plex_tag_cleaning_mz +
+                    //                    ITRAQ_8PLEX_LOSS_CLEANING_MASS_TOLERANCE_MZ))
+                    //            {
+                    //                peaks.RemoveAt(p1);
+                    //            }
+                    //            else
+                    //            {
+                    //                p1++;
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    
+                    // Perform the actual cleaning
+                    var cleanedSpectrum = spectrum.Filter(mzRangesToRemove);
+
+                    int cleanSpectrumLength = cleanedSpectrum.Count;
+                    double[] mzs = cleanedSpectrum.GetMasses();
+                    double[] intenisties = cleanedSpectrum.GetIntensities();
+
+                    if (sequestDtaOutput)
+                    {
+                        using (StreamWriter dta = new StreamWriter(Path.Combine(outputFolder, dta_filepath)))
+                        {
+                            if (dta_content_sb.Length > 0)
+                            {
+                                dta.Write(dta_content_sb.ToString());
+                            }
+                        }
+                    }
+
+                    if (omssaTxtOutput)
+                    {
+                        string txt_filepath = Path.Combine(outputFolder, base_output_filename + ".txt");
+
+                        StreamWriter writer = null;
+                        if (!txt_outputs.TryGetValue(txt_filepath, out writer))
+                        {
+                            writer = new StreamWriter(txt_filepath);                                
+                            txt_outputs.Add(txt_filepath, writer);
+                        }   
+
+                        writer.WriteLine("<dta id=\"" + scanNumber + "\" name=\"" + dta_filepath + "\">");
+                        writer.WriteLine();
+
+                        writer.WriteLine("{0:0.00000} {1:N0}", precursorMass + PROTON_MASS, charge); ;
+                        
+                        for (int i = 0; i < cleanSpectrumLength; i++)
+                        {
+                            writer.WriteLine(" {0:0.0000} {1:0.00}", mzs[i], intenisties[i]);
+                        }
+                     
+                        writer.WriteLine();
+                        writer.WriteLine();
+                    }
+
+                    if (mascotMgfOutput)
+                    {
+                        string mgf_filepath = Path.Combine(outputFolder,
+                            base_output_filename + ".mgf");
+
+                        if (!mgf_outputs.ContainsKey(mgf_filepath))
+                        {
+                            mgf_outputs.Add(mgf_filepath, new StreamWriter(mgf_filepath));
+                        }
+
+                        StreamWriter mgf = mgf_outputs[mgf_filepath];
+                                                       
+                        mgf.WriteLine("BEGIN IONS");
+                        mgf.WriteLine("Title=" + Path.GetFileNameWithoutExtension(dta_filepath));
+                        mgf.WriteLine("SCANS=" + scanNumber);
+                        mgf.WriteLine("RTINSECONDS=" + retention_time_s);
+                        mgf.WriteLine("PEPMASS=" + precursorMZ.ToString("0.00000"));
+                        mgf.WriteLine("CHARGE=" + charge.ToString("0+;0-"));
+
+                        for (int i = 0; i < cleanSpectrumLength; i++)
+                        {
+                            mgf.WriteLine("{0:0.00000} {1:0.00}", mzs[i], intenisties[i]);
+                        }
+                           
+                        mgf.WriteLine("END IONS");
+                        mgf.WriteLine();
+                    }
                 }
+                
             }            
 
             if (txt_outputs != null)
@@ -1344,152 +1334,24 @@ namespace Coon.Compass.DtaGenerator
             onFinishedFile(new FilepathEventArgs(filepath));
         }
 
-        public static void CleanPrecursor(List<MZPeak> peaks, double precursorMZ, double lowWindow = LOW_PRECURSOR_CLEANING_WINDOW_MZ, double highWidnow = HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
+        public static void CleanPrecursor(List<IRange<double>> rangesToRemove, double precursorMZ, double lowWindow = LOW_PRECURSOR_CLEANING_WINDOW_MZ, double highWidnow = HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
         {
             double lowMZ = precursorMZ - lowWindow;
             double highMZ = precursorMZ + highWidnow;
             MzRange range = new MzRange(lowMZ, highMZ);
-            CleanPeaks(peaks, new List<MzRange>() { range });
+            rangesToRemove.Add(new MzRange(lowMZ, highMZ));
         }
 
-        private static void CleanPeaks(List<MZPeak> peaks, IList<MzRange> ranges)
+        public static void CleanETD(List<IRange<double>> rangesToRemove, double precursorMass, int precursorZ, double lowWindow, double highWindow)
         {
-            if (ranges.Count < 1)
-                return;
-
-            double min = ranges.Min(r => r.Minimum);
-            double max = ranges.Max(r => r.Maximum);
-
-            int p = 0;
-            while (p < peaks.Count)
-            {
-                double mz = peaks[p].MZ;
-                if (mz < min)
-                {
-                    p++;
-                }
-                else if (mz > max)
-                {
-                    break;
-                }
-                else
-                {
-                    if (ranges.Any(range => range.Contains(mz)))
-                    {
-                        peaks.RemoveAt(p);
-                    }
-                    else
-                    {
-                        p++;
-                    }
-                }
-            }
-        }
-
-        public static void CleanETD(List<MZPeak> peaks, double precursorMass, int precursorZ, Polarity polarity, double lowWindow, double highWindow)
-        {
-            List<MzRange> cleanRanges = new List<MzRange>();
-
-            int sign = (int)polarity;
+            int sign = Math.Sign(precursorZ);
 
             for (int z = sign; sign*z < sign*precursorZ; z += sign)
             {
                 double lowMZ = Mass.MzFromMass(precursorMass - lowWindow, z);
                 double highMZ = Mass.MzFromMass(precursorMass + highWindow, z);
-                cleanRanges.Add(new MzRange(lowMZ, highMZ));
+                rangesToRemove.Add(new MzRange(lowMZ, highMZ));
             }
-
-            CleanPeaks(peaks, cleanRanges);
-
-          
-
-
-                //// negative ETD
-                //if (polarity == Polarity.Negative)
-                //{
-                //    int p1 = 0;
-                //    while (p1 < peaks.Count)
-                //    {
-                //        double mz = peaks[p1].MZ;
-
-                //        bool clean = false;
-
-                //        for (int reduced_precursor_charge = -2; reduced_precursor_charge >= precursorZ + 1; reduced_precursor_charge--)
-                //        {
-                //            if (mz >= Mass.MzFromMass(
-                //                    precursorMass - NETD_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
-                //                    reduced_precursor_charge) &&
-                //                mz <=
-                //                 Mass.MzFromMass(
-                //                    precursorMass + NETD_HIGH_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
-                //                    reduced_precursor_charge))
-                //            {
-                //                clean = true;
-                //                break;
-                //            }
-
-                //            if (mz >=
-                //                 Mass.MzFromMass(precursorMass + NETD_ADDUCT_CLEANING_WINDOW_DA,
-                //                    reduced_precursor_charge) - NETD_ADDUCT_LOW_CLEANING_WINDOW_MZ &&
-                //                mz <=
-                //                 Mass.MzFromMass(precursorMass + NETD_ADDUCT_CLEANING_WINDOW_DA,
-                //                    reduced_precursor_charge) + NETD_ADDUCT_LOW_CLEANING_WINDOW_MZ)
-                //            {
-                //                clean = true;
-                //                break;
-                //            }
-                //        }
-
-                //        if (!clean)
-                //        {
-                //            if (mz >=
-                //                 Mass.MzFromMass(precursorMass, -1) -
-                //                NETD_SINGLY_CHARGED_LOW_NEUTRAL_LOSS_CLEANING_WINDOW_MZ)
-                //            {
-                //                clean = true;
-                //            }
-                //        }
-
-                //        if (clean)
-                //        {
-                //            peaks.RemoveAt(p1);
-                //        }
-                //        else
-                //        {
-                //            p1++;
-                //        }
-                //    }
-                //}
-                //// positive ETD
-                //else
-                //{
-                //    int p1 = 0;
-                //    while (p1 < peaks.Count)
-                //    {
-                //        double mz = peaks[p1].MZ;
-
-                //        bool clean = false;
-
-                //        for (int reduced_precursor_charge = 1; reduced_precursor_charge <= precursorZ - 1; reduced_precursor_charge++)
-                //        {
-                //            if (mz >= Mass.MzFromMass(precursorMass - LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA, reduced_precursor_charge) &&
-                //                mz < Mass.MzFromMass(precursorMass, reduced_precursor_charge) + HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
-                //            {
-                //                clean = true;
-                //                break;
-                //            }
-                //        }
-
-                //        if (clean)
-                //        {
-                //            peaks.RemoveAt(p1);
-                //        }
-                //        else
-                //        {
-                //            p1++;
-                //        }
-                //    }
-                //}
         }
     
         private static IEnumerable<int> AllIndicesOf(string s, char c)

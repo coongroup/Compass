@@ -147,7 +147,7 @@ namespace Coon.Compass.FdrOptimizer
             int localMSMS = -1;
             List<int> msmsBetweenMS = new List<int>();
             List<double> injectionTimes = new List<double>();
-            for(int sn = dataFile.FirstSpectrumNumber; sn < dataFile.LastSpectrumNumber; sn++)
+            for(int sn = dataFile.FirstSpectrumNumber; sn <= dataFile.LastSpectrumNumber; sn++)
             {
                 int order = dataFile.GetMsnOrder(sn);
                 if (order == 1)

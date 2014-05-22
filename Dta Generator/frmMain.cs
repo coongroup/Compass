@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using CSMSL;
 
 namespace Coon.Compass.DtaGenerator
 {
@@ -118,6 +119,11 @@ namespace Coon.Compass.DtaGenerator
             bool includeLog = includeLogCB.Checked;
             string output_folder = txtOutputFolder.Text;
 
+            double clnPrecursorLowMZ = (double)numericUpDown1.Value;
+            double clnPrecursorHighMZ = (double)numericUpDown2.Value;
+
+            double etdLowDa = (double)numericUpDown3.Value;
+            double etdHighDa = (double)numericUpDown4.Value;
 
             if(output_folder == string.Empty)
             {
@@ -137,7 +143,9 @@ namespace Coon.Compass.DtaGenerator
                 sequest_dta_output, omssa_text_output, mascot_mgf_output,
                 output_folder,
                 nlmass,
-                includeLog);
+                includeLog,
+                clnPrecursorLowMZ, clnPrecursorHighMZ,
+                etdLowDa, etdHighDa);
                       
             dta_generator.StartingFile += handleStartingFile;
             dta_generator.UpdateProgress += handleUpdateProgress;
@@ -238,6 +246,50 @@ namespace Coon.Compass.DtaGenerator
         private void button1_Click(object sender, EventArgs e)
         {
             new DtaViewerForm().Show();
+        }
+
+        private void chkCleanPrecursor_CheckedChanged(object sender, EventArgs e)
+        {
+            numericUpDown1.Enabled = numericUpDown2.Enabled = chkCleanPrecursor.Checked;
+        }
+
+        private void chkEnableEtdPreProcessing_CheckedChanged(object sender, EventArgs e)
+        {
+            numericUpDown3.Enabled = numericUpDown4.Enabled = chkEnableEtdPreProcessing.Checked;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            double lowMZ = (double)numericUpDown5.Value;
+            double highMZ = (double)numericUpDown6.Value;
+            MzRange range = new MzRange(lowMZ, highMZ);
+            listBox1.Items.Add(range);
+        }
+
+        private readonly MzRange tmtDuplex = new MzRange(125.5, 127.5);
+
+        private void chkCleanTmtDuplex_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkCleanTmtDuplex.Checked)
+            {
+                listBox1.Items.Add(tmtDuplex);
+            }
+            else
+            {
+                listBox1.Items.Remove(tmtDuplex);
+            }
+        }
+
+        private void listBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Delete)
+                return;
+
+            object range = listBox1.SelectedItem;
+            if (range == null)
+                return;
+           
+            listBox1.Items.Remove(range);
         }
     }
 }

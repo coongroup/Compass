@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CSMSL;
 using CSMSL.Chemistry;
 using CSMSL.IO;
 using CSMSL.IO.Thermo;
@@ -84,9 +85,7 @@ namespace Coon.Compass.DtaGenerator
             zedGraphControl1.GraphPane.CurveList.Clear();
             zedGraphControl2.GraphPane.CurveList.Clear();
 
-            var rawSpectrum = _rawFile.GetMzSpectrum(spectrumNumber);
-            
-            List<MZPeak> peaks = rawSpectrum.ToList();
+            var rawSpectrum = _rawFile.GetReadOnlyMZSpectrum(spectrumNumber);
 
             Polarity polarity = _rawFile.GetPolarity(spectrumNumber);
             double precursorMZ = _rawFile.GetPrecusorMz(spectrumNumber);
@@ -97,21 +96,23 @@ namespace Coon.Compass.DtaGenerator
             textBox3.Text = ((polarity == Polarity.Positive) ? "+" : "") + precursorZ.ToString("N0");
             textBox4.Text = precursorMass.ToString("f5");
 
+            List<IRange<double>> mzRangesToRemove = new List<IRange<double>>();
+
             if (checkBox1.Checked)
             {
                 double lowMZ = (double)numericUpDown1.Value;
                 double highMZ = (double)numericUpDown2.Value;
-                DtaGenerator.CleanPrecursor(peaks, precursorMZ, lowMZ, highMZ);
+                DtaGenerator.CleanPrecursor(mzRangesToRemove, precursorMZ, lowMZ, highMZ);
             }
 
             if (checkBox2.Checked)
             {
                 double lowMZ = (double)numericUpDown3.Value;
                 double highMZ = (double)numericUpDown4.Value;
-                DtaGenerator.CleanETD(peaks, precursorMass, precursorZ, polarity, lowMZ, highMZ);
+                DtaGenerator.CleanETD(mzRangesToRemove, precursorMass, precursorZ, lowMZ, highMZ);
             }
             
-            var cleanSpectrum = new Spectrum(peaks.Select(p => p.MZ).ToArray(), peaks.Select(p => p.Intensity).ToArray(), false);
+            var cleanSpectrum = rawSpectrum.Filter(mzRangesToRemove);
    
             zedGraphControl1.GraphPane.AddStick("Raw", rawSpectrum.GetMasses(), rawSpectrum.GetIntensities(), Color.Black);
             zedGraphControl2.GraphPane.AddStick("Cleaned", cleanSpectrum.GetMasses(), cleanSpectrum.GetIntensities(), Color.Black);

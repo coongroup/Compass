@@ -1,0 +1,23 @@
+﻿Here is how the program reduces peptide sequences with modifications.
+
+All Isoleucines (I) are converted to Leucines (L) (See DELEK vs. DEIEK example below)
+
+[A] and [B]		represents unique modifications with different masses
+[A] and [A']	represents unique modifications with identical masses
+
+Truth tables if peptide 1 and 2 would be combined together
+
+	  Peptide 1		  Peptide 2				Nothing		Mass	Sequence	SequenceAndMass	SequenceAndModification	SequenceAndModLocation
+		
+	    DEREK			DEREK				FALSE		TRUE	TRUE		TRUE			TRUE					TRUE
+		DELEK			DEIEK				FALSE		TRUE	TRUE		TRUE			TRUE					TRUE
+		DEREK			EERKD				FAlSE		TRUE	FALSE		FALSE			FALSE					FALSE
+	    DEREK-[A]		DEREK-[A]			FALSE		TRUE	TRUE		TRUE			TRUE					TRUE
+	    DEREK-[A]		DEREK-[B]			FALSE		FALSE	TRUE		FALSE			FALSE					TRUE*
+	[A]-DEREK			DEREK-[A]			FALSE		TRUE	TRUE		TRUE			FALSE					FALSE
+	[A]-DEREK-[A]		DEREK-[A]			FALSE		FALSE	TRUE		FALSE			FALSE					FALSE
+	    DEREK-[A]		DEREK-[A']			FALSE		TRUE	TRUE		TRUE			FALSE					TRUE* 
+	[A]-DEREK			DEREK-[A']			FALSE		TRUE	TRUE		TRUE			FALSE					FALSE	 
+	    DEREK			DEREK-[A]			FALSE		FALSE	TRUE		FALSE			FALSE					FALSE	    
+
+*SequenceAndModLocation only cares if there is a mod at the same position in the peptide

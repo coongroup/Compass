@@ -20,9 +20,7 @@ namespace Coon.Compass.DtaGenerator
     public partial class DtaViewerForm : Form
     {
         private ThermoRawFile _rawFile;
-        private DtaReader _dtaFile;
-        
-        private BindingList<Dta> _dtas;
+
         private BindingList<int> _scanNumbers;
 
         public DtaViewerForm()
@@ -85,7 +83,7 @@ namespace Coon.Compass.DtaGenerator
             zedGraphControl1.GraphPane.CurveList.Clear();
             zedGraphControl2.GraphPane.CurveList.Clear();
 
-            var rawSpectrum = _rawFile.GetReadOnlyMZSpectrum(spectrumNumber);
+            var rawSpectrum = _rawFile.GetSpectrum(spectrumNumber);
 
             Polarity polarity = _rawFile.GetPolarity(spectrumNumber);
             double precursorMZ = _rawFile.GetPrecusorMz(spectrumNumber);

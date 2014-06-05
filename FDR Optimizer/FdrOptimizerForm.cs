@@ -282,6 +282,9 @@ namespace Coon.Compass.FdrOptimizer
             UpdateModsListboxes();
             comboBox1.DataSource = Enum.GetValues(typeof(UniquePeptideType));
             comboBox1.SelectedItem = UniquePeptideType.SequenceAndModifications;
+            
+            new ToolTip().SetToolTip(checkBox1, "Process all OMSSA .csv files with the same e-value and ppm thresholds");
+
             base.OnLoad(e);
         }
 
@@ -293,6 +296,11 @@ namespace Coon.Compass.FdrOptimizer
         private void twoDCB_CheckedChanged(object sender, EventArgs e)
         {
             maximumPPMUD.Enabled = twoDCB.Checked;
+        }
+
+        private void linkLabel1_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start("ReducePsms.txt");
         }
    
     }

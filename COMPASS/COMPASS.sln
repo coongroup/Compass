@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMPASS", "COMPASS.csproj", "{1FDBDA24-8AAB-4CE6-A8FE-841057B1C516}"
 EndProject
@@ -233,7 +233,8 @@ Global
 		{18C3AE3C-E032-4FE9-AD14-E602BA663BE4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18C3AE3C-E032-4FE9-AD14-E602BA663BE4}.Release|x64.ActiveCfg = Release|x64
 		{18C3AE3C-E032-4FE9-AD14-E602BA663BE4}.Release|x64.Build.0 = Release|x64
-		{18C3AE3C-E032-4FE9-AD14-E602BA663BE4}.Release|x86.ActiveCfg = Release|Any CPU
+		{18C3AE3C-E032-4FE9-AD14-E602BA663BE4}.Release|x86.ActiveCfg = Release|x86
+		{18C3AE3C-E032-4FE9-AD14-E602BA663BE4}.Release|x86.Build.0 = Release|x86
 		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Debug|x64.ActiveCfg = Debug|x64
@@ -243,7 +244,8 @@ Global
 		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Release|x64.ActiveCfg = Release|x64
 		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Release|x64.Build.0 = Release|x64
-		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Release|x86.ActiveCfg = Release|Any CPU
+		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Release|x86.ActiveCfg = Release|x86
+		{BD302EEC-97DE-4C25-B229-2B5BD0D7822C}.Release|x86.Build.0 = Release|x86
 		{3112B2D8-0048-46C8-BB6D-751CDC1BC7D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3112B2D8-0048-46C8-BB6D-751CDC1BC7D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3112B2D8-0048-46C8-BB6D-751CDC1BC7D4}.Debug|x64.ActiveCfg = Debug|x64
@@ -265,7 +267,8 @@ Global
 		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x64.ActiveCfg = Release|x64
 		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x64.Build.0 = Release|x64
-		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x86.ActiveCfg = Release|Any CPU
+		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x86.ActiveCfg = Release|x86
+		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -57,7 +57,6 @@ namespace Coon.Compass.FdrOptimizer
             this.prgProgress = new System.Windows.Forms.ProgressBar();
             this.fbdOutputFolder = new System.Windows.Forms.FolderBrowserDialog();
             this.ofdModsXml = new System.Windows.Forms.OpenFileDialog();
-            this.label6 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.btnOK = new System.Windows.Forms.Button();
@@ -66,6 +65,8 @@ namespace Coon.Compass.FdrOptimizer
             this.label2 = new System.Windows.Forms.Label();
             this.twoDCB = new System.Windows.Forms.CheckBox();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.grpFixedModifications.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaximumFalseDiscoveryRate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -318,10 +319,11 @@ namespace Coon.Compass.FdrOptimizer
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lstOmssaCsvFiles.FormattingEnabled = true;
             this.lstOmssaCsvFiles.HorizontalScrollbar = true;
+            this.lstOmssaCsvFiles.IntegralHeight = false;
             this.lstOmssaCsvFiles.Location = new System.Drawing.Point(10, 25);
             this.lstOmssaCsvFiles.Name = "lstOmssaCsvFiles";
             this.lstOmssaCsvFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstOmssaCsvFiles.Size = new System.Drawing.Size(460, 82);
+            this.lstOmssaCsvFiles.Size = new System.Drawing.Size(460, 84);
             this.lstOmssaCsvFiles.TabIndex = 69;
             // 
             // label1
@@ -345,16 +347,6 @@ namespace Coon.Compass.FdrOptimizer
             // ofdModsXml
             // 
             this.ofdModsXml.Filter = "OMSSA mods files (.xml)|*.xml";
-            // 
-            // label6
-            // 
-            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(255, 149);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(123, 13);
-            this.label6.TabIndex = 179;
-            this.label6.Text = "Reduce PSMs based on";
             // 
             // comboBox1
             // 
@@ -398,13 +390,14 @@ namespace Coon.Compass.FdrOptimizer
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.linkLabel1);
+            this.splitContainer1.Panel1.Controls.Add(this.label7);
             this.splitContainer1.Panel1.Controls.Add(this.maximumPPMUD);
             this.splitContainer1.Panel1.Controls.Add(this.label2);
             this.splitContainer1.Panel1.Controls.Add(this.label17);
             this.splitContainer1.Panel1.Controls.Add(this.txtRawFolder);
             this.splitContainer1.Panel1.Controls.Add(this.btnBrowse);
             this.splitContainer1.Panel1.Controls.Add(this.comboBox1);
-            this.splitContainer1.Panel1.Controls.Add(this.label6);
             this.splitContainer1.Panel1.Controls.Add(this.twoDCB);
             this.splitContainer1.Panel1.Controls.Add(this.label10);
             this.splitContainer1.Panel1.Controls.Add(this.numMaximumFalseDiscoveryRate);
@@ -426,14 +419,15 @@ namespace Coon.Compass.FdrOptimizer
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.richTextBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(568, 617);
-            this.splitContainer1.SplitterDistance = 420;
+            this.splitContainer1.Size = new System.Drawing.Size(568, 671);
+            this.splitContainer1.SplitterDistance = 439;
             this.splitContainer1.TabIndex = 179;
             // 
             // maximumPPMUD
             // 
+            this.maximumPPMUD.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.maximumPPMUD.DecimalPlaces = 2;
-            this.maximumPPMUD.Location = new System.Drawing.Point(248, 205);
+            this.maximumPPMUD.Location = new System.Drawing.Point(277, 205);
             this.maximumPPMUD.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -452,7 +446,7 @@ namespace Coon.Compass.FdrOptimizer
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(139, 208);
+            this.label2.Location = new System.Drawing.Point(169, 208);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(102, 13);
             this.label2.TabIndex = 181;
@@ -478,16 +472,38 @@ namespace Coon.Compass.FdrOptimizer
             this.richTextBox1.Location = new System.Drawing.Point(0, 0);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(564, 189);
+            this.richTextBox1.Size = new System.Drawing.Size(564, 224);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
+            // 
+            // label7
+            // 
+            this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(138, 208);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(15, 13);
+            this.label7.TabIndex = 183;
+            this.label7.Text = "%";
+            // 
+            // linkLabel1
+            // 
+            this.linkLabel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.linkLabel1.AutoSize = true;
+            this.linkLabel1.Location = new System.Drawing.Point(287, 149);
+            this.linkLabel1.Name = "linkLabel1";
+            this.linkLabel1.Size = new System.Drawing.Size(91, 13);
+            this.linkLabel1.TabIndex = 184;
+            this.linkLabel1.TabStop = true;
+            this.linkLabel1.Text = "Reduce PSMs on";
+            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked_1);
             // 
             // FdrOptimizerForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(568, 617);
+            this.ClientSize = new System.Drawing.Size(568, 671);
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
@@ -545,11 +561,12 @@ namespace Coon.Compass.FdrOptimizer
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.ComboBox comboBox1;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.CheckBox twoDCB;
         private System.Windows.Forms.NumericUpDown maximumPPMUD;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.LinkLabel linkLabel1;
     }
 }
 

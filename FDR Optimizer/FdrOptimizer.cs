@@ -288,6 +288,7 @@ namespace Coon.Compass.FdrOptimizer
                         string[] headers = reader.GetFieldHeaders();
                         int headerCount = headers.Length;
                         int modsColumnIndex = 10; //reader.GetFieldIndex("Mods");
+                        int chargeColumnIndex = 11;
                         string[] data = new string[headerCount];
                         
                         decoyWriter.WriteLine(headerLine);
@@ -318,6 +319,8 @@ namespace Coon.Compass.FdrOptimizer
 
                             if (allPsms.TryGetValue(fileName + sequence, out psm))
                             {
+                                bool isNegative = psm.Charge < 0;
+
                                 scansProcessed.Add(spectralNumber);
                                 sb.Clear();
                                 reader.CopyCurrentRecordTo(data);
@@ -328,6 +331,14 @@ namespace Coon.Compass.FdrOptimizer
                                     if (_includeFixedMods && i == modsColumnIndex)
                                     {
                                         datum = OmssaModification.WriteModificationString(psm.Peptide);
+                                    }
+
+                                    // Replace the charge if negative
+                                    if (isNegative && i == chargeColumnIndex)
+                                    {
+                                        sb.Append(psm.Charge);
+                                        sb.Append(',');
+                                        continue;
                                     }
 
                                     if (datum.Contains('"'))

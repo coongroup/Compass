@@ -177,6 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="coon_red.ico" />
+    <Content Include="ReducePsms.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CSMSL\CSMSL\IO\OMSSA\OMSSA.csproj">

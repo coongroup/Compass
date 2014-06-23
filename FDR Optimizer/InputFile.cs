@@ -147,7 +147,7 @@ namespace Coon.Compass.FdrOptimizer
             int localMSMS = -1;
             List<int> msmsBetweenMS = new List<int>();
             List<double> injectionTimes = new List<double>();
-            for(int sn = dataFile.FirstSpectrumNumber; sn < dataFile.LastSpectrumNumber; sn++)
+            for(int sn = dataFile.FirstSpectrumNumber; sn <= dataFile.LastSpectrumNumber; sn++)
             {
                 int order = dataFile.GetMsnOrder(sn);
                 if (order == 1)
@@ -177,8 +177,11 @@ namespace Coon.Compass.FdrOptimizer
                 SortedMaxSizedContainer<PSM> psms = kvp.Value;
                
                 double isolationMZ = dataFile.GetPrecusorMz(scanNumber);
+                Polarity polarity = dataFile.GetPolarity(scanNumber);
+
                 foreach (PSM psm in psms)
                 {
+                    psm.Charge *= (int)polarity; // For negative mode ions
                     psm.IsolationMz = isolationMZ;
                     double isolationMass = Mass.MassFromMz(isolationMZ, psm.Charge);
                     double theoreticalMass = psm.MonoisotopicMass;

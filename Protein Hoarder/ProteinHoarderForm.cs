@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using CSMSL.Proteomics;
 using LumenWorks.Framework.IO.Csv;
@@ -45,6 +46,9 @@ namespace Coon.Compass.ProteinHoarder
 
             comboBox1.DataSource = Enum.GetValues(typeof (AnnotationType));
 
+            UsedModifications = new HashSet<string>();
+          
+   
             progressBar.MarqueeAnimationSpeed = 50;
 
             ExperimentIDs = new BindingList<char>();
@@ -92,7 +96,7 @@ namespace Coon.Compass.ProteinHoarder
             proteaseCol.AutoComplete = true;
             csvDGV.Columns.Add(proteaseCol);
 
-            UsedModifications = new HashSet<string>();
+          
         }
 
         public void Run()
@@ -137,10 +141,10 @@ namespace Coon.Compass.ProteinHoarder
             HashSet<Modification> modstoignore = new HashSet<Modification>();
             if (useQuant)
             {
-                foreach (object item in ignoreModsCLB.CheckedItems)
+                foreach (string modName in ignoreModsCLB.CheckedItems.Cast<string>())
                 {
-                    Modification mod = (Modification)item;                 
-                    mod.IgnoreMod = true;
+                    Modification mod = new Modification(modName, true);
+                   // mod.IgnoreMod = true;
                     modstoignore.Add(mod);                    
                 }
             }           
@@ -177,7 +181,7 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
-        public void AddCsv(string filename)
+        public async void AddCsv(string filename)
         {
             CsvFile file = new CsvFile(filename);
             if (!CsvFiles.Contains(file))
@@ -189,32 +193,37 @@ namespace Coon.Compass.ProteinHoarder
                 {
                     outputTB.Text = csvD.InitialDirectory;
                 }
-                CheckMods(file);
-                Application.DoEvents();
+                var mods = await CheckMods(file);
+
+                UsedModifications.UnionWith(mods);
+
+                ignoreModsCLB.Items.Clear();
+                ignoreModsCLB.Items.AddRange(UsedModifications.ToArray());
             }
         }
 
-        private void CheckMods(CsvFile file)
+        private Task<ISet<string>> CheckMods(CsvFile file)
         {
-            using (CsvReader reader = new CsvReader(new StreamReader(file.FilePath), true))
+            Task<ISet<string>> t = new Task<ISet<string>>(() =>
             {
-                while (reader.ReadNextRecord())
+                HashSet<string> localMods = new HashSet<string>();
+                using (CsvReader reader = new CsvReader(new StreamReader(file.FilePath), true))
                 {
-                    string mod_line = reader["Mods"];
-                    if (string.IsNullOrEmpty(mod_line)) continue;
-                    string[] mods = mod_line.Split(',');
-                    foreach (string mod in mods)
+                    while (reader.ReadNextRecord())
                     {
-                        string mod_name = mod.Split(':')[0];
-                        if (!UsedModifications.Contains(mod_name))
+                        string modLine = reader["Mods"];
+                        if (string.IsNullOrEmpty(modLine)) continue;
+                        string[] mods = modLine.Split(',');
+                        foreach (string modName in mods.Select(mod => mod.Split(':')[0]))
                         {
-                            Modification modifcation = new Modification(mod_name);
-                            UsedModifications.Add(mod_name);
-                            ignoreModsCLB.Items.Add(modifcation);
+                            localMods.Add(modName);
                         }
                     }
                 }
-            }
+                return localMods;
+            });
+            t.Start();
+            return t;
         }
 
         public void SetDatabase(string filename)

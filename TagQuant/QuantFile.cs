@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Coon.Compass.TagQuant
 {
@@ -16,7 +17,14 @@ namespace Coon.Compass.TagQuant
 
         public void AddPSM(PSM psm)
         {
-           Psms.Add(psm.FilenameID, psm);
+            try
+            {
+                Psms.Add(psm.FilenameID, psm);
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException(string.Format("A PSM with the same id ({0}) has already been entered for this file ({1})", psm.FilenameID, FilePath), e);
+            }
         }
 
         public PSM this[string filenameID]

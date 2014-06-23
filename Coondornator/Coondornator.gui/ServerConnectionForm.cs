@@ -15,13 +15,13 @@ namespace Compass.Coondornator
     public partial class ServerConnectionForm : Form
     {
 
-        private CoondornatorForm Parent;
+        private CoondornatorForm CoondornatorParentForm;
 
-        public ServerConnectionForm(CoondornatorForm parent)
+        public ServerConnectionForm(CoondornatorForm coondornatorParentForm)
         {
             InitializeComponent();
 
-            Parent = parent;
+            CoondornatorParentForm = coondornatorParentForm;
            
             // Attempt to load defaults
             string name = Properties.Settings.Default.UserName;
@@ -58,7 +58,7 @@ namespace Compass.Coondornator
                 Properties.Settings.Default.Save();
             }
 
-            bool result = await Parent.ConnectAsync(userName, host, password);
+            bool result = await CoondornatorParentForm.ConnectAsync(userName, host, password);
             if (!result)
             {
                 button1.Enabled = true;

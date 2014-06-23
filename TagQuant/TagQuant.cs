@@ -121,7 +121,7 @@ namespace Coon.Compass.TagQuant
             List<TagInformation> tags = inputTags.ToList();
 
             Log("\n== Purity Correction Matrices ==");
-            OnUpdateLog("Building Purity Matricies");
+            OnUpdateLog("Building Purity Matrices");
             PurityMatrices = new Dictionary<TagSetType, IsobaricTagPurityCorrection>();
             foreach (TagSetType tagSet in Enum.GetValues(typeof(TagSetType)))
             {
@@ -433,7 +433,8 @@ namespace Coon.Compass.TagQuant
 
                         if (quantitationMsnScan == null)
                         {
-                            throw new ArgumentException("Spectrum Number " + scanNumber + " is not a valid MS2 scan from: "+rawFile.FilePath);
+                            OnUpdateLog("Spectrum Number " + scanNumber + " is not a valid MS2 scan from: " + rawFile.FilePath + ". Skipping PSM...");
+                            continue;
                         }
 
                         if (MS3Quant)
@@ -450,9 +451,11 @@ namespace Coon.Compass.TagQuant
                                 }
                                 ms3ScanNumber++;
                             }
+
                             if (quantitationMsnScan == null)
-                            {
-                                throw new ArgumentException("Cannot find a MS3 spectrum associated with spectrum number " + scanNumber);
+                            { 
+                                OnUpdateLog("Cannot find a MS3 spectrum associated with spectrum number " + scanNumber+". Skipping PSM...");
+                                continue;
                             }
                         }
 
@@ -460,47 +463,33 @@ namespace Coon.Compass.TagQuant
                         bool isETD = quantitationMsnScan.DissociationType == DissociationType.ETD;
 
                         double injectionTime = quantitationMsnScan.InjectionTime;
-                        var massSpectrum = quantitationMsnScan.MassSpectrum;
+                        //var massSpectrum = quantitationMsnScan.MassSpectrum;
+                        var thermoSpectrum = rawFile.GetLabeledSpectrum(quantitationMsnScan.SpectrumNumber);
+                        
                         double noise = 0;
                         if (NoisebandCap)
                         {
                             // Noise is pretty constant over a small region, find the noise of the center of all isobaric tags
                             MassRange range = new MassRange(UsedTags.Keys[0], UsedTags.Keys[UsedTags.Count - 1]);
-
-                            ThermoSpectrum thermoSpectrum = massSpectrum as ThermoSpectrum;
+                   
                             if (thermoSpectrum != null)
                             {
-                                var peak = thermoSpectrum.GetClosestPeak(range);
+                                var peak = thermoSpectrum.GetClosestPeak(range.Mean, 500);
                                 if (peak != null)
                                 {
                                     noise = peak.Noise;
                                 }
                                 else
                                 {
-                                    throw new ArgumentException("Spectrum (#" + quantitationMsnScan.SpectrumNumber + ") has no m/z peaks");
+                                    OnUpdateLog("Spectrum (#" + quantitationMsnScan.SpectrumNumber + ") has no m/z peaks. Skipping PSM...");
+                                    continue;
                                 }
                             } 
                             else 
                             {
-                                throw new ArgumentException("Spectrum (#" + quantitationMsnScan.SpectrumNumber+") , or they are low-resolution data without noise information");
+                                OnUpdateLog("Spectrum (#" + quantitationMsnScan.SpectrumNumber+") is low-resolution data without noise information. Skipping PSM...");
+                                continue;
                             }
-
-
-                            //ThermoLabeledPeak peak = massSpectrum.GetClosestPeak(range) as ThermoLabeledPeak;
-
-                            //if (peak != null)
-                            //{
-                            //    noise = peak.Noise;
-                            //}
-                            //else
-                            //{
-                            //    peak = massSpectrum as ThermoLabeledPeak;
-                            //    if (peak == null)
-                            //    {
-                            //        throw new ArgumentException("Either the spectrum (#" + quantitationMsnScan.SpectrumNumber+") has no m/z peaks, or they are low-resolution data without noise information");
-                            //    }
-                            //    noise = peak.Noise;
-                            //}
                         }
 
                         //Dictionary<TagInformation, QuantPeak> peaks = new Dictionary<TagInformation, QuantPeak>();
@@ -511,10 +500,8 @@ namespace Coon.Compass.TagQuant
                             double tagMz = isETD
                                 ? tag.MassEtd
                                 : tag.MassCAD;
-
-
-
-                            var peak = massSpectrum.GetClosestPeak(Tolerance.GetRange(tagMz));
+                            
+                            var peak = thermoSpectrum.GetClosestPeak(Tolerance.GetRange(tagMz));
 
                             QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise, peak == null && NoisebandCap);
 
@@ -541,7 +528,7 @@ namespace Coon.Compass.TagQuant
 
         private double DeterminePurity(MSDataScan scan, double mz, int charge, DoubleRange isolationRange)
         {
-            var miniSpectrum = scan.GetReadOnlySpectrum().Extract(isolationRange);
+            var miniSpectrum = scan.MassSpectrum.Extract(isolationRange);
 
             double expectedSpacing = Constants.C13C12Difference/charge;
             double min = expectedSpacing*0.95;

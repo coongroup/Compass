@@ -57,7 +57,7 @@ namespace Coon.Compass.Lotor
         {
             MsnDataScan scan = dataFile[ScanNumber] as MsnDataScan;
             IsolationMZ = scan.IsolationRange.Mean;
-            Spectrum = dataFile.GetReadOnlyMZSpectrum(ScanNumber, true);
+            Spectrum = dataFile.GetSpectrum(ScanNumber);
             ScanWidth = scan.MzRange.Width;
         }
 

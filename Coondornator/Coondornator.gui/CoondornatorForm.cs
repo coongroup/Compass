@@ -98,12 +98,12 @@ namespace Compass.Coondornator
 
         protected override async void OnLoad(EventArgs e)
         {
-            if (Settings.Default.UpdateSettings)
-            {
-                Settings.Default.Upgrade();
-                Settings.Default.UpdateSettings = false;
-                Settings.Default.Save();
-            }
+            //if (Settings.Default.UpdateSettings)
+            //{
+            //    Settings.Default.Upgrade();
+            //    Settings.Default.UpdateSettings = false;
+            //    Settings.Default.Save();
+            //}
 
             SetTitle("Connecting...");
             OmssaParameterLine.Changed += (sender, e2) => RefreshParameterLines();
@@ -135,9 +135,9 @@ namespace Compass.Coondornator
 
             dataGridView1.DataSource = DtaFiles;
 
-            string name = Properties.Settings.Default.UserName;
-            string host = Properties.Settings.Default.Host;
-            string password = Properties.Settings.Default.Password;
+            string name = Settings.Default.UserName;
+            string host = Settings.Default.Host;
+            string password = Settings.Default.Password;
 
             bool result = await ConnectAsync(name, host, password);
 
@@ -461,6 +461,11 @@ namespace Compass.Coondornator
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             numericUpDown1.Enabled = checkBox1.Checked;
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            tabPage2.BringToFront();
         }
     }
 }

@@ -138,9 +138,12 @@ namespace Coon.Compass.ProteinHoarder
 
                 // 9) Write the sequence maps out
                 if (SequenceCoverageMap)
+                {
                     WriteSequenceMaps(_proteinGroups, OutputDirectory);
-                
-                
+                    ExtraInfo(_proteinGroups, OutputDirectory);
+                }
+
+
             }
             catch (Exception e)
             {
@@ -152,15 +155,39 @@ namespace Coon.Compass.ProteinHoarder
             }
         }
 
+        private void ExtraInfo(List<ProteinGroup> proteinGroups, string outputDirectory)
+        {
+            string fileName = Path.Combine(outputDirectory, "temp.csv");
+            Log("Writing file " + fileName);
+            using (StreamWriter writer = new StreamWriter(fileName))
+            {
+                foreach (ProteinGroup proteinGroup in proteinGroups.Where(g => !g.IsDecoy && g.SequenceCoverage > 75))
+                {
+                    writer.WriteLine(proteinGroup.Description + "," + proteinGroup.SequenceCoverage);
+                    int[] bits = proteinGroup.RepresentativeProtein.GetSequenceCoverage(proteinGroup.Peptides, true);
+                    for (int i = 0; i < bits.Length; i++)
+                    {
+                        writer.WriteLine("{0},{1},{2}", proteinGroup.RepresentativeProtein.Sequence[i], i + 1, bits[i]);
+                    }
+                    writer.WriteLine();
+                }
+            }
+        }
+
         private void WriteSequenceMaps(List<ProteinGroup> proteinGroups, string outputDirectory)
         {    
             string fileName = Path.Combine(outputDirectory, "Sequence Coverage Map.txt");
             Log("Writing file " + fileName);
             string csvFile = Path.Combine(outputDirectory, "data.csv");
-            using(StreamWriter csvWriter = new StreamWriter(csvFile))
+            string identifiedFile = Path.Combine(outputDirectory, "identifiedSequences.fasta");
+            string observedFile = Path.Combine(outputDirectory, "observedProteins.fasta");
+            using (StreamWriter csvWriter = new StreamWriter(csvFile))
+            using (FastaWriter identifiedWriter = new FastaWriter(identifiedFile))
+            using (FastaWriter observedWriter = new FastaWriter(observedFile))
             using (StreamWriter writer = new StreamWriter(fileName))
             {
                 csvWriter.WriteLine("protein,position,count,coverage,protein name,# peptides");
+               
                 int proteinID = 0;
                 foreach (ProteinGroup proteinGroup in proteinGroups.Where(g => !g.IsDecoy).OrderBy(g => g.LongestProteinLen))
                 {
@@ -170,33 +197,65 @@ namespace Coon.Compass.ProteinHoarder
                     int length = sequence.Length;
                     int[] bits = proteinGroup.RepresentativeProtein.GetSequenceCoverage(proteinGroup.Peptides);
                     ISet<Peptide> peptides = proteinGroup.Peptides;
-
+            
                     // Write the header data
                     writer.WriteLine("========");
-                    writer.WriteLine("Proteins: " + proteinGroup.Count);               
-                    writer.WriteLine(proteinGroup.RepresentativeProtein.Description);                        
+                    writer.WriteLine("Proteins = {0}", proteinGroup.Count);               
+                    writer.WriteLine(proteinGroup.RepresentativeProtein.Description);             
+           
                     foreach(Protein prot in proteinGroup) {
                         if(prot != proteinGroup.RepresentativeProtein)
                             writer.WriteLine(prot.Description);
                     }      
                     writer.WriteLine("Length = {0}", proteinGroup.RepresentativeProtein.Length);
-                    writer.WriteLine("Coverage = {0:g3}%, {1} AA", proteinGroup.SequenceCoverage, bits.Count(bit => bit > 0));    
                     writer.WriteLine("Redundacy = {0:g3}%", proteinGroup.SequenceRedundacy);
-                    writer.Write("Peptides = {0}", peptides.Count);
+                    writer.WriteLine("Coverage = {0:g3}%, {1} AA", proteinGroup.SequenceCoverage, bits.Count(bit => bit > 0));   
                     int shared = peptides.Count(pep => pep.IsShared);
                     if (shared > 0)
                     {
-                        writer.WriteLine(", {0} shared", shared);
-                        writer.WriteLine("Coverage = {0:g3}% (unshared only)",proteinGroup.RepresentativeProtein.CalculateSequenceCoverage(peptides.Where(pep => !pep.IsShared)));
+                        int[] bits2 = proteinGroup.RepresentativeProtein.GetSequenceCoverage(peptides.Where(pep => !pep.IsShared));
+                        int observedAminoAcids = bits2.Count(bit => bit > 0);
+                        double coverage = (double)observedAminoAcids / bits2.Length * 100.0;
+                        writer.WriteLine("Coverage = {0:g3}%, {1} AA (unshared only)", coverage, observedAminoAcids);
+                        writer.WriteLine("Peptides = {0}, {1} are shared (marked by *)", peptides.Count, shared);
+                        
                     }
                     else
                     {
-                        writer.WriteLine();
-                    }                    
-              
+                        writer.WriteLine("Peptides = {0}", peptides.Count);
+                    }
 
                     writer.WriteLine("========");
-                   
+
+                    if (proteinGroup.Count > 1)
+                    {
+                        writer.WriteLine("Protein Sequences (Differences marked by *)");
+                        writer.Write(' ');
+                        for (int i = 0; i < sequence.Length; i++)
+                        {
+                            bool same = true;
+                            char c = sequence[i];
+                            foreach (Protein prot in proteinGroup)
+                            {
+                                if (i >= prot.Length || !prot.Sequence[i].Equals(c))
+                                {
+                                    same = false;
+                                    break;
+                                }
+                            }
+                            writer.Write(same ? ' ' : '*');
+                        }
+                        writer.WriteLine();
+
+                        foreach (Protein prot in proteinGroup)
+                        {
+                            writer.Write(' ');
+                            writer.WriteLine(prot.Sequence);
+                        }  
+
+                        writer.WriteLine("========");
+                    }
+
                     // Write the amino acid numbers
                     writer.Write(" 1");
                     int size = 2;
@@ -228,8 +287,10 @@ namespace Coon.Compass.ProteinHoarder
 
                     // Write the complete sequence
                     writer.WriteLine(" "+sequence);
-
+                    observedWriter.Write(sequence, proteinGroup.RepresentativeProtein.Description);
+                    
                     // Write the combined mapped sequence           
+                    StringBuilder compressedSequence = new StringBuilder();
                     writer.Write(" ");
                     int startIndex = -1;
                     bool started = false;
@@ -238,6 +299,7 @@ namespace Coon.Compass.ProteinHoarder
                         if (bits[i] > 0)
                         {
                             writer.Write(sequence[i]);
+                            compressedSequence.Append(sequence[i]);
                             if(!started)
                             {
                                 startIndex = i;
@@ -252,6 +314,7 @@ namespace Coon.Compass.ProteinHoarder
                                 csvWriter.WriteLine("{0},{1},{2},{3},{4},{5}", proteinID, startIndex, i - startIndex, proteinGroup.SequenceCoverage, proteinGroup.Description, peptides.Count);
                             }
                             writer.Write(' ');
+                            compressedSequence.Append(' ');
                         }
 
                     }
@@ -259,6 +322,9 @@ namespace Coon.Compass.ProteinHoarder
                     {
                         csvWriter.WriteLine("{0},{1},{2},{3},{4},{5}", proteinID, startIndex, bits.Length - startIndex, proteinGroup.SequenceCoverage, proteinGroup.Description, peptides.Count);
                     }
+
+                    identifiedWriter.Write(compressedSequence.ToString(), proteinGroup.RepresentativeProtein.Description);
+
                     writer.WriteLine();
 
                     writer.WriteLine();
@@ -266,7 +332,7 @@ namespace Coon.Compass.ProteinHoarder
                     // Write the each peptide
                     foreach (Peptide peptide in peptides.OrderBy(pep => leusequence.IndexOf(pep.LeucineSequence, 0)).ThenByDescending(pep => pep.Length))
                     {
-                        writer.Write((peptide.IsShared) ? "S" : " ");
+                        writer.Write((peptide.IsShared) ? "*" : " ");
                         int start_index = 0;
                         while (true)
                         {

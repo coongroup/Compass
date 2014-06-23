@@ -49,6 +49,10 @@ namespace Compass.Coondornator
         {
             List<string> parts = new List<string>();
             parts.Add("-fx " + NameWithExtension);
+            if (UserModFile != null)
+            {
+                parts.Add("-mux " + UserModFile.NameWithExtension);
+            }
             if (appendDBName)
             {
                 parts.Add("-oc " + Path.ChangeExtension(Name + "_" + database.Name, "csv")); ;
@@ -57,6 +61,8 @@ namespace Compass.Coondornator
             {
                 parts.Add("-oc " + Path.ChangeExtension(Name, "csv"));
             }
+          
+
             parts.Add("-d " + database.Name);
             parts.Add(ParameterLine);
             return string.Join(" ", parts);

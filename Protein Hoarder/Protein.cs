@@ -100,7 +100,7 @@ namespace Coon.Compass.ProteinHoarder
             Peptides.Add(pep);
         }
 
-        public int[] GetSequenceCoverage(IEnumerable<Peptide> peptides)
+        public int[] GetSequenceCoverage(IEnumerable<Peptide> peptides, bool includePSMcounts = false)
         {
             int[] bits = new int[Length];
 
@@ -118,7 +118,14 @@ namespace Coon.Compass.ProteinHoarder
 
                     for (int aa = index; aa < index + pep.Length; aa++)
                     {
-                        bits[aa]++;
+                        if (includePSMcounts)
+                        {
+                            bits[aa] += pep.PSMs.Count;
+                        }
+                        else
+                        {
+                            bits[aa]++;
+                        }
                     }
                 }
             }

@@ -15,7 +15,7 @@ namespace Coon.Compass.TagQuant
     {
         BindingList<TagInformation> allTags  = new BindingList<TagInformation>();
 
-        private List<TagInformation> tmtTags = new List<TagInformation>
+        private readonly List<TagInformation> tmtTags = new List<TagInformation>
         {
             new TagInformation(126, "TMT 126C", "", 126.1277261, 114.1279, TagSetType.TMTC, 0, 0, 7, 0),
             new TagInformation(127, "TMT 127N", "", 127.1247610, 114.1279, TagSetType.TMTN, 0, 2.1, 6.5, 0),
@@ -29,7 +29,7 @@ namespace Coon.Compass.TagQuant
             new TagInformation(131, "TMT 131N", "", 131.1381802, 119.1384, TagSetType.TMTN, 0.2, 3.3, 3, 0)
         };
 
-        List<TagInformation> itraqTags = new List<TagInformation>
+        readonly List<TagInformation> itraqTags = new List<TagInformation>
         {
             new TagInformation(113, "iTRAQ 113", "", 113.107325, 114.1279,TagSetType.iTRAQ,0,0,7,0),
             new TagInformation(114, "iTRAQ 114", "", 114.11068, 114.1279,TagSetType.iTRAQ,0,0,7,0),
@@ -46,7 +46,6 @@ namespace Coon.Compass.TagQuant
         public TagQuantForm()
         {
             InitializeComponent();
-            this.Text = "Tag Quant v" + Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             dataGridView2.AutoGenerateColumns = false;
             dataGridView2.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
@@ -101,6 +100,12 @@ namespace Coon.Compass.TagQuant
             //allTags = new BindingList<TagInformation>(tmtTags);
 
             dataGridView2.DataSource = allTags;
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            Text = string.Format("Tag Quant {0}-bit (v{1})", IntPtr.Size * 8, Assembly.GetExecutingAssembly().GetName().Version);
+            base.OnLoad(e);
         }
 
         private void CheckBoxColumnDeselectAll(object sender, EventArgs e)

@@ -15,9 +15,9 @@ namespace Coon.Compass.DtaGenerator
         public frmMain()
         {
             InitializeComponent();
-            checkedListBox2.Items.Add(new KeyValuePair<string,double>("CO2",43.98983));
-            checkedListBox2.Items.Add(new KeyValuePair<string, double>("H2O", 18.010565));
-            checkedListBox2.Items.Add(new KeyValuePair<string, double>("NH3", 17.02655));
+            //checkedListBox2.Items.Add(new KeyValuePair<string,double>("CO2",43.98983));
+            //checkedListBox2.Items.Add(new KeyValuePair<string, double>("H2O", 18.010565));
+            //checkedListBox2.Items.Add(new KeyValuePair<string, double>("NH3", 17.02655));
         }
 
         private void frmMain_DragEnter(object sender, DragEventArgs e)
@@ -132,9 +132,9 @@ namespace Coon.Compass.DtaGenerator
                 return;
             }
             List<double> nlmass = new List<double>();
-            foreach(KeyValuePair<string, double> kvp in checkedListBox2.CheckedItems) {
-                nlmass.Add(kvp.Value);
-            }
+            //foreach(KeyValuePair<string, double> kvp in checkedListBox2.CheckedItems) {
+            //    nlmass.Add(kvp.Value);
+            //}
 
             List<MzRange> rangesToRemove = listBox1.Items.Cast<MzRange>().ToList();
 
@@ -271,6 +271,9 @@ namespace Coon.Compass.DtaGenerator
         }
 
         private readonly MzRange tmtDuplex = new MzRange(125.5, 127.5);
+        private readonly MzRange tmt6plex = new MzRange(125.5, 131.5);
+        private readonly MzRange itraq4plex = new MzRange(113.5, 117.5);
+        private readonly MzRange itraq8plex = new MzRange(112.5, 121.5);
 
         private void chkCleanTmtDuplex_CheckedChanged(object sender, EventArgs e)
         {
@@ -281,6 +284,42 @@ namespace Coon.Compass.DtaGenerator
             else
             {
                 listBox1.Items.Remove(tmtDuplex);
+            }
+        }
+
+        private void chkCleanTmt6Plex_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkCleanTmt6Plex.Checked)
+            {
+                listBox1.Items.Add(tmt6plex);
+            }
+            else
+            {
+                listBox1.Items.Remove(tmt6plex);
+            }
+        }
+
+        private void chkCleanItraq4Plex_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkCleanItraq4Plex.Checked)
+            {
+                listBox1.Items.Add(itraq4plex);
+            }
+            else
+            {
+                listBox1.Items.Remove(itraq4plex);
+            }
+        }
+
+        private void chkCleanItraq8Plex_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkCleanItraq8Plex.Checked)
+            {
+                listBox1.Items.Add(itraq8plex);
+            }
+            else
+            {
+                listBox1.Items.Remove(itraq8plex);
             }
         }
 
@@ -295,5 +334,9 @@ namespace Coon.Compass.DtaGenerator
            
             listBox1.Items.Remove(range);
         }
+
+    
+
+    
     }
 }

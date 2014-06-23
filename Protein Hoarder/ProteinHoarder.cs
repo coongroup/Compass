@@ -138,9 +138,12 @@ namespace Coon.Compass.ProteinHoarder
 
                 // 9) Write the sequence maps out
                 if (SequenceCoverageMap)
+                {
                     WriteSequenceMaps(_proteinGroups, OutputDirectory);
-                
-                
+                    ExtraInfo(_proteinGroups, OutputDirectory);
+                }
+
+
             }
             catch (Exception e)
             {
@@ -149,6 +152,25 @@ namespace Coon.Compass.ProteinHoarder
             finally
             {               
                 CleanUp();
+            }
+        }
+
+        private void ExtraInfo(List<ProteinGroup> proteinGroups, string outputDirectory)
+        {
+            string fileName = Path.Combine(outputDirectory, "temp.csv");
+            Log("Writing file " + fileName);
+            using (StreamWriter writer = new StreamWriter(fileName))
+            {
+                foreach (ProteinGroup proteinGroup in proteinGroups.Where(g => !g.IsDecoy && g.SequenceCoverage > 75))
+                {
+                    writer.WriteLine(proteinGroup.Description + "," + proteinGroup.SequenceCoverage);
+                    int[] bits = proteinGroup.RepresentativeProtein.GetSequenceCoverage(proteinGroup.Peptides, true);
+                    for (int i = 0; i < bits.Length; i++)
+                    {
+                        writer.WriteLine("{0},{1},{2}", proteinGroup.RepresentativeProtein.Sequence[i], i + 1, bits[i]);
+                    }
+                    writer.WriteLine();
+                }
             }
         }
 
@@ -175,7 +197,7 @@ namespace Coon.Compass.ProteinHoarder
                     int length = sequence.Length;
                     int[] bits = proteinGroup.RepresentativeProtein.GetSequenceCoverage(proteinGroup.Peptides);
                     ISet<Peptide> peptides = proteinGroup.Peptides;
-
+            
                     // Write the header data
                     writer.WriteLine("========");
                     writer.WriteLine("Proteins = {0}", proteinGroup.Count);               
@@ -196,6 +218,7 @@ namespace Coon.Compass.ProteinHoarder
                         double coverage = (double)observedAminoAcids / bits2.Length * 100.0;
                         writer.WriteLine("Coverage = {0:g3}%, {1} AA (unshared only)", coverage, observedAminoAcids);
                         writer.WriteLine("Peptides = {0}, {1} are shared (marked by *)", peptides.Count, shared);
+                        
                     }
                     else
                     {

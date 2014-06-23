@@ -6,7 +6,7 @@ Wenger CD, Phanstiel DH, Lee MV, Bailey DJ, Coon JJ.
 software tools for OMSSA," Proteomics 11:1074–1084 
 (2011)
 
-1.2.17.0 (Wednesday, March 12, 2013)
+1.2.17.0 (Wednesday, March 12, 2014)
 - ProteinHoarder -> 2.4.5.0
   Two bug fixes. Chymotrypsin digestions were defaulting to brute force search, this is
   because Chymotrypsin cleaves at 'L', but the program was originally converting

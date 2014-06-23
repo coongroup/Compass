@@ -38,8 +38,8 @@ namespace Coon.Compass.Lotor
         {
             Text = string.Format("Lotor ({0})", GetRunningVersion());
 
-            comboBox1.DataSource = Enum.GetValues(typeof(ToleranceType));
-            comboBox1.SelectedItem = ToleranceType.DA;
+            comboBox1.DataSource = Enum.GetValues(typeof(ToleranceUnit));
+            comboBox1.SelectedItem = ToleranceUnit.DA;
 
             foreach (OmssaModification mod in OmssaModification.GetAllModifications())
             {
@@ -149,7 +149,7 @@ namespace Coon.Compass.Lotor
         public Tolerance GetProductTolerance()
         {
             double value = (double)numericUpDown1.Value;
-            ToleranceType type = (ToleranceType)comboBox1.SelectedItem;
+            ToleranceUnit type = (ToleranceUnit)comboBox1.SelectedItem;
             return new Tolerance(type, value);
         }
         

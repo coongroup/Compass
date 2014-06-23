@@ -72,8 +72,6 @@ namespace Coon.Compass.DtaGenerator
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.chkCleanPrecursor = new System.Windows.Forms.CheckBox();
             this.chkEnableEtdPreProcessing = new System.Windows.Forms.CheckBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.checkedListBox2 = new System.Windows.Forms.CheckedListBox();
             this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
             this.contextMenuStrip1.SuspendLayout();
             this.grpOutputOptions.SuspendLayout();
@@ -85,17 +83,16 @@ namespace Coon.Compass.DtaGenerator
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // prgProgress
             // 
             this.prgProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.prgProgress.Location = new System.Drawing.Point(12, 507);
+            this.prgProgress.Location = new System.Drawing.Point(12, 500);
             this.prgProgress.Maximum = 1000;
             this.prgProgress.Name = "prgProgress";
-            this.prgProgress.Size = new System.Drawing.Size(479, 23);
+            this.prgProgress.Size = new System.Drawing.Size(442, 23);
             this.prgProgress.Step = 1;
             this.prgProgress.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.prgProgress.TabIndex = 21;
@@ -103,7 +100,7 @@ namespace Coon.Compass.DtaGenerator
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(497, 507);
+            this.btnOK.Location = new System.Drawing.Point(460, 500);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 38;
@@ -114,7 +111,7 @@ namespace Coon.Compass.DtaGenerator
             // btnAdd
             // 
             this.btnAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdd.Location = new System.Drawing.Point(497, 137);
+            this.btnAdd.Location = new System.Drawing.Point(460, 130);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 23);
             this.btnAdd.TabIndex = 33;
@@ -130,10 +127,11 @@ namespace Coon.Compass.DtaGenerator
             this.lstRawFiles.ContextMenuStrip = this.contextMenuStrip1;
             this.lstRawFiles.FormattingEnabled = true;
             this.lstRawFiles.HorizontalScrollbar = true;
+            this.lstRawFiles.IntegralHeight = false;
             this.lstRawFiles.Location = new System.Drawing.Point(12, 25);
             this.lstRawFiles.Name = "lstRawFiles";
             this.lstRawFiles.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lstRawFiles.Size = new System.Drawing.Size(479, 134);
+            this.lstRawFiles.Size = new System.Drawing.Size(442, 127);
             this.lstRawFiles.TabIndex = 32;
             // 
             // contextMenuStrip1
@@ -177,9 +175,9 @@ namespace Coon.Compass.DtaGenerator
             this.grpOutputOptions.Controls.Add(this.chkSequestDtaOutput);
             this.grpOutputOptions.Controls.Add(this.chkOmssaTxtOutput);
             this.grpOutputOptions.Controls.Add(this.chkGroupByActivationEnergyTime);
-            this.grpOutputOptions.Location = new System.Drawing.Point(12, 427);
+            this.grpOutputOptions.Location = new System.Drawing.Point(12, 420);
             this.grpOutputOptions.Name = "grpOutputOptions";
-            this.grpOutputOptions.Size = new System.Drawing.Size(553, 74);
+            this.grpOutputOptions.Size = new System.Drawing.Size(516, 74);
             this.grpOutputOptions.TabIndex = 108;
             this.grpOutputOptions.TabStop = false;
             this.grpOutputOptions.Text = "Output Options";
@@ -187,7 +185,7 @@ namespace Coon.Compass.DtaGenerator
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(469, 45);
+            this.button1.Location = new System.Drawing.Point(432, 45);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 109;
@@ -199,7 +197,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.includeLogCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.includeLogCB.AutoSize = true;
-            this.includeLogCB.Location = new System.Drawing.Point(438, 19);
+            this.includeLogCB.Location = new System.Drawing.Point(401, 19);
             this.includeLogCB.Name = "includeLogCB";
             this.includeLogCB.Size = new System.Drawing.Size(106, 17);
             this.includeLogCB.TabIndex = 107;
@@ -259,7 +257,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 177);
+            this.label2.Location = new System.Drawing.Point(12, 170);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(71, 13);
             this.label2.TabIndex = 105;
@@ -268,7 +266,7 @@ namespace Coon.Compass.DtaGenerator
             // btnBrowse
             // 
             this.btnBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowse.Location = new System.Drawing.Point(497, 174);
+            this.btnBrowse.Location = new System.Drawing.Point(460, 167);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 23);
             this.btnBrowse.TabIndex = 103;
@@ -280,9 +278,9 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.txtOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputFolder.Location = new System.Drawing.Point(86, 174);
+            this.txtOutputFolder.Location = new System.Drawing.Point(86, 167);
             this.txtOutputFolder.Name = "txtOutputFolder";
-            this.txtOutputFolder.Size = new System.Drawing.Size(405, 20);
+            this.txtOutputFolder.Size = new System.Drawing.Size(368, 20);
             this.txtOutputFolder.TabIndex = 104;
             // 
             // grpPeakFilteringOptions
@@ -301,9 +299,9 @@ namespace Coon.Compass.DtaGenerator
             this.grpPeakFilteringOptions.Controls.Add(this.linkLabel1);
             this.grpPeakFilteringOptions.Controls.Add(this.chkCleanPrecursor);
             this.grpPeakFilteringOptions.Controls.Add(this.chkEnableEtdPreProcessing);
-            this.grpPeakFilteringOptions.Location = new System.Drawing.Point(12, 203);
+            this.grpPeakFilteringOptions.Location = new System.Drawing.Point(12, 196);
             this.grpPeakFilteringOptions.Name = "grpPeakFilteringOptions";
-            this.grpPeakFilteringOptions.Size = new System.Drawing.Size(560, 218);
+            this.grpPeakFilteringOptions.Size = new System.Drawing.Size(523, 218);
             this.grpPeakFilteringOptions.TabIndex = 106;
             this.grpPeakFilteringOptions.TabStop = false;
             this.grpPeakFilteringOptions.Text = "Peak Filtering Options";
@@ -322,7 +320,7 @@ namespace Coon.Compass.DtaGenerator
             this.groupBox2.Controls.Add(this.numericUpDown5);
             this.groupBox2.Location = new System.Drawing.Point(9, 95);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(535, 117);
+            this.groupBox2.Size = new System.Drawing.Size(514, 117);
             this.groupBox2.TabIndex = 130;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Fixed Mass Range";
@@ -332,12 +330,13 @@ namespace Coon.Compass.DtaGenerator
             this.chkCleanItraq8Plex.AutoSize = true;
             this.chkCleanItraq8Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq8Plex;
             this.chkCleanItraq8Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq8Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanItraq8Plex.Location = new System.Drawing.Point(397, 73);
+            this.chkCleanItraq8Plex.Location = new System.Drawing.Point(253, 94);
             this.chkCleanItraq8Plex.Name = "chkCleanItraq8Plex";
             this.chkCleanItraq8Plex.Size = new System.Drawing.Size(89, 17);
             this.chkCleanItraq8Plex.TabIndex = 104;
             this.chkCleanItraq8Plex.Text = "iTRAQ 8-plex";
             this.chkCleanItraq8Plex.UseVisualStyleBackColor = true;
+            this.chkCleanItraq8Plex.CheckedChanged += new System.EventHandler(this.chkCleanItraq8Plex_CheckedChanged);
             // 
             // listBox1
             // 
@@ -355,24 +354,26 @@ namespace Coon.Compass.DtaGenerator
             this.chkCleanItraq4Plex.AutoSize = true;
             this.chkCleanItraq4Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq4Plex;
             this.chkCleanItraq4Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq4Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanItraq4Plex.Location = new System.Drawing.Point(401, 50);
+            this.chkCleanItraq4Plex.Location = new System.Drawing.Point(253, 73);
             this.chkCleanItraq4Plex.Name = "chkCleanItraq4Plex";
             this.chkCleanItraq4Plex.Size = new System.Drawing.Size(89, 17);
             this.chkCleanItraq4Plex.TabIndex = 91;
             this.chkCleanItraq4Plex.Text = "iTRAQ 4-plex";
             this.chkCleanItraq4Plex.UseVisualStyleBackColor = true;
+            this.chkCleanItraq4Plex.CheckedChanged += new System.EventHandler(this.chkCleanItraq4Plex_CheckedChanged);
             // 
             // chkCleanTmt6Plex
             // 
             this.chkCleanTmt6Plex.AutoSize = true;
             this.chkCleanTmt6Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmt6Plex;
             this.chkCleanTmt6Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmt6Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanTmt6Plex.Location = new System.Drawing.Point(310, 73);
+            this.chkCleanTmt6Plex.Location = new System.Drawing.Point(253, 52);
             this.chkCleanTmt6Plex.Name = "chkCleanTmt6Plex";
             this.chkCleanTmt6Plex.Size = new System.Drawing.Size(81, 17);
             this.chkCleanTmt6Plex.TabIndex = 93;
             this.chkCleanTmt6Plex.Text = "TMT 6-Plex";
             this.chkCleanTmt6Plex.UseVisualStyleBackColor = true;
+            this.chkCleanTmt6Plex.CheckedChanged += new System.EventHandler(this.chkCleanTmt6Plex_CheckedChanged);
             // 
             // button2
             // 
@@ -390,7 +391,7 @@ namespace Coon.Compass.DtaGenerator
             this.chkCleanTmtDuplex.AutoSize = true;
             this.chkCleanTmtDuplex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmtDuplex;
             this.chkCleanTmtDuplex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmtDuplex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanTmtDuplex.Location = new System.Drawing.Point(310, 50);
+            this.chkCleanTmtDuplex.Location = new System.Drawing.Point(253, 29);
             this.chkCleanTmtDuplex.Name = "chkCleanTmtDuplex";
             this.chkCleanTmtDuplex.Size = new System.Drawing.Size(85, 17);
             this.chkCleanTmtDuplex.TabIndex = 92;
@@ -466,7 +467,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(440, 49);
+            this.label5.Location = new System.Drawing.Point(403, 49);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(46, 13);
             this.label5.TabIndex = 129;
@@ -476,7 +477,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(326, 49);
+            this.label6.Location = new System.Drawing.Point(289, 49);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(44, 13);
             this.label6.TabIndex = 128;
@@ -491,7 +492,7 @@ namespace Coon.Compass.DtaGenerator
             0,
             0,
             131072});
-            this.numericUpDown3.Location = new System.Drawing.Point(376, 45);
+            this.numericUpDown3.Location = new System.Drawing.Point(339, 45);
             this.numericUpDown3.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -501,7 +502,7 @@ namespace Coon.Compass.DtaGenerator
             this.numericUpDown3.Size = new System.Drawing.Size(58, 20);
             this.numericUpDown3.TabIndex = 127;
             this.numericUpDown3.Value = new decimal(new int[] {
-            5,
+            60,
             0,
             0,
             0});
@@ -515,7 +516,7 @@ namespace Coon.Compass.DtaGenerator
             0,
             0,
             131072});
-            this.numericUpDown4.Location = new System.Drawing.Point(496, 45);
+            this.numericUpDown4.Location = new System.Drawing.Point(459, 45);
             this.numericUpDown4.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -534,7 +535,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(440, 26);
+            this.label4.Location = new System.Drawing.Point(403, 26);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(50, 13);
             this.label4.TabIndex = 125;
@@ -544,7 +545,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(326, 26);
+            this.label3.Location = new System.Drawing.Point(289, 26);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(48, 13);
             this.label3.TabIndex = 124;
@@ -559,7 +560,7 @@ namespace Coon.Compass.DtaGenerator
             0,
             0,
             131072});
-            this.numericUpDown2.Location = new System.Drawing.Point(496, 22);
+            this.numericUpDown2.Location = new System.Drawing.Point(459, 22);
             this.numericUpDown2.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -583,7 +584,7 @@ namespace Coon.Compass.DtaGenerator
             0,
             0,
             131072});
-            this.numericUpDown1.Location = new System.Drawing.Point(376, 22);
+            this.numericUpDown1.Location = new System.Drawing.Point(339, 22);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -637,28 +638,6 @@ namespace Coon.Compass.DtaGenerator
             this.chkEnableEtdPreProcessing.UseVisualStyleBackColor = true;
             this.chkEnableEtdPreProcessing.CheckedChanged += new System.EventHandler(this.chkEnableEtdPreProcessing_CheckedChanged);
             // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.checkedListBox2);
-            this.groupBox1.Location = new System.Drawing.Point(440, 34);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(125, 63);
-            this.groupBox1.TabIndex = 119;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Neutral Loss Cleaning";
-            // 
-            // checkedListBox2
-            // 
-            this.checkedListBox2.CheckOnClick = true;
-            this.checkedListBox2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.checkedListBox2.FormattingEnabled = true;
-            this.checkedListBox2.Location = new System.Drawing.Point(3, 16);
-            this.checkedListBox2.Name = "checkedListBox2";
-            this.checkedListBox2.Size = new System.Drawing.Size(119, 44);
-            this.checkedListBox2.TabIndex = 95;
-            // 
             // ofdRawFiles
             // 
             this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
@@ -669,7 +648,7 @@ namespace Coon.Compass.DtaGenerator
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(578, 536);
+            this.ClientSize = new System.Drawing.Size(541, 529);
             this.Controls.Add(this.grpOutputOptions);
             this.Controls.Add(this.grpPeakFilteringOptions);
             this.Controls.Add(this.btnOK);
@@ -678,11 +657,11 @@ namespace Coon.Compass.DtaGenerator
             this.Controls.Add(this.lstRawFiles);
             this.Controls.Add(this.txtOutputFolder);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.prgProgress);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
+            this.MinimumSize = new System.Drawing.Size(557, 567);
             this.Name = "frmMain";
             this.Text = "DTA Generator";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmMain_FormClosing);
@@ -701,7 +680,6 @@ namespace Coon.Compass.DtaGenerator
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -732,8 +710,6 @@ namespace Coon.Compass.DtaGenerator
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.TextBox txtOutputFolder;
         private System.Windows.Forms.LinkLabel linkLabel1;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.CheckedListBox checkedListBox2;
         private System.Windows.Forms.CheckBox includeLogCB;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem clearAllToolStripMenuItem;

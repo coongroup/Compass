@@ -47,54 +47,36 @@ namespace Coon.Compass.DatabaseMaker
         {
             try
             {
-                // Validate Options are kosher
-
-                if (Options.InputFiles == null ||Options.InputFiles.Count == 0)
+                if (Options.InputFiles == null || Options.InputFiles.Count == 0)
                 {
                     throw new ArgumentNullException("Input Files");
                 }
 
-                string ext = Path.GetExtension(Options.OutputFastaFile);
-                if (string.IsNullOrEmpty(ext))
+                if (!Directory.Exists(Options.OutputFolder))
                 {
-                    ext = ".fasta";
+                    Directory.CreateDirectory(Options.OutputFolder);
                 }
-                string output_filename = Path.GetFullPath(Options.OutputFastaFile);
-
-                if (Options.DoNotAppendDatabaseType)
+                string outputFolder = Options.OutputFolder;
+                
+                string ext = ".fasta";
+                
+                switch (Options.OutputType)
                 {
-                    output_filename = output_filename + ext;
-                    if (Options.InputFiles.Contains(output_filename))
-                    {
-                        throw new ArgumentException("Output file path cannot be the same as an input file.");
-                    }
+                    case DatabaseType.Target:
+                        ext = "_TARGET.fasta";
+                        break;
+                    case DatabaseType.Decoy:
+                        ext = "_DECOY.fasta";
+                        break;
+                    case DatabaseType.Concatenated:
+                    default:
+                        ext = "_CONCAT.fasta";
+                        break;
                 }
-                else
-                {
-                    switch (Options.OutputType)
-                    {
-                        case DatabaseType.Target:
-                            output_filename += "_TARGET" + ext;
-                            break;
-                        case DatabaseType.Decoy:
-                            output_filename += "_DECOY" + ext;
-                            break;
-                        case DatabaseType.Concatenated:
-                        default:
-                            output_filename += "_CONCAT" + ext;
-                            break;
-                    }
-                }
-
-                string logFilename = Path.GetFileNameWithoutExtension(Options.OutputFastaFile);
-                string outputFolder = Path.GetDirectoryName(Options.OutputFastaFile);
-                if (!Directory.Exists(outputFolder))
-                {
-                    outputFolder = Directory.GetCurrentDirectory();
-                }
-
+                
                 if (Options.GenerateLogFile)
                 {
+                    string logFilename = Path.GetFileNameWithoutExtension(Options.OutputFolder);
                     switch (Options.OutputType)
                     {
                         case DatabaseType.Target:
@@ -110,21 +92,29 @@ namespace Coon.Compass.DatabaseMaker
                     }
                     GenerateLog(outputFolder, logFilename);
                 }
-
-                string outputPath = Path.Combine(outputFolder, output_filename);
-
+               
                 if (Options.DoNotMergeFiles)
                 {
                     foreach (string fastaFile in Options.InputFiles)
                     {
+                        string baseName = Path.GetFileNameWithoutExtension(fastaFile);
+                        string outputPath = Path.Combine(outputFolder, baseName + ext);
+
                         using (FastaWriter writer = new FastaWriter(outputPath))
                         {
                             WriteFasta(fastaFile, writer);
+                        }
+
+                        if (Options.BlastDatabase)
+                        {
+                            MakeBlastDatabase(outputPath, Path.GetFileNameWithoutExtension(outputPath));
                         }
                     }
                 }
                 else
                 {
+                    string baseName = Path.GetFileNameWithoutExtension(Options.InputFiles[0]);
+                    string outputPath = Path.Combine(outputFolder, baseName + ext);
                     using (FastaWriter writer = new FastaWriter(outputPath))
                     {
                         foreach (string fastaFile in Options.InputFiles)
@@ -132,12 +122,14 @@ namespace Coon.Compass.DatabaseMaker
                             WriteFasta(fastaFile, writer);
                         }
                     }
+
+                    if (Options.BlastDatabase)
+                    {
+                        MakeBlastDatabase(outputPath, Path.GetFileNameWithoutExtension(outputPath));
+                    }
                 }
 
-                if (Options.BlastDatabase)
-                {
-                    MakeBlastDatabase(outputFolder, output_filename, Path.GetFileNameWithoutExtension(output_filename));
-                }
+              
             }
 
             catch (DirectoryNotFoundException)
@@ -154,7 +146,7 @@ namespace Coon.Compass.DatabaseMaker
             using (StreamWriter log = new StreamWriter(Path.Combine(outputDirectory, logFileName)))
             {
                 log.WriteLine("Input File(s): {0}", string.Join("\n", Options.InputFiles));
-                log.WriteLine("\nOutput File: {0}", Options.OutputFastaFile);
+                log.WriteLine("\nOutput File: {0}", Options.OutputFolder);
                 log.WriteLine("\nDatabase Maker PARAMETERS");
                 log.WriteLine("\nDatabase Type: {0}", Options.OutputType);
                 if (Options.OutputType != DatabaseType.Target)
@@ -173,29 +165,18 @@ namespace Coon.Compass.DatabaseMaker
             }
         }
 
-        public void WriteFasta(string fasta_file, FastaWriter Writer)
+        public void WriteFasta(string fastaFilePath, FastaWriter writer)
         {
-            bool MakeDecoy = false;
-            
-            if (Options.OutputType == DatabaseType.Target || Options.OutputType == DatabaseType.Concatenated)
-            {
-                MakeDecoy = false;
-            }
-            else if (Options.OutputType == DatabaseType.Decoy || Options.OutputType == DatabaseType.Concatenated)
-            {
-                MakeDecoy = true;
-            }
+            string HeaderFile = "InvalidUniprotheaders.txt";
+            string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
 
-            using (FastaReader reader = new FastaReader(fasta_file))
+            using (FastaReader reader = new FastaReader(fastaFilePath))
             {
-                
                 foreach (Fasta fasta in reader.ReadNextFasta())
                 {
                     Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
                     Match UniprotMatch = uniprotRegex.Match(fasta.Description);
-                    string HeaderFile = "InvalidUniprotheaders.txt";
-                    string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
-
+                
                     if (Options.EnforceUniprot && !UniprotMatch.Success)
                     {
                         using (StreamWriter log = new StreamWriter(Path.Combine(headerFolder, HeaderFile), true))
@@ -210,22 +191,18 @@ namespace Coon.Compass.DatabaseMaker
 
                     if (UniprotMatch.Success)
                     {
-                        bool excludeMethionine = false;
-                        if (Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue)
+                        bool excludeMethionine = Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue;
+
+                        if ((Options.OutputType & DatabaseType.Target) == DatabaseType.Target)
                         {
-                            excludeMethionine = true;
+                            writer.Write(fasta);
                         }
 
-                        if (MakeDecoy)
+                        if ((Options.OutputType & DatabaseType.Decoy) == DatabaseType.Decoy)
                         {
-                            Writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, (excludeMethionine || Options.ExcludeNTerminalResidue), Options.ExcludeNTerminalMethionine));
+                            writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, (excludeMethionine || Options.ExcludeNTerminalResidue), Options.ExcludeNTerminalMethionine));
                         }
                         
-                        else
-                        {
-                            Writer.Write(fasta);
-                        }
-
                     } 
 
                 }
@@ -233,31 +210,30 @@ namespace Coon.Compass.DatabaseMaker
             }
         }
 
-        public static string MAKEBLASTDB_FILENAME = "makeblastdb.exe";
-        public static string LOG_FILENAME = "blast_log.txt";
-
-        /**
-         * Create BLAST Database files for OMMSA by use makeblastdb.exe\
-         **/
-        public static void MakeBlastDatabase(string outputfolder, string infile, string outfile)
+        public const string MakeBlastDBExecutable = "makeblastdb.exe";
+        public const string DefaultLogFilename = "blast_log.txt";
+        
+        public static void MakeBlastDatabase(string infile, string outputFileName)
         {
-            Process process = new Process();
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.WorkingDirectory = outputfolder;
-            process.StartInfo.UseShellExecute = false;
+            string outputFolder = Path.GetDirectoryName(infile);
+            Process process = new Process { StartInfo = { CreateNoWindow = true, WorkingDirectory = outputFolder, UseShellExecute = false } };
 
             // Pick makeblastdb.exe from Application Directory Folder
-            string filename = Path.Combine(Environment.CurrentDirectory, MAKEBLASTDB_FILENAME);
-            process.StartInfo.FileName = filename;// Path.GetDirectoryName(System.Environment.CurrentDirectory) + @"\" + MAKEBLASTDB_FILENAME;
+    
+            process.StartInfo.FileName = Path.Combine(Environment.CurrentDirectory, MakeBlastDBExecutable);
 
-            process.StartInfo.Arguments = string.Format("-in {0} -out {1} -max_file_sz {2} -logfile {3}", infile, outfile, "2GB", LOG_FILENAME);
+            // makeblastdb doesn't like spaces in the filenames...
+            // http://stackoverflow.com/questions/15126020/why-multiple-arguments-with-spaces-are-not-interpreted-correctly-in-a-batch-scri
+            process.StartInfo.Arguments = string.Format("-in \\\"\"{0}\"\\\" -out {1} -max_file_sz {2} -logfile {3}", infile, outputFileName, "2GB", DefaultLogFilename);
+
             process.Start();
             process.WaitForExit();
         }
+
         public void DisplayVerboseOptions(bool verboseOptions, DatabaseMakerOptions Options)
         {
             Console.WriteLine("Input File(s): {0}", string.Join("\n", Options.InputFiles));
-            Console.WriteLine("\nOutput File: {0}", Options.OutputFastaFile);
+            Console.WriteLine("\nOutput File: {0}", Options.OutputFolder);
             Console.WriteLine("\nDatabase Maker PARAMETERS");
             Console.WriteLine("\nDatabase Type: {0}", Options.OutputType);
             if (Options.OutputType != DatabaseType.Target)

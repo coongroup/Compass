@@ -56,7 +56,7 @@ namespace Coon.Compass.Lotor
         public void SetRawFile(MSDataFile dataFile)
         {
             MsnDataScan scan = dataFile[ScanNumber] as MsnDataScan;
-            IsolationMZ = scan.IsolationRange.Mean;
+            IsolationMZ = scan.GetIsolationRange().Mean;
             Spectrum = dataFile.GetSpectrum(ScanNumber);
             ScanWidth = scan.MzRange.Width;
         }

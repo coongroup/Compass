@@ -423,8 +423,8 @@ namespace Coon.Compass.TagQuant
                         double purity = 1;
                         if (CalculatePurity)
                         {
-                            double mz = quantitationMsnScan.PrecursorMz;
-                            int charge = quantitationMsnScan.PrecursorCharge;
+                            double mz = quantitationMsnScan.GetPrecursorMz();
+                            int charge = quantitationMsnScan.GetPrecursorCharge();
                             DoubleRange isolationRange = MzRange.FromDa(mz, PurityWindowInTh);
 
                             MSDataScan parentScan = rawFile[quantitationMsnScan.ParentScanNumber];
@@ -460,7 +460,7 @@ namespace Coon.Compass.TagQuant
                         }
 
                         Tolerance Tolerance = quantitationMsnScan.MzAnalyzer == MZAnalyzerType.IonTrap2D ? ItMassTolerance : FtMassTolerance;
-                        bool isETD = quantitationMsnScan.DissociationType == DissociationType.ETD;
+                        bool isETD = quantitationMsnScan.GetDissociationType() == DissociationType.ETD;
 
                         double injectionTime = quantitationMsnScan.InjectionTime;
                         //var massSpectrum = quantitationMsnScan.MassSpectrum;

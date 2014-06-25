@@ -20,7 +20,7 @@ namespace Coon.Compass.DatabaseMaker
         public bool GenerateLogFile { get; set; }
 
         [Option('o', "output", MetaValue="FILE", Required = true, HelpText = "The base name of the FILE to write the fasta file to")]
-        public string OutputFastaFile { get; set; }
+        public string OutputFolder { get; set; }
 
         [Option('u', "uniprot", DefaultValue = null, HelpText = "Use standard Uniprot heading in database")]
         public bool EnforceUniprot { get; set; }

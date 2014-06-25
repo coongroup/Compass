@@ -62,7 +62,7 @@ namespace Coon.Compass.DatabaseMaker
 
             // Show the 'Merge Output' CheckBox as enabled only if more than 
             // one fasta files have been added.
-            mergeoutputCB.Enabled = (FastaFiles.Count > 1);
+            //mergeoutputCB.Enabled = (FastaFiles.Count > 1);
 
             if (FastaFiles.Count < 1)
                 MessageBox.Show("Sorry, you added NO FASTA Files!");
@@ -168,11 +168,12 @@ namespace Coon.Compass.DatabaseMaker
             options.ExcludeNTerminalResidue = chkExcludeNTerminus.Checked;
             options.ExcludeNTerminalMethionine = chkOnlyIfNTerminusIsMethionine.Checked;
             options.BlastDatabase = chkBlast.Checked;
-            options.DoNotMergeFiles = !mergeoutputCB.Checked;
-            options.OutputFastaFile = txtOutput.Text;
-            if (options.OutputFastaFile == string.Empty)
+            options.DoNotMergeFiles = true;
+            options.DecoyPrefix = "DECOY_";
+            options.OutputFolder = txtOutput.Text;
+            if (options.OutputFolder == string.Empty)
             {
-                options.OutputFastaFile = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                options.OutputFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             }
 
             DatabaseMaker databaseMaker = new DatabaseMaker(options);
@@ -189,7 +190,7 @@ namespace Coon.Compass.DatabaseMaker
             FastaFiles.Clear();
 
             // Show the Merge Output CheckBox as disabled., as it of no use right now.
-            mergeoutputCB.Enabled = false;
+            //mergeoutputCB.Enabled = false;
 
             // Clearing the 'Output Folder' TextBox
             txtOutput.Text = "";

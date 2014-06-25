@@ -1,9 +1,12 @@
-﻿namespace Coon.Compass.DatabaseMaker
+﻿using System;
+
+namespace Coon.Compass.DatabaseMaker
 {
+    [Flags]
     public enum DatabaseType
     {
-        Target,
-        Decoy,
-        Concatenated
+        Target = 1,
+        Decoy = 2,
+        Concatenated = Target | Decoy
     }
 }

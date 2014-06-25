@@ -49,7 +49,6 @@
             this.fastaLB = new System.Windows.Forms.ListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.clearBtn = new System.Windows.Forms.Button();
-            this.mergeoutputCB = new System.Windows.Forms.CheckBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.grpDatabaseType.SuspendLayout();
             this.grpDecoyDatabaseMethod.SuspendLayout();
@@ -257,7 +256,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.clearBtn);
-            this.groupBox1.Controls.Add(this.mergeoutputCB);
             this.groupBox1.Controls.Add(this.fastaLB);
             this.groupBox1.Controls.Add(this.btnBrowseFasta);
             this.groupBox1.Location = new System.Drawing.Point(8, 12);
@@ -278,18 +276,6 @@
             this.clearBtn.UseVisualStyleBackColor = true;
             this.clearBtn.Click += new System.EventHandler(this.clearBtn_Click);
             // 
-            // mergeoutputCB
-            // 
-            this.mergeoutputCB.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.mergeoutputCB.AutoSize = true;
-            this.mergeoutputCB.Enabled = false;
-            this.mergeoutputCB.Location = new System.Drawing.Point(6, 85);
-            this.mergeoutputCB.Name = "mergeoutputCB";
-            this.mergeoutputCB.Size = new System.Drawing.Size(146, 17);
-            this.mergeoutputCB.TabIndex = 14;
-            this.mergeoutputCB.Text = "Merge into one output file";
-            this.mergeoutputCB.UseVisualStyleBackColor = true;
-            // 
             // groupBox2
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
@@ -304,7 +290,7 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Output Folder";
             // 
-            // frmMain
+            // DatabaseMakerForm
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -317,7 +303,7 @@
             this.Controls.Add(this.grpDatabaseType);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "frmMain";
+            this.Name = "DatabaseMakerForm";
             this.Text = "Database Maker";
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.frmMain_DragDrop);
             this.DragEnter += new System.Windows.Forms.DragEventHandler(this.frmMain_DragEnter);
@@ -326,7 +312,6 @@
             this.grpDecoyDatabaseMethod.ResumeLayout(false);
             this.grpDecoyDatabaseMethod.PerformLayout();
             this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
@@ -355,7 +340,6 @@
         private System.Windows.Forms.ListBox fastaLB;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button clearBtn;
-        private System.Windows.Forms.CheckBox mergeoutputCB;
         private System.Windows.Forms.GroupBox groupBox2;
     }
 }

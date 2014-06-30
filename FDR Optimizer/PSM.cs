@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using CSMSL;
 using CSMSL.Analysis.Identification;
 using CSMSL.Chemistry;
@@ -10,11 +11,14 @@ namespace Coon.Compass.FdrOptimizer
 {
     public class PSM : IFalseDiscovery<double>, IComparable<PSM>, IMass
     {
+        private static Regex msAmandaMods = new Regex(@"[A-Z](\d+)\(([A-Za-z]+)\|([\d.]+)\|(fixed|variable)\)+", RegexOptions.Compiled);
+        
         public int SpectrumNumber { get; private set; }
         public string FileName { get; set; }
         public double Score { get; set; }
         public int Charge { get; set; }
         public double IsolationMz { get; set; }
+        public PeptideSpectralMatchScoreType ScoreType { get; set; }
 
         public string Modificationstring { get; set; }
 
@@ -38,22 +42,44 @@ namespace Coon.Compass.FdrOptimizer
             Peptide = new CSMSL.Proteomics.Peptide(sequence);
             Peptide.SetModifications(fixedMods);
             Modificationstring = variableMods;
-            foreach (Tuple<Modification, int> modTuple in OmssaModification.ParseModificationLine(variableMods))
+
+            if (string.IsNullOrWhiteSpace(variableMods))
+                return;
+
+            if (ScoreType == PeptideSpectralMatchScoreType.OmssaEvalue)
             {
-                Modification mod = modTuple.Item1;
-                int site = modTuple.Item2;
-                if (site == 1 && mod.Sites.HasFlag(ModificationSites.NPep))
+                foreach (Tuple<Modification, int> modTuple in OmssaModification.ParseModificationLine(variableMods))
                 {
-                    Peptide.AddModification(mod, Terminus.N);
+                    Modification mod = modTuple.Item1;
+                    int site = modTuple.Item2;
+                    if (site == 1 && mod.Sites.HasFlag(ModificationSites.NPep))
+                    {
+                        Peptide.AddModification(mod, Terminus.N);
+                    }
+                    else if (site == Peptide.Length && mod.Sites.HasFlag(ModificationSites.PepC))
+                    {
+                        Peptide.AddModification(mod, Terminus.C);
+                    }
+                    else
+                    {
+                        Peptide.AddModification(mod, site);
+                    }
                 }
-                else if (site == Peptide.Length && mod.Sites.HasFlag(ModificationSites.PepC))
+            }
+            if (ScoreType == PeptideSpectralMatchScoreType.MSAmanda)
+            {
+                var matches = msAmandaMods.Matches(variableMods);
+
+                foreach (Match match in matches)
                 {
-                    Peptide.AddModification(mod, Terminus.C);
+                    string name = match.Groups[2].Value;
+                    int position = int.Parse(match.Groups[1].Value);
+                    double mass = double.Parse(match.Groups[3].Value);
+                    bool isFixed = match.Groups[4].Value.Equals("fixed");
+                    Modification mod = new Modification(mass, name);
+                    Peptide.AddModification(mod, position);
                 }
-                else
-                {
-                    Peptide.AddModification(mod, site);
-                }
+                
             }
         }
 
@@ -73,7 +99,7 @@ namespace Coon.Compass.FdrOptimizer
 
         public int CompareTo(PSM other)
         {
-            return Score.CompareTo(other.Score);
+            return Score.CompareTo(other.Score) * Math.Sign((int)ScoreType);
         }
 
         public override string ToString()

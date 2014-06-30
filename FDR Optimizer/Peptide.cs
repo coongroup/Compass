@@ -25,7 +25,6 @@ namespace Coon.Compass.FdrOptimizer
                 CorrectedPrecursorErrorPPM = Math.Abs(_bestMatch.CorrectedPrecursorMassError);
             }
         }
-        
 
         public double MonoisotopicMass { get; private set; }
 
@@ -61,7 +60,7 @@ namespace Coon.Compass.FdrOptimizer
             }
             else
             {
-                if (psm.Score < BestMatch.Score)
+                if (psm.Score.CompareTo(BestMatch.Score) * Math.Sign((int)BestMatch.ScoreType) < 0)
                 {
                     BestMatch = psm;
                 }

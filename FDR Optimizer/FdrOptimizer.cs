@@ -268,158 +268,162 @@ namespace Coon.Compass.FdrOptimizer
                 summaryStringBuilder.Append(100*decoys/(double) targets);
 
 
-
-                using (StreamWriter targetWriter = new StreamWriter(outputTargetFile),
-                    decoyWriter = new StreamWriter(outputDecoyFile),
-                    scansWriter = new StreamWriter(outputScansFile),
-                    targetUniqueWriter = new StreamWriter(outputTargetUniqueFile),
-                    decoyUniqueWriter = new StreamWriter(outputDecoyUniqueFile))
+                if (csvFile.ScoreType == PeptideSpectralMatchScoreType.OmssaEvalue)
                 {
-                    Dictionary<string, PSM> allPsms = csvFile.PeptideSpectralMatches.ToDictionary(psm => psm.FileName + psm.Peptide.Sequence);
+                
 
-                    HashSet<PSM> fdrPSMs = new HashSet<PSM>(csvFile.FdrFilteredPSMs);
-
-                    Dictionary<PSM, Peptide> fdrPeptides = csvFile.FdrFilteredPeptides.ToDictionary(pep => pep.BestMatch);
-
-                    HashSet<int> scansProcessed = new HashSet<int>();
-                    StringBuilder sb = new StringBuilder();
-                    using (CsvReader reader = new CsvReader(new StreamReader(csvFile.FilePath), true))
+                    using (StreamWriter targetWriter = new StreamWriter(outputTargetFile),
+                        decoyWriter = new StreamWriter(outputDecoyFile),
+                        scansWriter = new StreamWriter(outputScansFile),
+                        targetUniqueWriter = new StreamWriter(outputTargetUniqueFile),
+                        decoyUniqueWriter = new StreamWriter(outputDecoyUniqueFile))
                     {
-                        string[] headers = reader.GetFieldHeaders();
-                        int headerCount = headers.Length;
-                        int modsColumnIndex = 10; //reader.GetFieldIndex("Mods");
-                        int chargeColumnIndex = 11;
-                        string[] data = new string[headerCount];
-                        
-                        decoyWriter.WriteLine(headerLine);
-                        targetWriter.WriteLine(headerLine);
-                        scansWriter.WriteLine(headerLine);
-                        targetUniqueWriter.WriteLine(headerLine);
-                        decoyUniqueWriter.WriteLine(headerLine);
-                        if (firstHeader)
-                        {
-                            batchScansWriter.WriteLine(headerLine);
-                            batchDecoyWriter.WriteLine(headerLine);
-                            batchTargetWriter.WriteLine(headerLine);
-                            if (isBatched)
-                            {
-                                batchDecoyUniqueWriter.WriteLine(headerLine);
-                                batchTargetUniqueWriter.WriteLine(headerLine);
-                            }
-                            firstHeader = false;
-                        }
-                        while (reader.ReadNextRecord())
-                        {
-                            PSM psm;
-                            int spectralNumber = int.Parse(reader["Spectrum number"]);
-                            if (scansProcessed.Contains(spectralNumber))
-                                continue;
-                            string fileName = reader["Filename/id"];
-                            string sequence = reader["Peptide"].ToUpper();
+                        Dictionary<string, PSM> allPsms = csvFile.PeptideSpectralMatches.ToDictionary(psm => psm.FileName + psm.Peptide.Sequence);
 
-                            if (allPsms.TryGetValue(fileName + sequence, out psm))
-                            {
-                                bool isNegative = psm.Charge < 0;
+                        HashSet<PSM> fdrPSMs = new HashSet<PSM>(csvFile.FdrFilteredPSMs);
 
-                                scansProcessed.Add(spectralNumber);
-                                sb.Clear();
-                                reader.CopyCurrentRecordTo(data);
-                                for (int i = 0; i < 15; i++)
+                        Dictionary<PSM, Peptide> fdrPeptides = csvFile.FdrFilteredPeptides.ToDictionary(pep => pep.BestMatch);
+
+                        HashSet<int> scansProcessed = new HashSet<int>();
+                        StringBuilder sb = new StringBuilder();
+                        using (CsvReader reader = new CsvReader(new StreamReader(csvFile.FilePath), true))
+                        {
+                            string[] headers = reader.GetFieldHeaders();
+                            int headerCount = headers.Length;
+                            int modsColumnIndex = 10; //reader.GetFieldIndex("Mods");
+                            int chargeColumnIndex = 11;
+                            string[] data = new string[headerCount];
+
+                            decoyWriter.WriteLine(headerLine);
+                            targetWriter.WriteLine(headerLine);
+                            scansWriter.WriteLine(headerLine);
+                            targetUniqueWriter.WriteLine(headerLine);
+                            decoyUniqueWriter.WriteLine(headerLine);
+                            if (firstHeader)
+                            {
+                                batchScansWriter.WriteLine(headerLine);
+                                batchDecoyWriter.WriteLine(headerLine);
+                                batchTargetWriter.WriteLine(headerLine);
+                                if (isBatched)
                                 {
-                                    string datum = data[i];
-
-                                    if (_includeFixedMods && i == modsColumnIndex)
-                                    {
-                                        datum = OmssaModification.WriteModificationString(psm.Peptide);
-                                    }
-
-                                    // Replace the charge if negative
-                                    if (isNegative && i == chargeColumnIndex)
-                                    {
-                                        sb.Append(psm.Charge);
-                                        sb.Append(',');
-                                        continue;
-                                    }
-
-                                    if (datum.Contains('"'))
-                                        datum = datum.Replace("\"", "\"\"");
-
-                                    if (datum.Contains(','))
-                                    {
-                                        sb.Append('"');
-                                        sb.Append(datum);
-                                        sb.Append('"');
-                                    }
-                                    else
-                                    {
-                                        sb.Append(datum);
-                                    }
-
-                                    sb.Append(',');
+                                    batchDecoyUniqueWriter.WriteLine(headerLine);
+                                    batchTargetUniqueWriter.WriteLine(headerLine);
                                 }
-                                sb.Append(psm.IsolationMz);
-                                sb.Append(',');
-                                sb.Append(Mass.MzFromMass(psm.MonoisotopicMass, psm.Charge));
-                                sb.Append(',');
-                                sb.Append(psm.IsotopeSelected);
-                                sb.Append(',');
-                                sb.Append(Mass.MzFromMass(psm.AdjustedIsolationMass, psm.Charge));
-                                sb.Append(',');
-                                sb.Append(psm.PrecursorMassError);
-                                sb.Append(',');
-                                sb.Append(psm.CorrectedPrecursorMassError);
+                                firstHeader = false;
+                            }
+                            while (reader.ReadNextRecord())
+                            {
+                                PSM psm;
+                                int spectralNumber = int.Parse(reader["Spectrum number"]);
+                                if (scansProcessed.Contains(spectralNumber))
+                                    continue;
+                                string fileName = reader["Filename/id"];
+                                string sequence = reader["Peptide"].ToUpper();
 
-                                string line = sb.ToString();
-
-                                scansWriter.WriteLine(line);
-                                batchScansWriter.WriteLine(line);
-
-                                // Passes FDR, write out
-                                if (fdrPSMs.Contains(psm))
+                                if (allPsms.TryGetValue(fileName + sequence, out psm))
                                 {
-                                    if (psm.IsDecoy)
-                                    {
-                                        totalDecoyPsms++;
-                                        batchTotalDecoyPsms++;
-                                        decoyWriter.WriteLine(line);
-                                        batchDecoyWriter.WriteLine(line);
-                                    }
-                                    else
-                                    {
-                                        totalPsms++;
-                                        batchTotalPsms++;
-                                        targetWriter.WriteLine(line);
-                                        batchTargetWriter.WriteLine(line);
-                                        
-                                    }
+                                    bool isNegative = psm.Charge < 0;
 
-                                    Peptide pep;
-                                    // Is this the best unique psm?
-                                    if (fdrPeptides.TryGetValue(psm, out pep))
+                                    scansProcessed.Add(spectralNumber);
+                                    sb.Clear();
+                                    reader.CopyCurrentRecordTo(data);
+                                    for (int i = 0; i < 15; i++)
                                     {
-                                        if (pep.IsDecoy)
+                                        string datum = data[i];
+
+                                        if (_includeFixedMods && i == modsColumnIndex)
                                         {
-                                            totalDecoyPeptides++;
-                                            decoyUniqueWriter.WriteLine(line);
+                                            datum = OmssaModification.WriteModificationString(psm.Peptide);
+                                        }
+
+                                        // Replace the charge if negative
+                                        if (isNegative && i == chargeColumnIndex)
+                                        {
+                                            sb.Append(psm.Charge);
+                                            sb.Append(',');
+                                            continue;
+                                        }
+
+                                        if (datum.Contains('"'))
+                                            datum = datum.Replace("\"", "\"\"");
+
+                                        if (datum.Contains(','))
+                                        {
+                                            sb.Append('"');
+                                            sb.Append(datum);
+                                            sb.Append('"');
                                         }
                                         else
                                         {
-                                            totalPeptides++;
-                                            targetUniqueWriter.WriteLine(line);
+                                            sb.Append(datum);
                                         }
-                                    }
 
-                                    if (isBatched && overallBestPsms.TryGetValue(psm, out pep))
+                                        sb.Append(',');
+                                    }
+                                    sb.Append(psm.IsolationMz);
+                                    sb.Append(',');
+                                    sb.Append(Mass.MzFromMass(psm.MonoisotopicMass, psm.Charge));
+                                    sb.Append(',');
+                                    sb.Append(psm.IsotopeSelected);
+                                    sb.Append(',');
+                                    sb.Append(Mass.MzFromMass(psm.AdjustedIsolationMass, psm.Charge));
+                                    sb.Append(',');
+                                    sb.Append(psm.PrecursorMassError);
+                                    sb.Append(',');
+                                    sb.Append(psm.CorrectedPrecursorMassError);
+
+                                    string line = sb.ToString();
+
+                                    scansWriter.WriteLine(line);
+                                    batchScansWriter.WriteLine(line);
+
+                                    // Passes FDR, write out
+                                    if (fdrPSMs.Contains(psm))
                                     {
-                                        if (pep.IsDecoy)
+                                        if (psm.IsDecoy)
                                         {
-                                            batchTotalDecoyPeptides++;
-                                            batchDecoyUniqueWriter.WriteLine(line);
+                                            totalDecoyPsms++;
+                                            batchTotalDecoyPsms++;
+                                            decoyWriter.WriteLine(line);
+                                            batchDecoyWriter.WriteLine(line);
                                         }
                                         else
                                         {
-                                            batchTotalPeptides++;
-                                            batchTargetUniqueWriter.WriteLine(line);
+                                            totalPsms++;
+                                            batchTotalPsms++;
+                                            targetWriter.WriteLine(line);
+                                            batchTargetWriter.WriteLine(line);
+
+                                        }
+
+                                        Peptide pep;
+                                        // Is this the best unique psm?
+                                        if (fdrPeptides.TryGetValue(psm, out pep))
+                                        {
+                                            if (pep.IsDecoy)
+                                            {
+                                                totalDecoyPeptides++;
+                                                decoyUniqueWriter.WriteLine(line);
+                                            }
+                                            else
+                                            {
+                                                totalPeptides++;
+                                                targetUniqueWriter.WriteLine(line);
+                                            }
+                                        }
+
+                                        if (isBatched && overallBestPsms.TryGetValue(psm, out pep))
+                                        {
+                                            if (pep.IsDecoy)
+                                            {
+                                                batchTotalDecoyPeptides++;
+                                                batchDecoyUniqueWriter.WriteLine(line);
+                                            }
+                                            else
+                                            {
+                                                batchTotalPeptides++;
+                                                batchTargetUniqueWriter.WriteLine(line);
+                                            }
                                         }
                                     }
                                 }
@@ -427,6 +431,7 @@ namespace Coon.Compass.FdrOptimizer
                         }
                     }
                 }
+
                 summaryWriter.WriteLine(summaryStringBuilder.ToString());
             }
 
@@ -523,6 +528,9 @@ namespace Coon.Compass.FdrOptimizer
         private Tuple<double,double> CalculateBestPPMError(IEnumerable<Peptide> inputPeptides, double maximumFalseDisoveryRate = 0.01, int steps = 10, double minimumIncrement = 0.05)
         {
             List<Peptide> peptides = inputPeptides.OrderBy(pep => pep.CorrectedPrecursorErrorPPM).ToList();
+
+            PeptideSpectralMatchScoreType scoreType = peptides[0].BestMatch.ScoreType;
+
             double[] precursorPPMs = peptides.Select(pep => pep.CorrectedPrecursorErrorPPM).ToArray();
 
             double bestppmError = 0;
@@ -535,23 +543,26 @@ namespace Coon.Compass.FdrOptimizer
             increment = Math.Max(increment, minimumIncrement);
 
             double bestCount = 0;
-           
+
+            var peptideComparer = Comparer<Peptide>.Default;
+            var scoreComparer = Comparer<double>.Create((a,b) => a.CompareTo(b) * Math.Sign((int)scoreType));
+
             for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
             {
                 int index = Array.BinarySearch(precursorPPMs, ppmError);
                 if (index < 0)
                     index = ~index;
 
-                int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index).ToList(), maximumFalseDisoveryRate);
+                int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index).ToList(), peptideComparer, scoreComparer, maximumFalseDisoveryRate);
 
                 if (count <= bestCount)
                     continue;
                 bestCount = count;
                 bestppmError = ppmError;
             }
-          
+       
             List<Peptide> filteredPeptides = new List<Peptide>(peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= bestppmError));
-
+            
             // Calculate the e-value threshold for those filtered peptides
             double threshold = FalseDiscoveryRate<Peptide, double>.CalculateThreshold(filteredPeptides, maximumFalseDisoveryRate);
 
@@ -590,12 +601,14 @@ namespace Coon.Compass.FdrOptimizer
             {
                 double ppmError = csvFile.PrecursorMassToleranceThreshold;
                 double threshold = csvFile.ScoreThreshold;
-                List<Peptide> passingPeptides = csvFile.Peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= ppmError && pep.FdrScoreMetric <= threshold).ToList();
+                int sign = Math.Sign((int)csvFile.ScoreType);
+
+                List<Peptide> passingPeptides = csvFile.Peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= ppmError && pep.FdrScoreMetric * sign <= threshold * sign).ToList();
                 csvFile.FdrFilteredPeptides = passingPeptides;
 
-                List<PSM> passingPsms = passingPeptides.SelectMany(p => p.PSMs).Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric <= threshold).ToList();
+                List<PSM> passingPsms = passingPeptides.SelectMany(p => p.PSMs).Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric * sign <= threshold * sign).ToList();
 
-                List<PSM> passingPsms2 = csvFile.PeptideSpectralMatches.Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric <= threshold).ToList();
+                List<PSM> passingPsms2 = csvFile.PeptideSpectralMatches.Where(psm => Math.Abs(psm.CorrectedPrecursorMassError) <= ppmError && psm.FdrScoreMetric * sign <= threshold * sign).ToList();
                 int a = passingPsms2.Count;
                 csvFile.FdrFilteredPSMs = passingPsms;
 
@@ -604,8 +617,8 @@ namespace Coon.Compass.FdrOptimizer
                 int targets = total - decoys;
                 Log(
                     string.Format(
-                        "{0:N0} peptides ({1:N0} decoys FDR = {2:F4}) pass the e-value threshold of {3:G4} and <= {4:G3} PPM for {5}",
-                        targets, decoys, 100.0 * decoys / (double)targets, threshold,ppmError, csvFile.Name));
+                        "{0:N0} peptides ({1:N0} decoys FDR = {2:F4}) pass the {3} threshold of {4} {5:G4} and <= {6:G3} PPM for {7}",
+                        targets, decoys, 100.0 * decoys / (double)targets, csvFile.ScoreType, ((int)csvFile.ScoreType <= 0) ? ">=" : "<=", threshold, ppmError, csvFile.Name));
             }
         }
 

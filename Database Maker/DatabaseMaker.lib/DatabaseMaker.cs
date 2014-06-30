@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using CSMSL.IO;
 using System.Text.RegularExpressions;
-using System.Windows;
-
-
 
 namespace Coon.Compass.DatabaseMaker
 {
@@ -167,44 +163,35 @@ namespace Coon.Compass.DatabaseMaker
 
         public void WriteFasta(string fastaFilePath, FastaWriter writer)
         {
-            string HeaderFile = "InvalidUniprotheaders.txt";
-            string headerFolder = Path.GetDirectoryName(Options.InputFiles[0]);
-
+            bool writeTarget = (Options.OutputType & DatabaseType.Target) == DatabaseType.Target;
+            bool writeDecoy = (Options.OutputType & DatabaseType.Decoy) == DatabaseType.Decoy;
+            bool excludeMethionine = Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue;
+            Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
+    
             using (FastaReader reader = new FastaReader(fastaFilePath))
             {
                 foreach (Fasta fasta in reader.ReadNextFasta())
                 {
-                    Regex uniprotRegex = new Regex(@"(.+)\|(.+)\|(.+?)\s(.+?)\sOS=(.+?)(?:\sGN=(.+?))?(?:$|PE=(\d+)\sSV=(\d+))", RegexOptions.ExplicitCapture);
-                    Match UniprotMatch = uniprotRegex.Match(fasta.Description);
-                
-                    if (Options.EnforceUniprot && !UniprotMatch.Success)
+                    if (Options.EnforceUniprot)
                     {
-                        using (StreamWriter log = new StreamWriter(Path.Combine(headerFolder, HeaderFile), true))
+                        Match uniprotMatch = uniprotRegex.Match(fasta.Description);
+
+                        if (!uniprotMatch.Success)
                         {
-                            log.WriteLine("Invalid Header:");
-                            log.WriteLine();
-                            log.WriteLine(fasta.Description);
-                            log.WriteLine();
                             InvalidHeader(fasta);
+                            continue;
                         }
                     }
-
-                    if (UniprotMatch.Success)
+                    
+                    if (writeTarget)
                     {
-                        bool excludeMethionine = Options.ExcludeNTerminalMethionine && !Options.ExcludeNTerminalResidue;
+                        writer.Write(fasta);
+                    }
 
-                        if ((Options.OutputType & DatabaseType.Target) == DatabaseType.Target)
-                        {
-                            writer.Write(fasta);
-                        }
-
-                        if ((Options.OutputType & DatabaseType.Decoy) == DatabaseType.Decoy)
-                        {
-                            writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, (excludeMethionine || Options.ExcludeNTerminalResidue), Options.ExcludeNTerminalMethionine));
-                        }
-                        
-                    } 
-
+                    if (writeDecoy)
+                    {
+                        writer.Write(fasta.ToDecoy(Options.DecoyPrefix, Options.DecoyType, (excludeMethionine || Options.ExcludeNTerminalResidue), Options.ExcludeNTerminalMethionine));
+                    }
                 }
                 
             }
@@ -213,9 +200,14 @@ namespace Coon.Compass.DatabaseMaker
         public const string MakeBlastDBExecutable = "makeblastdb.exe";
         public const string DefaultLogFilename = "blast_log.txt";
         
-        public static void MakeBlastDatabase(string infile, string outputFileName)
+        /// <summary>
+        /// Makes a Blast compatible database file
+        /// </summary>
+        /// <param name="inputFastaFilePath"></param>
+        /// <param name="outputFileName"></param>
+        public static void MakeBlastDatabase(string inputFastaFilePath, string outputFileName)
         {
-            string outputFolder = Path.GetDirectoryName(infile);
+            string outputFolder = Path.GetDirectoryName(inputFastaFilePath);
             Process process = new Process { StartInfo = { CreateNoWindow = true, WorkingDirectory = outputFolder, UseShellExecute = false } };
 
             // Pick makeblastdb.exe from Application Directory Folder
@@ -224,7 +216,7 @@ namespace Coon.Compass.DatabaseMaker
 
             // makeblastdb doesn't like spaces in the filenames...
             // http://stackoverflow.com/questions/15126020/why-multiple-arguments-with-spaces-are-not-interpreted-correctly-in-a-batch-scri
-            process.StartInfo.Arguments = string.Format("-in \\\"\"{0}\"\\\" -out {1} -max_file_sz {2} -logfile {3}", infile, outputFileName, "2GB", DefaultLogFilename);
+            process.StartInfo.Arguments = string.Format("-in \\\"\"{0}\"\\\" -out {1} -max_file_sz {2} -logfile {3}", inputFastaFilePath, outputFileName, "2GB", DefaultLogFilename);
 
             process.Start();
             process.WaitForExit();

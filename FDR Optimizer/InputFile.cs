@@ -32,9 +32,25 @@ namespace Coon.Compass.FdrOptimizer
 
         public bool IsBatched { get; set; }
 
+        public PeptideSpectralMatchScoreType ScoreType { get; set; }
+
         public InputFile(string filePath)
         {
             FilePath = filePath;
+
+            using (StreamReader reader = new StreamReader(FilePath))
+            {
+                string line = reader.ReadLine();
+                if (line.StartsWith("Spectrum number, Filename/id"))
+                {
+                    ScoreType = PeptideSpectralMatchScoreType.OmssaEvalue;
+                }
+                else if (line.StartsWith("#version:"))
+                {
+                    ScoreType = PeptideSpectralMatchScoreType.MSAmanda; 
+                }
+            }
+            
             HasPPMInfo = false;
             IsBatched = false;
             _data = new Dictionary<int, SortedMaxSizedContainer<PSM>>();
@@ -92,12 +108,11 @@ namespace Coon.Compass.FdrOptimizer
         public double PrecursorMassToleranceThreshold { get; set; }
 
         private readonly Dictionary<int, SortedMaxSizedContainer<PSM>> _data;
-        
-        public void Read(IList<Modification> fixedModifications, int numberOfTopHits = 1, bool higherScoresAreBetter = false)
+
+        private void ReadMSAmanad(int numberOfTopHits = 1)
         {
-            _data.Clear();
             bool first = true;
-            using (CsvReader reader = new CsvReader(new StreamReader(FilePath), true))
+            using (CsvReader reader = new CsvReader(new StreamReader(FilePath), true,'\t'))
             {
                 string[] headers = reader.GetFieldHeaders();
                 HasPPMInfo = headers.Contains("Precursor Mass Error (ppm)");
@@ -105,13 +120,13 @@ namespace Coon.Compass.FdrOptimizer
                 {
                     if (first)
                     {
-                        RawFileName = reader["Filename/id"].Split('.')[0];
+                        RawFileName = reader["Title"].Split('.')[0];
                         first = false;
                     }
 
-                    int scanNumber = int.Parse(reader["Spectrum number"]);
+                    int scanNumber = int.Parse(reader["Scan Number"]);
 
-                    PSM psm = new PSM(scanNumber) {Score = double.Parse(reader["E-value"])};
+                    PSM psm = new PSM(scanNumber) { Score = double.Parse(reader["Amanda Score"]), ScoreType = PeptideSpectralMatchScoreType.MSAmanda};
                     SortedMaxSizedContainer<PSM> peptides;
                     if (!_data.TryGetValue(scanNumber, out peptides))
                     {
@@ -121,12 +136,59 @@ namespace Coon.Compass.FdrOptimizer
 
                     if (!peptides.Add(psm))
                         continue;
-                    psm.FileName = reader["Filename/id"];
+                    psm.FileName = reader["Title"];
                     psm.Charge = int.Parse(reader["Charge"]);
-                    psm.IsDecoy = reader["Defline"].StartsWith("DECOY_");
+                    psm.IsDecoy = reader["Protein Accessions"].Contains("DECOY_");
                     if (HasPPMInfo)
                         psm.PrecursorMassError = double.Parse(reader["Precursor Mass Error (ppm)"]);
-                    psm.SetSequenceAndMods(reader["Peptide"].ToUpper(), fixedModifications, reader["Mods"]);
+                    psm.SetSequenceAndMods(reader["Sequence"].ToUpper(), null, reader["Modifications"]);
+                }
+            }
+        }
+
+        public void Read(IList<Modification> fixedModifications, int numberOfTopHits = 1, bool higherScoresAreBetter = false)
+        {
+            _data.Clear();
+          
+            if (ScoreType == PeptideSpectralMatchScoreType.MSAmanda)
+            {
+                ReadMSAmanad(numberOfTopHits);
+            }
+            else
+            {
+                bool first = true;
+
+                using (CsvReader reader = new CsvReader(new StreamReader(FilePath), true))
+                {
+                    string[] headers = reader.GetFieldHeaders();
+                    HasPPMInfo = headers.Contains("Precursor Mass Error (ppm)");
+                    while (reader.ReadNextRecord())
+                    {
+                        if (first)
+                        {
+                            RawFileName = reader["Filename/id"].Split('.')[0];
+                            first = false;
+                        }
+
+                        int scanNumber = int.Parse(reader["Spectrum number"]);
+
+                        PSM psm = new PSM(scanNumber) {Score = double.Parse(reader["E-value"]), ScoreType = PeptideSpectralMatchScoreType.OmssaEvalue};
+                        SortedMaxSizedContainer<PSM> peptides;
+                        if (!_data.TryGetValue(scanNumber, out peptides))
+                        {
+                            peptides = new SortedMaxSizedContainer<PSM>(numberOfTopHits);
+                            _data.Add(scanNumber, peptides);
+                        }
+
+                        if (!peptides.Add(psm))
+                            continue;
+                        psm.FileName = reader["Filename/id"];
+                        psm.Charge = int.Parse(reader["Charge"]);
+                        psm.IsDecoy = reader["Defline"].StartsWith("DECOY_");
+                        if (HasPPMInfo)
+                            psm.PrecursorMassError = double.Parse(reader["Precursor Mass Error (ppm)"]);
+                        psm.SetSequenceAndMods(reader["Peptide"].ToUpper(), fixedModifications, reader["Mods"]);
+                    }
                 }
             }
 

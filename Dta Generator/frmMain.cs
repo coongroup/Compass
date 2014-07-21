@@ -118,6 +118,7 @@ namespace Coon.Compass.DtaGenerator
             bool omssa_text_output = chkOmssaTxtOutput.Checked;
             bool mascot_mgf_output = chkMascotMgfOutput.Checked;
             bool includeLog = includeLogCB.Checked;
+            bool cleanRegardlessOfActivation = cleanRegarlessOfActTypeCB.Checked;
             string output_folder = txtOutputFolder.Text;
 
             double clnPrecursorLowMZ = (double)numericUpDown1.Value;
@@ -149,7 +150,7 @@ namespace Coon.Compass.DtaGenerator
                 rangesToRemove,
                 includeLog,
                 clnPrecursorLowMZ, clnPrecursorHighMZ,
-                etdLowDa, etdHighDa);
+                etdLowDa, etdHighDa, cleanRegardlessOfActivation);
                       
             dta_generator.StartingFile += handleStartingFile;
             dta_generator.UpdateProgress += handleUpdateProgress;
@@ -259,7 +260,7 @@ namespace Coon.Compass.DtaGenerator
 
         private void chkEnableEtdPreProcessing_CheckedChanged(object sender, EventArgs e)
         {
-            numericUpDown3.Enabled = numericUpDown4.Enabled = chkEnableEtdPreProcessing.Checked;
+            cleanRegarlessOfActTypeCB.Enabled = numericUpDown3.Enabled = numericUpDown4.Enabled = chkEnableEtdPreProcessing.Checked;
         }
 
         private void button2_Click(object sender, EventArgs e)

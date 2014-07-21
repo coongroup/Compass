@@ -73,6 +73,7 @@ namespace Coon.Compass.DtaGenerator
             this.chkCleanPrecursor = new System.Windows.Forms.CheckBox();
             this.chkEnableEtdPreProcessing = new System.Windows.Forms.CheckBox();
             this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
+            this.cleanRegarlessOfActTypeCB = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
             this.grpOutputOptions.SuspendLayout();
             this.grpPeakFilteringOptions.SuspendLayout();
@@ -287,6 +288,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.grpPeakFilteringOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpPeakFilteringOptions.Controls.Add(this.cleanRegarlessOfActTypeCB);
             this.grpPeakFilteringOptions.Controls.Add(this.groupBox2);
             this.grpPeakFilteringOptions.Controls.Add(this.label5);
             this.grpPeakFilteringOptions.Controls.Add(this.label6);
@@ -643,6 +645,18 @@ namespace Coon.Compass.DtaGenerator
             this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
             this.ofdRawFiles.Multiselect = true;
             // 
+            // cleanRegarlessOfActTypeCB
+            // 
+            this.cleanRegarlessOfActTypeCB.AutoSize = true;
+            this.cleanRegarlessOfActTypeCB.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanEtdRegardless;
+            this.cleanRegarlessOfActTypeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanEtdRegardless", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.cleanRegarlessOfActTypeCB.Location = new System.Drawing.Point(27, 67);
+            this.cleanRegarlessOfActTypeCB.Name = "cleanRegarlessOfActTypeCB";
+            this.cleanRegarlessOfActTypeCB.Size = new System.Drawing.Size(198, 17);
+            this.cleanRegarlessOfActTypeCB.TabIndex = 131;
+            this.cleanRegarlessOfActTypeCB.Text = "Clean Regardless of Activation Type";
+            this.cleanRegarlessOfActTypeCB.UseVisualStyleBackColor = true;
+            // 
             // frmMain
             // 
             this.AllowDrop = true;
@@ -730,6 +744,7 @@ namespace Coon.Compass.DtaGenerator
         private System.Windows.Forms.NumericUpDown numericUpDown6;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown numericUpDown5;
+        private System.Windows.Forms.CheckBox cleanRegarlessOfActTypeCB;
     }
 }
 

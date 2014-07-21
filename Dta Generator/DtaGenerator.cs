@@ -116,6 +116,7 @@ namespace Coon.Compass.DtaGenerator
 
         public readonly double EtdLowDa;
         public readonly double EtdHighDa;
+        public readonly bool CleanETDRegardlessOfActivationType;
 
         public readonly List<MzRange> RangesToRemove; 
 
@@ -132,7 +133,8 @@ namespace Coon.Compass.DtaGenerator
             double clnPrecursorLowMz = LOW_PRECURSOR_CLEANING_WINDOW_MZ,
             double clnPrecursorHighMz = HIGH_PRECURSOR_CLEANING_WINDOW_MZ,
             double etdLowDa = LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
-            double etdHighDa = HIGH_PRECURSOR_CLEANING_WINDOW_MZ)
+            double etdHighDa = HIGH_PRECURSOR_CLEANING_WINDOW_MZ,
+            bool cleanEtdRegardless = false)
         {
             this.rawFilepaths = rawFilepaths;
             this.minimumAssumedPrecursorChargeState = minimumAssumedPrecursorChargeState;
@@ -158,6 +160,7 @@ namespace Coon.Compass.DtaGenerator
 
             EtdLowDa = etdLowDa;
             EtdHighDa = etdHighDa;
+            CleanETDRegardlessOfActivationType = cleanEtdRegardless;
 
             LogFolder = Path.Combine(outputFolder, "log");
             NeutralLossesIncluded = (neutralLosses != null && neutralLosses.Count > 0);
@@ -718,7 +721,7 @@ namespace Coon.Compass.DtaGenerator
                     List<IRange<double>> mzRangesToRemove = new List<IRange<double>>(RangesToRemove);
 
                     // Precursor cleaning
-                    if (cleanPrecursor || (enableEtdPreProcessing && isETD))
+                    if (cleanPrecursor || (enableEtdPreProcessing && (isETD || CleanETDRegardlessOfActivationType)))
                     {
                         CleanPrecursor(mzRangesToRemove, precursorMZ, CleanPrecursorLowMz, CleanPrecursorHighMz);
                     }
@@ -736,7 +739,7 @@ namespace Coon.Compass.DtaGenerator
                     }
 
                     // ETD pre-processing
-                    if (enableEtdPreProcessing && isETD)
+                    if (enableEtdPreProcessing && (isETD || CleanETDRegardlessOfActivationType))
                     {
                         CleanETD(mzRangesToRemove, precursorMass, precursorZ, EtdLowDa, EtdHighDa);
                     }

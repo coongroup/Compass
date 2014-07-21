@@ -456,6 +456,21 @@ namespace Coon.Compass.FdrOptimizer
                 Log(string.Format("{0:N0} peptides ({1:N0} decoys FDR = {2:F4}) in total [Batched]", batchTotalPeptides, batchTotalDecoyPeptides, peptideFDR));
             }
 
+            // Write out settings
+            summaryWriter.WriteLine();
+            summaryWriter.WriteLine("FDR Optimizer, {0}-bit (v{1})", IntPtr.Size * 8, Assembly.GetExecutingAssembly().GetName().Version);
+            summaryWriter.WriteLine("2D FDR, {0}", _is2DFDR);
+            summaryWriter.WriteLine("Batched, {0}", _isBatched);
+            summaryWriter.WriteLine("Reduce PSMs, {0}", _uniquePeptideType);
+            summaryWriter.WriteLine("Maximum FDR, {0}%", _maximumFalseDiscoveryRate * 100);
+            summaryWriter.WriteLine("Maximum PPM error, {0}", _maximumPPMError);
+            summaryWriter.WriteLine("Include fixed mods, {0}", _includeFixedMods);
+            foreach (var mod in _fixedModifications)
+            {
+                summaryWriter.WriteLine(", {0}", mod.NameAndSites);
+            }
+
+
             foreach (StreamWriter writer in openWriters)
             {
                 writer.Close();

@@ -245,6 +245,7 @@ namespace Coon.Compass.FdrOptimizer
                 {
                     psm.Charge *= (int)polarity; // For negative mode ions
                     psm.IsolationMz = isolationMZ;
+                    psm.RetentionTimeSeconds = dataFile.GetRetentionTime(psm.SpectrumNumber) * 60.0;
                     double isolationMass = Mass.MassFromMz(isolationMZ, psm.Charge);
                     double theoreticalMass = psm.MonoisotopicMass;
                     int nominalMassOffset;

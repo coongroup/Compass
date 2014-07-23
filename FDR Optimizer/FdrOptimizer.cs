@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using CSMSL.Analysis.Identification;
 using CSMSL.IO;
+using CSMSL.IO.MzTab;
 using CSMSL.IO.Thermo;
 using CSMSL.Chemistry;
 using CSMSL.Proteomics;
@@ -16,6 +18,8 @@ namespace Coon.Compass.FdrOptimizer
 {
     public class FdrOptimizer
     {
+        private Regex accessionRegex = new Regex(@"\|(.+)\|", RegexOptions.Compiled);
+
         private List<Peptide> _allPeptides;
 
         public event EventHandler Starting;
@@ -153,6 +157,25 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
+        private enum OmssaCvnColumns
+        {
+            Spectrum = 0,
+            FileName = 1,
+            Sequence = 2,
+            EValue = 3,
+            Mass = 4,
+            GI = 5,
+            Accession = 6,
+            Start = 7,
+            Stop = 8,
+            Defline = 9,
+            Mods = 10,
+            Charge = 11,
+            TheorecticalMass = 12,
+            PValue = 13,
+            NISTScore = 14
+        }
+
         private void WriteFiles(IEnumerable<InputFile> csvFiles, bool isBatched = false)
         {
             Log("Writing output files...");
@@ -185,6 +208,13 @@ namespace Coon.Compass.FdrOptimizer
                 overallBestPsms = _allPeptides.ToDictionary(pep => pep.BestMatch);
             }
             
+            MzTabMetaData metaData = new MzTabMetaData(description: "FDR Optimizer Output");
+
+            Dictionary<string, int> mzTabIDs = new Dictionary<string, int>();
+            metaData.MsRunLocations = new List<string>();
+            List<MzTabPSM> mzTabPsms = new List<MzTabPSM>();
+            int mzTabPsmId = 1;
+
             summaryWriter.WriteLine("CSV File,Raw File,Total MS Spectra,Total MS/MS Spectra,Average MS/MS Inj Time (ms),Max MS/MS Inj Time (ms),Average # of MS/MS per Cycle, Max # of MS/MS per Cycle,Total Scored Spectra,Total PSMs,Systematic Precursor Mass Error (ppm),Maximum Precursor Mass Error (ppm),E-Value Threshold,PSMs,Decoy PSMs,PSM FDR (%),Peptides,Decoy Peptides,Peptide FDR (%)");
             StringBuilder summaryStringBuilder = new StringBuilder();
             int totalPsms = 0;
@@ -199,6 +229,8 @@ namespace Coon.Compass.FdrOptimizer
             int totalMSMS = 0;
             foreach (InputFile csvFile in csvFiles)
             {
+                metaData.MsRunLocations.Add(csvFile.RawFilePath);
+
                 summaryStringBuilder.Clear();
                 string outputTargetFile = Path.Combine(_outputPsmFolder,
                     Path.GetFileNameWithoutExtension(csvFile.FilePath) + "_psms.csv");
@@ -266,12 +298,9 @@ namespace Coon.Compass.FdrOptimizer
                 summaryStringBuilder.Append(decoys);
                 summaryStringBuilder.Append(',');
                 summaryStringBuilder.Append(100*decoys/(double) targets);
-
-
+                
                 if (csvFile.ScoreType == PeptideSpectralMatchScoreType.OmssaEvalue)
                 {
-                
-
                     using (StreamWriter targetWriter = new StreamWriter(outputTargetFile),
                         decoyWriter = new StreamWriter(outputDecoyFile),
                         scansWriter = new StreamWriter(outputScansFile),
@@ -290,8 +319,7 @@ namespace Coon.Compass.FdrOptimizer
                         {
                             string[] headers = reader.GetFieldHeaders();
                             int headerCount = headers.Length;
-                            int modsColumnIndex = 10; //reader.GetFieldIndex("Mods");
-                            int chargeColumnIndex = 11;
+                           
                             string[] data = new string[headerCount];
 
                             decoyWriter.WriteLine(headerLine);
@@ -319,10 +347,27 @@ namespace Coon.Compass.FdrOptimizer
                                     continue;
                                 string fileName = reader["Filename/id"];
                                 string sequence = reader["Peptide"].ToUpper();
-
+                                
                                 if (allPsms.TryGetValue(fileName + sequence, out psm))
                                 {
                                     bool isNegative = psm.Charge < 0;
+
+                                    MzTabPSM mztabPsm = new MzTabPSM();
+                                    mzTabPsms.Add(mztabPsm);
+
+                                    string seq = psm.Peptide.Sequence;
+                                    int id;
+                                    if (!mzTabIDs.TryGetValue(seq, out id))
+                                    {
+                                        id = mzTabIDs.Count + 1;
+                                        mzTabIDs.Add(seq, id);
+                                    }
+
+                                    mztabPsm.Sequence = psm.Peptide.Sequence;
+                                    mztabPsm.ID = id;
+                                    mztabPsm.SearchEngines = new List<CVParamater>() { "[MS,MS:1001475,OMSSA,]" };
+                                    mztabPsm.SpectraReference = "ms_run[1]:scan=" + spectralNumber;
+                                    mztabPsm.RetentionTime = new List<double>() { psm.RetentionTimeSeconds };
 
                                     scansProcessed.Add(spectralNumber);
                                     sb.Clear();
@@ -331,18 +376,29 @@ namespace Coon.Compass.FdrOptimizer
                                     {
                                         string datum = data[i];
 
-                                        if (_includeFixedMods && i == modsColumnIndex)
+                                        switch (i)
                                         {
-                                            datum = OmssaModification.WriteModificationString(psm.Peptide);
+                                            case (int)OmssaCvnColumns.EValue:
+                                                mztabPsm.SearchEngineScores = new List<double>() { double.Parse(datum) }; break;
+                                            case (int)OmssaCvnColumns.Start:
+                                                mztabPsm.StartResiduePosition = int.Parse(datum); break;
+                                            case (int)OmssaCvnColumns.Stop:
+                                                mztabPsm.EndResiduePosition = int.Parse(datum); break;
+                                            case (int)OmssaCvnColumns.Accession:
+                                                mztabPsm.Accession = "TBD"; break;
+                                            case (int)OmssaCvnColumns.Charge:
+                                                mztabPsm.Charge = psm.Charge;
+                                                if (isNegative)
+                                                {
+                                                    datum = psm.Charge.ToString();
+                                                }
+                                                break;
+                                            case (int)OmssaCvnColumns.Mods:
+                                                if (_includeFixedMods)
+                                                    datum = OmssaModification.WriteModificationString(psm.Peptide);
+                                                break;
                                         }
-
-                                        // Replace the charge if negative
-                                        if (isNegative && i == chargeColumnIndex)
-                                        {
-                                            sb.Append(psm.Charge);
-                                            sb.Append(',');
-                                            continue;
-                                        }
+                                        
 
                                         if (datum.Contains('"'))
                                             datum = datum.Replace("\"", "\"\"");
@@ -362,11 +418,15 @@ namespace Coon.Compass.FdrOptimizer
                                     }
                                     sb.Append(psm.IsolationMz);
                                     sb.Append(',');
-                                    sb.Append(Mass.MzFromMass(psm.MonoisotopicMass, psm.Charge));
+                                    double theoMZ = Mass.MzFromMass(psm.MonoisotopicMass, psm.Charge);
+                                    sb.Append(theoMZ);
+                                    mztabPsm.TheoreticalMZ = theoMZ;
                                     sb.Append(',');
                                     sb.Append(psm.IsotopeSelected);
                                     sb.Append(',');
-                                    sb.Append(Mass.MzFromMass(psm.AdjustedIsolationMass, psm.Charge));
+                                    double experimentalMZ = Mass.MzFromMass(psm.AdjustedIsolationMass, psm.Charge);
+                                    sb.Append(experimentalMZ);
+                                    mztabPsm.ExperimentalMZ = experimentalMZ;
                                     sb.Append(',');
                                     sb.Append(psm.PrecursorMassError);
                                     sb.Append(',');
@@ -470,7 +530,19 @@ namespace Coon.Compass.FdrOptimizer
                 summaryWriter.WriteLine(", {0}", mod.NameAndSites);
             }
 
+            // mzTab outputs
 
+            string mztabLocation = Path.Combine(_outputFolder,
+                    string.Format("FDR summary_{0:yyyyMMddhhmmss}.mzTab", DateTime.Now));
+            
+            using (MzTabWriter mzTabWriter = new MzTabWriter(mztabLocation))
+            {
+                mzTabWriter.WriteComment("Experimental FDR optimizer output in mzTab format");
+                mzTabWriter.WriteMetaData(metaData);
+                mzTabWriter.WriteLine();
+                mzTabWriter.WritePsmData(mzTabPsms);
+            }
+            
             foreach (StreamWriter writer in openWriters)
             {
                 writer.Close();
@@ -479,32 +551,32 @@ namespace Coon.Compass.FdrOptimizer
 
         private void ReducePsms(IList<InputFile> csvFiles, UniquePeptideType uniquePeptideType, bool isBatched = false)
         {
-            string msg = "Converting PSMs into unique peptides based ";
+            string msg = "Converting PSMs into unique peptides based on ";
             IEqualityComparer<Peptide> comparer;
             switch (uniquePeptideType)
             {
                 default:
-                    msg += "on sequence only";
+                    msg += "sequence only";
                     comparer = new SequenceComparer();
                     break;
                 case UniquePeptideType.Mass:
-                    msg += "on mass";
+                    msg += "mass";
                     comparer = new MassComparer();
                     break;
                 case UniquePeptideType.SequenceAndModifications:
-                    msg += "on sequence and positional modifications";
+                    msg += "sequence and positional modifications";
                     comparer = new SequenceModComparer();
                     break;
                 case UniquePeptideType.SequenceAndModLocations:
-                    msg += "on sequence and modification locations";
+                    msg += "sequence and modification locations";
                     comparer = new SequenceAndModPositionComparer();
                     break;
                 case UniquePeptideType.SequenceAndMass:
-                    msg += "on sequence and mass";
+                    msg += "sequence and mass";
                     comparer = new SequenceMassComparer();
                     break;
                 case UniquePeptideType.Nothing:
-                    msg += "on nothing (no reduction)";
+                    msg += "nothing (no reduction)";
                     comparer = new IdentityComparer<Peptide>();
                     break;
             }
@@ -542,16 +614,19 @@ namespace Coon.Compass.FdrOptimizer
         
         private Tuple<double,double> CalculateBestPPMError(IEnumerable<Peptide> inputPeptides, double maximumFalseDisoveryRate = 0.01, int steps = 10, double minimumIncrement = 0.05)
         {
-            List<Peptide> peptides = inputPeptides.OrderBy(pep => pep.CorrectedPrecursorErrorPPM).ToList();
+            var peptideComparer = Comparer<Peptide>.Default;
+            //List<Peptide> peptides = inputPeptides.OrderBy(pep => pep.CorrectedPrecursorErrorPPM).ThenBy(pep => pep.BestMatch).ToList();
+            List<Peptide> peptides = inputPeptides.OrderBy(pep => pep.BestMatch).ToList();
+           // peptides.Sort(peptideComparer);
 
             PeptideSpectralMatchScoreType scoreType = peptides[0].BestMatch.ScoreType;
 
-            double[] precursorPPMs = peptides.Select(pep => pep.CorrectedPrecursorErrorPPM).ToArray();
+           // double[] precursorPPMs = peptides.Select(pep => pep.CorrectedPrecursorErrorPPM).ToArray();
 
             double bestppmError = 0;
-            double max = peptides[peptides.Count - 1].CorrectedPrecursorErrorPPM;
+            double max = peptides.Max(pep => pep.CorrectedPrecursorErrorPPM);
             double maxPrecursorError = Math.Min(max, _maximumPPMError);
-            double minPrecursorError = 0;
+            const double minPrecursorError = 0;
 
             double increment = (maxPrecursorError - minPrecursorError)/steps;
 
@@ -559,16 +634,17 @@ namespace Coon.Compass.FdrOptimizer
 
             double bestCount = 0;
 
-            var peptideComparer = Comparer<Peptide>.Default;
             var scoreComparer = Comparer<double>.Create((a,b) => a.CompareTo(b) * Math.Sign((int)scoreType));
 
             for (double ppmError = minPrecursorError; ppmError <= maxPrecursorError; ppmError += increment)
             {
-                int index = Array.BinarySearch(precursorPPMs, ppmError);
-                if (index < 0)
-                    index = ~index;
-
-                int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index).ToList(), peptideComparer, scoreComparer, maximumFalseDisoveryRate);
+                List<Peptide> testPeptides = peptides.Where(pep => pep.CorrectedPrecursorErrorPPM <= ppmError).ToList();
+                //int index = Array.BinarySearch(precursorPPMs, ppmError);
+                //if (index < 0)
+                //    index = ~index;
+                
+                //int count = FalseDiscoveryRate<Peptide, double>.Count(peptides.Take(index).ToList(), peptideComparer, scoreComparer, maximumFalseDisoveryRate, preSorted: false);
+                int count = FalseDiscoveryRate<Peptide, double>.Count(testPeptides, peptideComparer, scoreComparer, maximumFalseDisoveryRate, preSorted: true);
 
                 if (count <= bestCount)
                     continue;
@@ -717,6 +793,7 @@ namespace Coon.Compass.FdrOptimizer
                     dataFile.Open();
                     csvFile.UpdatePsmInformation(dataFile, _is2DFDR, useMedian, _evalueThresholdPPMError);
                 }
+
                 if (_is2DFDR)
                 {
                     Log(string.Format("{0:F2} ppm {1} precursor mass error in {2}",

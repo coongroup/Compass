@@ -24,6 +24,8 @@ namespace Coon.Compass.FdrOptimizer
 
         public int IsotopeSelected { get; set; }
 
+        public double RetentionTimeSeconds { get; set; }
+
         public double AdjustedIsolationMass { get; set; }
 
         public double PrecursorMassError { get; set; }

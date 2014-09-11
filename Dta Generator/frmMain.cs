@@ -119,6 +119,7 @@ namespace Coon.Compass.DtaGenerator
             bool mascot_mgf_output = chkMascotMgfOutput.Checked;
             bool includeLog = includeLogCB.Checked;
             bool cleanRegardlessOfActivation = cleanRegarlessOfActTypeCB.Checked;
+            bool groupByFragMethod = groupByFragMethodCB.Checked;
             string output_folder = txtOutputFolder.Text;
 
             double clnPrecursorLowMZ = (double)numericUpDown1.Value;
@@ -150,7 +151,7 @@ namespace Coon.Compass.DtaGenerator
                 rangesToRemove,
                 includeLog,
                 clnPrecursorLowMZ, clnPrecursorHighMZ,
-                etdLowDa, etdHighDa, cleanRegardlessOfActivation);
+                etdLowDa, etdHighDa, cleanRegardlessOfActivation, groupByFragMethod);
                       
             dta_generator.StartingFile += handleStartingFile;
             dta_generator.UpdateProgress += handleUpdateProgress;

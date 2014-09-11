@@ -117,6 +117,7 @@ namespace Coon.Compass.DtaGenerator
         public readonly double EtdLowDa;
         public readonly double EtdHighDa;
         public readonly bool CleanETDRegardlessOfActivationType;
+        public readonly bool SegementByFragmentationType;
 
         public readonly List<MzRange> RangesToRemove; 
 
@@ -134,7 +135,8 @@ namespace Coon.Compass.DtaGenerator
             double clnPrecursorHighMz = HIGH_PRECURSOR_CLEANING_WINDOW_MZ,
             double etdLowDa = LOW_NEUTRAL_LOSS_CLEANING_WINDOW_DA,
             double etdHighDa = HIGH_PRECURSOR_CLEANING_WINDOW_MZ,
-            bool cleanEtdRegardless = false)
+            bool cleanEtdRegardless = false,
+            bool segmentByFragmentationType = true)
         {
             this.rawFilepaths = rawFilepaths;
             this.minimumAssumedPrecursorChargeState = minimumAssumedPrecursorChargeState;
@@ -161,7 +163,7 @@ namespace Coon.Compass.DtaGenerator
             EtdLowDa = etdLowDa;
             EtdHighDa = etdHighDa;
             CleanETDRegardlessOfActivationType = cleanEtdRegardless;
-
+            SegementByFragmentationType = segmentByFragmentationType;
             LogFolder = Path.Combine(outputFolder, "log");
             NeutralLossesIncluded = (neutralLosses != null && neutralLosses.Count > 0);
         }
@@ -294,7 +296,7 @@ namespace Coon.Compass.DtaGenerator
             }
         }
 
-        private void ProcessFile(string msDataFile, bool includeLog = false, bool groupByFragmentation = true)
+        private void ProcessFile(string msDataFile, bool includeLog = false, bool groupByFragmentationEnergyOrTime = true)
         {
             IXRawfile5 raw = null;
             StreamWriter log = null;          
@@ -632,7 +634,7 @@ namespace Coon.Compass.DtaGenerator
 
                 string fragmentation_method = null;
                 
-                if (groupByFragmentation)
+                if (groupByFragmentationEnergyOrTime)
                 {
                     foreach (int i in AllIndicesOf(scan_filter, '@'))
                     {
@@ -651,8 +653,12 @@ namespace Coon.Compass.DtaGenerator
 
                 fragmentation_method = fragmentation_method.Substring(0, fragmentation_method.Length - 1);
 
-                string base_output_filename = Path.GetFileNameWithoutExtension(filepath) + '_' + mass_analyzer +
-                                              '_' + fragmentation_method;
+
+                string base_output_filename = Path.GetFileNameWithoutExtension(filepath) + '_' + mass_analyzer;
+                if (SegementByFragmentationType)
+                {
+                    base_output_filename += '_' + fragmentation_method;
+                }
                 
                 if (includeLog)
                 {
@@ -697,8 +703,8 @@ namespace Coon.Compass.DtaGenerator
                 
                 if (sequestDtaOutput || omssaTxtOutput || mascotMgfOutput)
                 {
-                    Spectrum spectrum = new Spectrum(data);
-                    
+                    MZSpectrum spectrum = new MZSpectrum(data);
+                   
                     double retention_time_min = double.NaN;
                     raw.RTFromScanNum(scanNumber, ref retention_time_min);
                     double retention_time_s = retention_time_min * 60;
@@ -1088,11 +1094,16 @@ namespace Coon.Compass.DtaGenerator
                     //}
                     
                     // Perform the actual cleaning
-                    var cleanedSpectrum = spectrum.Filter(mzRangesToRemove);
+                    var cleanedSpectrum = spectrum.FilterByMZ(mzRangesToRemove);
 
                     int cleanSpectrumLength = cleanedSpectrum.Count;
                     double[] mzs = cleanedSpectrum.GetMasses();
                     double[] intenisties = cleanedSpectrum.GetIntensities();
+
+                    if (mzs == null || intenisties == null)
+                    {
+                        continue;
+                    }
 
                     if (sequestDtaOutput)
                     {

@@ -42,21 +42,13 @@ namespace Coon.Compass.DtaGenerator
             this.grpOutputOptions = new System.Windows.Forms.GroupBox();
             this.button1 = new System.Windows.Forms.Button();
             this.includeLogCB = new System.Windows.Forms.CheckBox();
-            this.chkMascotMgfOutput = new System.Windows.Forms.CheckBox();
-            this.chkSequestDtaOutput = new System.Windows.Forms.CheckBox();
-            this.chkOmssaTxtOutput = new System.Windows.Forms.CheckBox();
-            this.chkGroupByActivationEnergyTime = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.txtOutputFolder = new System.Windows.Forms.TextBox();
             this.grpPeakFilteringOptions = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.chkCleanItraq8Plex = new System.Windows.Forms.CheckBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.chkCleanItraq4Plex = new System.Windows.Forms.CheckBox();
-            this.chkCleanTmt6Plex = new System.Windows.Forms.CheckBox();
             this.button2 = new System.Windows.Forms.Button();
-            this.chkCleanTmtDuplex = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.numericUpDown6 = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
@@ -70,10 +62,19 @@ namespace Coon.Compass.DtaGenerator
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
+            this.groupByFragMethodCB = new System.Windows.Forms.CheckBox();
+            this.chkMascotMgfOutput = new System.Windows.Forms.CheckBox();
+            this.chkSequestDtaOutput = new System.Windows.Forms.CheckBox();
+            this.chkOmssaTxtOutput = new System.Windows.Forms.CheckBox();
+            this.chkGroupByActivationEnergyTime = new System.Windows.Forms.CheckBox();
+            this.cleanRegarlessOfActTypeCB = new System.Windows.Forms.CheckBox();
+            this.chkCleanItraq8Plex = new System.Windows.Forms.CheckBox();
+            this.chkCleanItraq4Plex = new System.Windows.Forms.CheckBox();
+            this.chkCleanTmt6Plex = new System.Windows.Forms.CheckBox();
+            this.chkCleanTmtDuplex = new System.Windows.Forms.CheckBox();
             this.chkCleanPrecursor = new System.Windows.Forms.CheckBox();
             this.chkEnableEtdPreProcessing = new System.Windows.Forms.CheckBox();
-            this.ofdRawFiles = new System.Windows.Forms.OpenFileDialog();
-            this.cleanRegarlessOfActTypeCB = new System.Windows.Forms.CheckBox();
             this.contextMenuStrip1.SuspendLayout();
             this.grpOutputOptions.SuspendLayout();
             this.grpPeakFilteringOptions.SuspendLayout();
@@ -170,6 +171,7 @@ namespace Coon.Compass.DtaGenerator
             // 
             this.grpOutputOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpOutputOptions.Controls.Add(this.groupByFragMethodCB);
             this.grpOutputOptions.Controls.Add(this.button1);
             this.grpOutputOptions.Controls.Add(this.includeLogCB);
             this.grpOutputOptions.Controls.Add(this.chkMascotMgfOutput);
@@ -204,55 +206,6 @@ namespace Coon.Compass.DtaGenerator
             this.includeLogCB.TabIndex = 107;
             this.includeLogCB.Text = "Include Log Files";
             this.includeLogCB.UseVisualStyleBackColor = true;
-            // 
-            // chkMascotMgfOutput
-            // 
-            this.chkMascotMgfOutput.AutoSize = true;
-            this.chkMascotMgfOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.mascotMgfOutput;
-            this.chkMascotMgfOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "mascotMgfOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkMascotMgfOutput.Location = new System.Drawing.Point(258, 51);
-            this.chkMascotMgfOutput.Name = "chkMascotMgfOutput";
-            this.chkMascotMgfOutput.Size = new System.Drawing.Size(119, 17);
-            this.chkMascotMgfOutput.TabIndex = 106;
-            this.chkMascotMgfOutput.Text = "Mascot .mgf Output";
-            this.chkMascotMgfOutput.UseVisualStyleBackColor = true;
-            // 
-            // chkSequestDtaOutput
-            // 
-            this.chkSequestDtaOutput.AutoSize = true;
-            this.chkSequestDtaOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.sequestDtaOutput;
-            this.chkSequestDtaOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "sequestDtaOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkSequestDtaOutput.Location = new System.Drawing.Point(9, 51);
-            this.chkSequestDtaOutput.Name = "chkSequestDtaOutput";
-            this.chkSequestDtaOutput.Size = new System.Drawing.Size(121, 17);
-            this.chkSequestDtaOutput.TabIndex = 102;
-            this.chkSequestDtaOutput.Text = "Sequest .dta Output";
-            this.chkSequestDtaOutput.UseVisualStyleBackColor = true;
-            // 
-            // chkOmssaTxtOutput
-            // 
-            this.chkOmssaTxtOutput.AutoSize = true;
-            this.chkOmssaTxtOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.omssaTxtOutput;
-            this.chkOmssaTxtOutput.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkOmssaTxtOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "omssaTxtOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkOmssaTxtOutput.Location = new System.Drawing.Point(136, 51);
-            this.chkOmssaTxtOutput.Name = "chkOmssaTxtOutput";
-            this.chkOmssaTxtOutput.Size = new System.Drawing.Size(116, 17);
-            this.chkOmssaTxtOutput.TabIndex = 101;
-            this.chkOmssaTxtOutput.Text = "OMSSA .txt Output";
-            this.chkOmssaTxtOutput.UseVisualStyleBackColor = true;
-            // 
-            // chkGroupByActivationEnergyTime
-            // 
-            this.chkGroupByActivationEnergyTime.AutoSize = true;
-            this.chkGroupByActivationEnergyTime.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.groupByActivationEnergyTime;
-            this.chkGroupByActivationEnergyTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "groupByActivationEnergyTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkGroupByActivationEnergyTime.Location = new System.Drawing.Point(9, 22);
-            this.chkGroupByActivationEnergyTime.Name = "chkGroupByActivationEnergyTime";
-            this.chkGroupByActivationEnergyTime.Size = new System.Drawing.Size(189, 17);
-            this.chkGroupByActivationEnergyTime.TabIndex = 100;
-            this.chkGroupByActivationEnergyTime.Text = "Group by Activation Energy / Time";
-            this.chkGroupByActivationEnergyTime.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -327,19 +280,6 @@ namespace Coon.Compass.DtaGenerator
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Fixed Mass Range";
             // 
-            // chkCleanItraq8Plex
-            // 
-            this.chkCleanItraq8Plex.AutoSize = true;
-            this.chkCleanItraq8Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq8Plex;
-            this.chkCleanItraq8Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq8Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanItraq8Plex.Location = new System.Drawing.Point(253, 94);
-            this.chkCleanItraq8Plex.Name = "chkCleanItraq8Plex";
-            this.chkCleanItraq8Plex.Size = new System.Drawing.Size(89, 17);
-            this.chkCleanItraq8Plex.TabIndex = 104;
-            this.chkCleanItraq8Plex.Text = "iTRAQ 8-plex";
-            this.chkCleanItraq8Plex.UseVisualStyleBackColor = true;
-            this.chkCleanItraq8Plex.CheckedChanged += new System.EventHandler(this.chkCleanItraq8Plex_CheckedChanged);
-            // 
             // listBox1
             // 
             this.listBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -351,32 +291,6 @@ namespace Coon.Compass.DtaGenerator
             this.listBox1.TabIndex = 136;
             this.listBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBox1_KeyDown);
             // 
-            // chkCleanItraq4Plex
-            // 
-            this.chkCleanItraq4Plex.AutoSize = true;
-            this.chkCleanItraq4Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq4Plex;
-            this.chkCleanItraq4Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq4Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanItraq4Plex.Location = new System.Drawing.Point(253, 73);
-            this.chkCleanItraq4Plex.Name = "chkCleanItraq4Plex";
-            this.chkCleanItraq4Plex.Size = new System.Drawing.Size(89, 17);
-            this.chkCleanItraq4Plex.TabIndex = 91;
-            this.chkCleanItraq4Plex.Text = "iTRAQ 4-plex";
-            this.chkCleanItraq4Plex.UseVisualStyleBackColor = true;
-            this.chkCleanItraq4Plex.CheckedChanged += new System.EventHandler(this.chkCleanItraq4Plex_CheckedChanged);
-            // 
-            // chkCleanTmt6Plex
-            // 
-            this.chkCleanTmt6Plex.AutoSize = true;
-            this.chkCleanTmt6Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmt6Plex;
-            this.chkCleanTmt6Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmt6Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanTmt6Plex.Location = new System.Drawing.Point(253, 52);
-            this.chkCleanTmt6Plex.Name = "chkCleanTmt6Plex";
-            this.chkCleanTmt6Plex.Size = new System.Drawing.Size(81, 17);
-            this.chkCleanTmt6Plex.TabIndex = 93;
-            this.chkCleanTmt6Plex.Text = "TMT 6-Plex";
-            this.chkCleanTmt6Plex.UseVisualStyleBackColor = true;
-            this.chkCleanTmt6Plex.CheckedChanged += new System.EventHandler(this.chkCleanTmt6Plex_CheckedChanged);
-            // 
             // button2
             // 
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -387,19 +301,6 @@ namespace Coon.Compass.DtaGenerator
             this.button2.Text = "Add";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // chkCleanTmtDuplex
-            // 
-            this.chkCleanTmtDuplex.AutoSize = true;
-            this.chkCleanTmtDuplex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmtDuplex;
-            this.chkCleanTmtDuplex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmtDuplex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.chkCleanTmtDuplex.Location = new System.Drawing.Point(253, 29);
-            this.chkCleanTmtDuplex.Name = "chkCleanTmtDuplex";
-            this.chkCleanTmtDuplex.Size = new System.Drawing.Size(85, 17);
-            this.chkCleanTmtDuplex.TabIndex = 92;
-            this.chkCleanTmtDuplex.Text = "TMT Duplex";
-            this.chkCleanTmtDuplex.UseVisualStyleBackColor = true;
-            this.chkCleanTmtDuplex.CheckedChanged += new System.EventHandler(this.chkCleanTmtDuplex_CheckedChanged);
             // 
             // label7
             // 
@@ -612,6 +513,137 @@ namespace Coon.Compass.DtaGenerator
             this.linkLabel1.Text = "(i.e. the Good algorithm)";
             this.linkLabel1.Click += new System.EventHandler(this.linkLabel1_Click);
             // 
+            // ofdRawFiles
+            // 
+            this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
+            this.ofdRawFiles.Multiselect = true;
+            // 
+            // groupByFragMethodCB
+            // 
+            this.groupByFragMethodCB.AutoSize = true;
+            this.groupByFragMethodCB.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.groupByFragMethod;
+            this.groupByFragMethodCB.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.groupByFragMethodCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "groupByFragMethod", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.groupByFragMethodCB.Location = new System.Drawing.Point(204, 22);
+            this.groupByFragMethodCB.Name = "groupByFragMethodCB";
+            this.groupByFragMethodCB.Size = new System.Drawing.Size(178, 17);
+            this.groupByFragMethodCB.TabIndex = 110;
+            this.groupByFragMethodCB.Text = "Group by Fragmentation Method";
+            this.groupByFragMethodCB.UseVisualStyleBackColor = true;
+            // 
+            // chkMascotMgfOutput
+            // 
+            this.chkMascotMgfOutput.AutoSize = true;
+            this.chkMascotMgfOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.mascotMgfOutput;
+            this.chkMascotMgfOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "mascotMgfOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkMascotMgfOutput.Location = new System.Drawing.Point(258, 51);
+            this.chkMascotMgfOutput.Name = "chkMascotMgfOutput";
+            this.chkMascotMgfOutput.Size = new System.Drawing.Size(119, 17);
+            this.chkMascotMgfOutput.TabIndex = 106;
+            this.chkMascotMgfOutput.Text = "Mascot .mgf Output";
+            this.chkMascotMgfOutput.UseVisualStyleBackColor = true;
+            // 
+            // chkSequestDtaOutput
+            // 
+            this.chkSequestDtaOutput.AutoSize = true;
+            this.chkSequestDtaOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.sequestDtaOutput;
+            this.chkSequestDtaOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "sequestDtaOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkSequestDtaOutput.Location = new System.Drawing.Point(9, 51);
+            this.chkSequestDtaOutput.Name = "chkSequestDtaOutput";
+            this.chkSequestDtaOutput.Size = new System.Drawing.Size(121, 17);
+            this.chkSequestDtaOutput.TabIndex = 102;
+            this.chkSequestDtaOutput.Text = "Sequest .dta Output";
+            this.chkSequestDtaOutput.UseVisualStyleBackColor = true;
+            // 
+            // chkOmssaTxtOutput
+            // 
+            this.chkOmssaTxtOutput.AutoSize = true;
+            this.chkOmssaTxtOutput.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.omssaTxtOutput;
+            this.chkOmssaTxtOutput.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkOmssaTxtOutput.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "omssaTxtOutput", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkOmssaTxtOutput.Location = new System.Drawing.Point(136, 51);
+            this.chkOmssaTxtOutput.Name = "chkOmssaTxtOutput";
+            this.chkOmssaTxtOutput.Size = new System.Drawing.Size(116, 17);
+            this.chkOmssaTxtOutput.TabIndex = 101;
+            this.chkOmssaTxtOutput.Text = "OMSSA .txt Output";
+            this.chkOmssaTxtOutput.UseVisualStyleBackColor = true;
+            // 
+            // chkGroupByActivationEnergyTime
+            // 
+            this.chkGroupByActivationEnergyTime.AutoSize = true;
+            this.chkGroupByActivationEnergyTime.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.groupByActivationEnergyTime;
+            this.chkGroupByActivationEnergyTime.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "groupByActivationEnergyTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkGroupByActivationEnergyTime.Location = new System.Drawing.Point(9, 22);
+            this.chkGroupByActivationEnergyTime.Name = "chkGroupByActivationEnergyTime";
+            this.chkGroupByActivationEnergyTime.Size = new System.Drawing.Size(189, 17);
+            this.chkGroupByActivationEnergyTime.TabIndex = 100;
+            this.chkGroupByActivationEnergyTime.Text = "Group by Activation Energy / Time";
+            this.chkGroupByActivationEnergyTime.UseVisualStyleBackColor = true;
+            // 
+            // cleanRegarlessOfActTypeCB
+            // 
+            this.cleanRegarlessOfActTypeCB.AutoSize = true;
+            this.cleanRegarlessOfActTypeCB.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanEtdRegardless;
+            this.cleanRegarlessOfActTypeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanEtdRegardless", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.cleanRegarlessOfActTypeCB.Location = new System.Drawing.Point(27, 67);
+            this.cleanRegarlessOfActTypeCB.Name = "cleanRegarlessOfActTypeCB";
+            this.cleanRegarlessOfActTypeCB.Size = new System.Drawing.Size(198, 17);
+            this.cleanRegarlessOfActTypeCB.TabIndex = 131;
+            this.cleanRegarlessOfActTypeCB.Text = "Clean Regardless of Activation Type";
+            this.cleanRegarlessOfActTypeCB.UseVisualStyleBackColor = true;
+            // 
+            // chkCleanItraq8Plex
+            // 
+            this.chkCleanItraq8Plex.AutoSize = true;
+            this.chkCleanItraq8Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq8Plex;
+            this.chkCleanItraq8Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq8Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanItraq8Plex.Location = new System.Drawing.Point(253, 94);
+            this.chkCleanItraq8Plex.Name = "chkCleanItraq8Plex";
+            this.chkCleanItraq8Plex.Size = new System.Drawing.Size(89, 17);
+            this.chkCleanItraq8Plex.TabIndex = 104;
+            this.chkCleanItraq8Plex.Text = "iTRAQ 8-plex";
+            this.chkCleanItraq8Plex.UseVisualStyleBackColor = true;
+            this.chkCleanItraq8Plex.CheckedChanged += new System.EventHandler(this.chkCleanItraq8Plex_CheckedChanged);
+            // 
+            // chkCleanItraq4Plex
+            // 
+            this.chkCleanItraq4Plex.AutoSize = true;
+            this.chkCleanItraq4Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanItraq4Plex;
+            this.chkCleanItraq4Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanItraq4Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanItraq4Plex.Location = new System.Drawing.Point(253, 73);
+            this.chkCleanItraq4Plex.Name = "chkCleanItraq4Plex";
+            this.chkCleanItraq4Plex.Size = new System.Drawing.Size(89, 17);
+            this.chkCleanItraq4Plex.TabIndex = 91;
+            this.chkCleanItraq4Plex.Text = "iTRAQ 4-plex";
+            this.chkCleanItraq4Plex.UseVisualStyleBackColor = true;
+            this.chkCleanItraq4Plex.CheckedChanged += new System.EventHandler(this.chkCleanItraq4Plex_CheckedChanged);
+            // 
+            // chkCleanTmt6Plex
+            // 
+            this.chkCleanTmt6Plex.AutoSize = true;
+            this.chkCleanTmt6Plex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmt6Plex;
+            this.chkCleanTmt6Plex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmt6Plex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanTmt6Plex.Location = new System.Drawing.Point(253, 52);
+            this.chkCleanTmt6Plex.Name = "chkCleanTmt6Plex";
+            this.chkCleanTmt6Plex.Size = new System.Drawing.Size(81, 17);
+            this.chkCleanTmt6Plex.TabIndex = 93;
+            this.chkCleanTmt6Plex.Text = "TMT 6-Plex";
+            this.chkCleanTmt6Plex.UseVisualStyleBackColor = true;
+            this.chkCleanTmt6Plex.CheckedChanged += new System.EventHandler(this.chkCleanTmt6Plex_CheckedChanged);
+            // 
+            // chkCleanTmtDuplex
+            // 
+            this.chkCleanTmtDuplex.AutoSize = true;
+            this.chkCleanTmtDuplex.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanTmtDuplex;
+            this.chkCleanTmtDuplex.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanTmtDuplex", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.chkCleanTmtDuplex.Location = new System.Drawing.Point(253, 29);
+            this.chkCleanTmtDuplex.Name = "chkCleanTmtDuplex";
+            this.chkCleanTmtDuplex.Size = new System.Drawing.Size(85, 17);
+            this.chkCleanTmtDuplex.TabIndex = 92;
+            this.chkCleanTmtDuplex.Text = "TMT Duplex";
+            this.chkCleanTmtDuplex.UseVisualStyleBackColor = true;
+            this.chkCleanTmtDuplex.CheckedChanged += new System.EventHandler(this.chkCleanTmtDuplex_CheckedChanged);
+            // 
             // chkCleanPrecursor
             // 
             this.chkCleanPrecursor.AutoSize = true;
@@ -639,23 +671,6 @@ namespace Coon.Compass.DtaGenerator
             this.chkEnableEtdPreProcessing.Text = "Enable ETD Pre-Processing";
             this.chkEnableEtdPreProcessing.UseVisualStyleBackColor = true;
             this.chkEnableEtdPreProcessing.CheckedChanged += new System.EventHandler(this.chkEnableEtdPreProcessing_CheckedChanged);
-            // 
-            // ofdRawFiles
-            // 
-            this.ofdRawFiles.Filter = "Thermo .raw data files (*.raw)|*.raw";
-            this.ofdRawFiles.Multiselect = true;
-            // 
-            // cleanRegarlessOfActTypeCB
-            // 
-            this.cleanRegarlessOfActTypeCB.AutoSize = true;
-            this.cleanRegarlessOfActTypeCB.Checked = global::Coon.Compass.DtaGenerator.Properties.Settings.Default.cleanEtdRegardless;
-            this.cleanRegarlessOfActTypeCB.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::Coon.Compass.DtaGenerator.Properties.Settings.Default, "cleanEtdRegardless", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.cleanRegarlessOfActTypeCB.Location = new System.Drawing.Point(27, 67);
-            this.cleanRegarlessOfActTypeCB.Name = "cleanRegarlessOfActTypeCB";
-            this.cleanRegarlessOfActTypeCB.Size = new System.Drawing.Size(198, 17);
-            this.cleanRegarlessOfActTypeCB.TabIndex = 131;
-            this.cleanRegarlessOfActTypeCB.Text = "Clean Regardless of Activation Type";
-            this.cleanRegarlessOfActTypeCB.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
@@ -745,6 +760,7 @@ namespace Coon.Compass.DtaGenerator
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.NumericUpDown numericUpDown5;
         private System.Windows.Forms.CheckBox cleanRegarlessOfActTypeCB;
+        private System.Windows.Forms.CheckBox groupByFragMethodCB;
     }
 }
 

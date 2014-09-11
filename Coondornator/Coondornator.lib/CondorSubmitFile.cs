@@ -18,7 +18,7 @@ namespace Compass.Coondornator
         public CondorSubmitFile(IEnumerable<DtaFile> dtaFiles, UserModFile userModFile, IEnumerable<DatabaseFile> dbFiles)
             : base(Path.GetTempFileName())
         {
-            Requirements = new List<string> {"(Arch == \"x86_64\")", "(TARGET.Name =!= LastMatchName1)", "(OpSys == \"LINUX\")", "(Disk > 500000)"};
+            Requirements = new List<string> {"(Arch == \"x86_64\")", "(TARGET.Name =!= LastMatchName1)", "(OpSys == \"LINUX\")"};
 
             UserModFile = userModFile;
             DatabaseFiles = new List<DatabaseFile>(dbFiles);
@@ -69,6 +69,9 @@ namespace Compass.Coondornator
             sb.AppendLine("output = /dev/null");
             sb.AppendLine("log = /home/Groups/Condor/Logs/omssacl.log");
             sb.AppendLine("match_list_length = 5");
+            sb.AppendLine("Request_disk = 500000");
+            sb.AppendLine("Request_memory = 256");
+            sb.AppendLine("Rank = Memory > 512");
             sb.AppendLine("requirements = "+requirements);
             sb.AppendLine("should_transfer_files = YES");
             sb.AppendLine("when_to_transfer_output = ON_EXIT_OR_EVICT");

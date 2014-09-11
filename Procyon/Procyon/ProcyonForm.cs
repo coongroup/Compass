@@ -1430,219 +1430,219 @@ namespace Coon.Compass.Procyon
         private void BuildAnnotationDictionary(string databaseString, List<AnnotationType> annotationsToAdd)
         {
             //Fill the AnnotationEntryDict and UniprotIDtoAnnotationList
-            CurrentOrganism = databaseString;
+            //CurrentOrganism = databaseString;
 
-            string databaseFile = GetDatabasePath(databaseString);
+            //string databaseFile = GetDatabasePath(databaseString);
 
-            UniProtXml uniprotXml = new UniProtXml(databaseFile);
+            //UniProtXml uniprotXml = new UniProtXml(databaseFile);
 
-            Dictionary<string, List<string>> ensemblToUniprotDict = new Dictionary<string, List<string>>();
-            foreach (entry uniprotEntry in uniprotXml.Entries)
-            {
-                List<string> uniprotIDs = new List<string>();
-                List<AnnotationEntry> annotationEntries = new List<AnnotationEntry>();
-                foreach (string acession in uniprotEntry.accession)
-                {
-                    uniprotIDs.Add(acession);
-                }
+            //Dictionary<string, List<string>> ensemblToUniprotDict = new Dictionary<string, List<string>>();
+            //foreach (entry uniprotEntry in uniprotXml.Entries)
+            //{
+            //    List<string> uniprotIDs = new List<string>();
+            //    List<AnnotationEntry> annotationEntries = new List<AnnotationEntry>();
+            //    foreach (string acession in uniprotEntry.accession)
+            //    {
+            //        uniprotIDs.Add(acession);
+            //    }
 
-                if (uniprotEntry.keyword != null)
-                {
-                    if (annotationsToAdd.Contains(AnnotationType.Keywords))
-                    {
-                        foreach (keywordType keyword in uniprotEntry.keyword)
-                        {
-                            string keywordID = keyword.id;
-                            AnnotationEntry outEntry = null;
+            //    if (uniprotEntry.keyword != null)
+            //    {
+            //        if (annotationsToAdd.Contains(AnnotationType.Keywords))
+            //        {
+            //            foreach (keywordType keyword in uniprotEntry.keyword)
+            //            {
+            //                string keywordID = keyword.id;
+            //                AnnotationEntry outEntry = null;
 
-                            if (AnnotationEntryDict.TryGetValue(keywordID, out outEntry))
-                            {
-                                annotationEntries.Add(outEntry);
-                            }
-                            else
-                            {
-                                AnnotationEntry addEntry = new AnnotationEntry(keywordID, keyword.Value, AnnotationType.Keywords);
-                                annotationEntries.Add(addEntry);
-                                AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
-                            }
-                        }
-                    }
-                }
+            //                if (AnnotationEntryDict.TryGetValue(keywordID, out outEntry))
+            //                {
+            //                    annotationEntries.Add(outEntry);
+            //                }
+            //                else
+            //                {
+            //                    AnnotationEntry addEntry = new AnnotationEntry(keywordID, keyword.Value, AnnotationType.Keywords);
+            //                    annotationEntries.Add(addEntry);
+            //                    AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
+            //                }
+            //            }
+            //        }
+            //    }
 
-                if (uniprotEntry.dbReference != null)
-                {
-                    foreach (dbReferenceType goTerm in uniprotEntry.dbReference)
-                    {
-                        if (goTerm.type.Equals("GO"))
-                        {
-                            string goID = goTerm.id;
-                            AnnotationEntry outEntry = null;
+            //    if (uniprotEntry.dbReference != null)
+            //    {
+            //        foreach (dbReferenceType goTerm in uniprotEntry.dbReference)
+            //        {
+            //            if (goTerm.type.Equals("GO"))
+            //            {
+            //                string goID = goTerm.id;
+            //                AnnotationEntry outEntry = null;
 
-                            if (AnnotationEntryDict.TryGetValue(goID, out outEntry))
-                            {
-                                annotationEntries.Add(outEntry);
-                            }
-                            else
-                            {
-                                string goName = null;
-                                AnnotationType goType = AnnotationType.GOCellularComponent;
-                                foreach (propertyType property in goTerm.property)
-                                {
-                                    if (property.type.Equals("term"))
-                                    {
-                                        string goString = property.value;
-                                        string[] goArray = goString.Split(':');
+            //                if (AnnotationEntryDict.TryGetValue(goID, out outEntry))
+            //                {
+            //                    annotationEntries.Add(outEntry);
+            //                }
+            //                else
+            //                {
+            //                    string goName = null;
+            //                    AnnotationType goType = AnnotationType.GOCellularComponent;
+            //                    foreach (propertyType property in goTerm.property)
+            //                    {
+            //                        if (property.type.Equals("term"))
+            //                        {
+            //                            string goString = property.value;
+            //                            string[] goArray = goString.Split(':');
 
-                                        if (goArray[0].Equals("C"))
-                                        {
-                                            goType = AnnotationType.GOCellularComponent;
-                                        }
-                                        else if (goArray[0].Equals("F"))
-                                        {
-                                            goType = AnnotationType.GOMolecularFunction;
-                                        }
-                                        else if (goArray[0].Equals("P"))
-                                        {
-                                            goType = AnnotationType.GOBiologicalProcesses;
-                                        }
+            //                            if (goArray[0].Equals("C"))
+            //                            {
+            //                                goType = AnnotationType.GOCellularComponent;
+            //                            }
+            //                            else if (goArray[0].Equals("F"))
+            //                            {
+            //                                goType = AnnotationType.GOMolecularFunction;
+            //                            }
+            //                            else if (goArray[0].Equals("P"))
+            //                            {
+            //                                goType = AnnotationType.GOBiologicalProcesses;
+            //                            }
 
-                                        goName = goArray[1];
-                                    }
-                                }
+            //                            goName = goArray[1];
+            //                        }
+            //                    }
 
-                                if (annotationsToAdd.Contains(goType))
-                                {
-                                    AnnotationEntry addEntry = new AnnotationEntry(goID, goName, goType);
-                                    annotationEntries.Add(addEntry);
-                                    AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
-                                }
-                            }
-                        }
+            //                    if (annotationsToAdd.Contains(goType))
+            //                    {
+            //                        AnnotationEntry addEntry = new AnnotationEntry(goID, goName, goType);
+            //                        annotationEntries.Add(addEntry);
+            //                        AnnotationEntryDict.Add(addEntry.UniqueID, addEntry);
+            //                    }
+            //                }
+            //            }
 
-                        if (goTerm.type.Equals("Ensembl"))
-                        {
-                            foreach (propertyType property in goTerm.property)
-                            {
-                                if (property.type.Equals("protein sequence ID"))
-                                {
-                                    string ensemblID = property.value;
+            //            if (goTerm.type.Equals("Ensembl"))
+            //            {
+            //                foreach (propertyType property in goTerm.property)
+            //                {
+            //                    if (property.type.Equals("protein sequence ID"))
+            //                    {
+            //                        string ensemblID = property.value;
 
-                                    AnnotationEntry addEntry = new AnnotationEntry(ensemblID, "Ensembl ID", AnnotationType.EnsemblID);
+            //                        AnnotationEntry addEntry = new AnnotationEntry(ensemblID, "Ensembl ID", AnnotationType.EnsemblID);
 
-                                    List<string> outList1 = null;
-                                    if (ensemblToUniprotDict.TryGetValue(ensemblID, out outList1))
-                                    {
-                                        foreach (string id in uniprotIDs)
-                                        {
-                                            if(!outList1.Contains(id))
-                                            {
-                                                outList1.Add(id);
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        List<string> addList = new List<string>();
-                                        foreach (string id in uniprotIDs)
-                                        {
-                                            addList.Add(id);
-                                        }
-                                        ensemblToUniprotDict.Add(ensemblID, addList);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            //                        List<string> outList1 = null;
+            //                        if (ensemblToUniprotDict.TryGetValue(ensemblID, out outList1))
+            //                        {
+            //                            foreach (string id in uniprotIDs)
+            //                            {
+            //                                if(!outList1.Contains(id))
+            //                                {
+            //                                    outList1.Add(id);
+            //                                }
+            //                            }
+            //                        }
+            //                        else
+            //                        {
+            //                            List<string> addList = new List<string>();
+            //                            foreach (string id in uniprotIDs)
+            //                            {
+            //                                addList.Add(id);
+            //                            }
+            //                            ensemblToUniprotDict.Add(ensemblID, addList);
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //    }
 
-                //Build the connections to the UniprotIDs
-                foreach (AnnotationEntry annotationEntry in annotationEntries)
-                {
-                    foreach (string uniprotID in uniprotIDs)
-                    {
-                        Dictionary<AnnotationType, List<string>> outDict = null;
-                        if (UniprotIDtoAnnotationList.TryGetValue(uniprotID, out outDict))
-                        {
-                            List<string> outList = null;
-                            if (outDict.TryGetValue(annotationEntry.Type, out outList))
-                            {
-                                if(!outList.Contains(annotationEntry.UniqueID))
-                                {
-                                    outList.Add(annotationEntry.UniqueID);
-                                }
-                            }
-                            else
-                            {
-                                List<string> addList = new List<string>();
-                                addList.Add(annotationEntry.UniqueID);
-                                outDict.Add(annotationEntry.Type, addList);
-                            }
-                        }
-                        else
-                        {
-                            Dictionary<AnnotationType, List<string>> addDict = new Dictionary<AnnotationType, List<string>>();
-                            List<string> addList = new List<string>();
-                            addList.Add(annotationEntry.UniqueID);
-                            addDict.Add(annotationEntry.Type, addList);
+            //    //Build the connections to the UniprotIDs
+            //    foreach (AnnotationEntry annotationEntry in annotationEntries)
+            //    {
+            //        foreach (string uniprotID in uniprotIDs)
+            //        {
+            //            Dictionary<AnnotationType, List<string>> outDict = null;
+            //            if (UniprotIDtoAnnotationList.TryGetValue(uniprotID, out outDict))
+            //            {
+            //                List<string> outList = null;
+            //                if (outDict.TryGetValue(annotationEntry.Type, out outList))
+            //                {
+            //                    if(!outList.Contains(annotationEntry.UniqueID))
+            //                    {
+            //                        outList.Add(annotationEntry.UniqueID);
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    List<string> addList = new List<string>();
+            //                    addList.Add(annotationEntry.UniqueID);
+            //                    outDict.Add(annotationEntry.Type, addList);
+            //                }
+            //            }
+            //            else
+            //            {
+            //                Dictionary<AnnotationType, List<string>> addDict = new Dictionary<AnnotationType, List<string>>();
+            //                List<string> addList = new List<string>();
+            //                addList.Add(annotationEntry.UniqueID);
+            //                addDict.Add(annotationEntry.Type, addList);
 
-                            UniprotIDtoAnnotationList.Add(uniprotID, addDict);
-                        }
-                    }
-                }
-            }
+            //                UniprotIDtoAnnotationList.Add(uniprotID, addDict);
+            //            }
+            //        }
+            //    }
+            //}
 
-            //Import the Protein Interactions
-            string interactionFile = "C:\\Users\\Chris\\Desktop\\Programs\\Mouse_Protein_Interactions.csv";
-            Dictionary<string, Dictionary<string, int>> ProteinInteractionDict = ImportProteinInteractionDictionary(interactionFile);
-            foreach (KeyValuePair<string, Dictionary<string, int>> kvp in ProteinInteractionDict)
-            {
-                List<string> outList = null;
-                if (ensemblToUniprotDict.TryGetValue(kvp.Key, out outList))
-                {
-                    foreach (string primaryUniprotID in outList)
-                    {
-                        //Grab the annotation list for the uniprot ID
-                        Dictionary<AnnotationType, List<string>> outDict = null;
-                        if (UniprotIDtoAnnotationList.TryGetValue(primaryUniprotID, out outDict))
-                        {
-                            List<string> outList2 = null;
-                            if (outDict.TryGetValue(AnnotationType.ProteinInteraction, out outList2))
-                            {
-                                foreach (string secondaryProtein in kvp.Value.Keys)
-                                {
-                                    List<string> outList3 = null;
-                                    if (ensemblToUniprotDict.TryGetValue(secondaryProtein, out outList3))
-                                    {
-                                        foreach (string secondaryUniprotID in outList3)
-                                        {
-                                            outList2.Add(secondaryUniprotID);
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                List<string> addList = new List<string>();
-                                foreach (string secondaryProtein in kvp.Value.Keys)
-                                {
-                                    List<string> outList3 = null;
-                                    if (ensemblToUniprotDict.TryGetValue(secondaryProtein, out outList3))
-                                    {
-                                        foreach (string secondaryUniprotID in outList3)
-                                        {
-                                            addList.Add(secondaryUniprotID);
-                                        }
-                                    }
-                                }
+            ////Import the Protein Interactions
+            //string interactionFile = "C:\\Users\\Chris\\Desktop\\Programs\\Mouse_Protein_Interactions.csv";
+            //Dictionary<string, Dictionary<string, int>> ProteinInteractionDict = ImportProteinInteractionDictionary(interactionFile);
+            //foreach (KeyValuePair<string, Dictionary<string, int>> kvp in ProteinInteractionDict)
+            //{
+            //    List<string> outList = null;
+            //    if (ensemblToUniprotDict.TryGetValue(kvp.Key, out outList))
+            //    {
+            //        foreach (string primaryUniprotID in outList)
+            //        {
+            //            //Grab the annotation list for the uniprot ID
+            //            Dictionary<AnnotationType, List<string>> outDict = null;
+            //            if (UniprotIDtoAnnotationList.TryGetValue(primaryUniprotID, out outDict))
+            //            {
+            //                List<string> outList2 = null;
+            //                if (outDict.TryGetValue(AnnotationType.ProteinInteraction, out outList2))
+            //                {
+            //                    foreach (string secondaryProtein in kvp.Value.Keys)
+            //                    {
+            //                        List<string> outList3 = null;
+            //                        if (ensemblToUniprotDict.TryGetValue(secondaryProtein, out outList3))
+            //                        {
+            //                            foreach (string secondaryUniprotID in outList3)
+            //                            {
+            //                                outList2.Add(secondaryUniprotID);
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    List<string> addList = new List<string>();
+            //                    foreach (string secondaryProtein in kvp.Value.Keys)
+            //                    {
+            //                        List<string> outList3 = null;
+            //                        if (ensemblToUniprotDict.TryGetValue(secondaryProtein, out outList3))
+            //                        {
+            //                            foreach (string secondaryUniprotID in outList3)
+            //                            {
+            //                                addList.Add(secondaryUniprotID);
+            //                            }
+            //                        }
+            //                    }
 
-                                outDict.Add(AnnotationType.ProteinInteraction, addList);
-                            }
-                        }
-                    }
-                }
-            }
+            //                    outDict.Add(AnnotationType.ProteinInteraction, addList);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
-            uniprotXml.Dispose();
+            //uniprotXml.Dispose();
         }
 
         private Dictionary<string, Dictionary<string, int>> ImportProteinInteractionDictionary(string interactionFile)

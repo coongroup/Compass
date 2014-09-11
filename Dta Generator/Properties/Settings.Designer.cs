@@ -238,5 +238,17 @@ namespace Coon.Compass.DtaGenerator.Properties {
                 this["cleanEtdRegardless"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool groupByFragMethod {
+            get {
+                return ((bool)(this["groupByFragMethod"]));
+            }
+            set {
+                this["groupByFragMethod"] = value;
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Deployment.Application;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -180,6 +181,7 @@ namespace Coon.Compass.FdrOptimizer
 
             double maxFalseDiscoveryRate = (double)numMaximumFalseDiscoveryRate.Value;
             double maxPPM = (double)maximumPPMUD.Value;
+            int minPepLength = (int)numericUpDown1.Value;
             bool isBatched = checkBox1.Checked;
             bool is2DFDR = twoDCB.Checked;
             bool includeFixedMods = checkBox2.Checked;
@@ -197,7 +199,7 @@ namespace Coon.Compass.FdrOptimizer
             FdrOptimizer fdrOptimizer = new FdrOptimizer(csvFilepaths, rawFolder,
                 fixedModifications,
                 maxFalseDiscoveryRate,maxPPM, uniquePeptideType,
-                  outputFolder, isBatched, is2DFDR, includeFixedMods);
+                  outputFolder, isBatched, is2DFDR, includeFixedMods, minPepLength);
           
             fdrOptimizer.UpdateProgress += HandleUpdateProgress;
             fdrOptimizer.Finished += fdrOptimizer_Finished;

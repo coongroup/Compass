@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DEBUG
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -32,6 +34,11 @@ namespace Coon.Compass.Lotor
         {
             InitializeComponent();
             AdditionalSetup();           
+#if DEBUG
+            LoadPeptides(@"E:\Software\Compass Tests\Lotor\Test_1_parsimony_peptides_filtered.csv");
+            checkedListBox1.SetItemChecked(0,true);
+            LoadUserMods(@"E:\Software\Compass Tests\Lotor\usermods_lys8.xml");
+#endif
         }
 
         private void AdditionalSetup()
@@ -120,8 +127,7 @@ namespace Coon.Compass.Lotor
             _lotor.UpdateProgress += lotor_UpdateProgress;
             _lotor.Completed += _lotor_Completed;
             localizeB.Enabled = false;
-            _mainThread = new Thread(_lotor.Localize);
-            _mainThread.IsBackground = true;
+            _mainThread = new Thread(_lotor.Localize) {IsBackground = true};
             _mainThread.Start();
         }
 
@@ -155,7 +161,7 @@ namespace Coon.Compass.Lotor
         
         public void LoadUserMods(string userModFile)
         {
-            OmssaModification.LoadOmssaModifications(userModFile, true);
+            OmssaModification.LoadOmssaModifications(userModFile);
            
             listBox1.Items.Clear();
             listBox2.Items.Clear();
@@ -204,7 +210,7 @@ namespace Coon.Compass.Lotor
                         checkedListBox1.Items.Add(Phosphorylation.Name);
                         phospho = false;
                     }
-                    OmssaModification.GroupedModifications.Add(modName, Phosphorylation);
+                    OmssaModification.GroupedModifications[modName] = Phosphorylation;
                 }
                 else
                 {

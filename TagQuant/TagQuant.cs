@@ -362,7 +362,7 @@ namespace Coon.Compass.TagQuant
 
         private IEnumerable<QuantFile> LoadFiles(IEnumerable<string> filePaths, bool ms3Quant = false)
         {
-            MSDataFile.CacheScans = false;
+            MSDataFile<ThermoSpectrum>.CacheScans = false;
             //int largestQuantPeak = 0;
             int i = 0;
             foreach (TagInformation tag in UsedTags.Values)
@@ -418,7 +418,13 @@ namespace Coon.Compass.TagQuant
                         //}
                         
                         // Get the scan object for the sequence ms2 scan
-                        MsnDataScan quantitationMsnScan = rawFile[scanNumber] as MsnDataScan;
+                        IMsnDataScan quantitationMsnScan = rawFile[scanNumber] as IMsnDataScan;
+
+                        if (quantitationMsnScan == null)
+                        {
+                            OnUpdateLog("Spectrum Number " + scanNumber + " is not a valid MS2 scan from: " + rawFile.FilePath + ". Skipping PSM...");
+                            continue;
+                        }
 
                         double purity = 1;
                         if (CalculatePurity)
@@ -427,16 +433,10 @@ namespace Coon.Compass.TagQuant
                             int charge = quantitationMsnScan.GetPrecursorCharge();
                             DoubleRange isolationRange = MzRange.FromDa(mz, PurityWindowInTh);
 
-                            MSDataScan parentScan = rawFile[quantitationMsnScan.ParentScanNumber];
-                            purity = DeterminePurity(parentScan, mz, charge, isolationRange);
+                            IMSDataScan parentScan = rawFile[quantitationMsnScan.GetParentSpectrumNumber()];
+                            purity = DeterminePurity(parentScan.MassSpectrum, mz, charge, isolationRange);
                         }
-
-                        if (quantitationMsnScan == null)
-                        {
-                            OnUpdateLog("Spectrum Number " + scanNumber + " is not a valid MS2 scan from: " + rawFile.FilePath + ". Skipping PSM...");
-                            continue;
-                        }
-
+                       
                         if (MS3Quant)
                         {
                             quantitationMsnScan = null;
@@ -446,7 +446,7 @@ namespace Coon.Compass.TagQuant
                             {
                                 if (rawFile.GetParentSpectrumNumber(ms3ScanNumber) == scanNumber)
                                 {
-                                    quantitationMsnScan = rawFile[ms3ScanNumber] as MsnDataScan;
+                                    quantitationMsnScan = rawFile[ms3ScanNumber] as IMsnDataScan;
                                     break;
                                 }
                                 ms3ScanNumber++;
@@ -462,7 +462,7 @@ namespace Coon.Compass.TagQuant
                         Tolerance Tolerance = quantitationMsnScan.MzAnalyzer == MZAnalyzerType.IonTrap2D ? ItMassTolerance : FtMassTolerance;
                         bool isETD = quantitationMsnScan.GetDissociationType() == DissociationType.ETD;
 
-                        double injectionTime = quantitationMsnScan.InjectionTime;
+                        double injectionTime = quantitationMsnScan.GetInjectionTime();
                         //var massSpectrum = quantitationMsnScan.MassSpectrum;
                         var thermoSpectrum = rawFile.GetLabeledSpectrum(quantitationMsnScan.SpectrumNumber);
                         
@@ -503,7 +503,7 @@ namespace Coon.Compass.TagQuant
                             
                             var peak = thermoSpectrum.GetClosestPeak(Tolerance.GetRange(tagMz));
 
-                            QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, quantitationMsnScan, noise, peak == null && NoisebandCap);
+                            QuantPeak qPeak = new QuantPeak(tag, peak, injectionTime, noise, peak == null && NoisebandCap);
 
                             peaks[tag.UniqueTagNumber] = qPeak;
                         }
@@ -526,9 +526,9 @@ namespace Coon.Compass.TagQuant
             }
         }
 
-        private double DeterminePurity(MSDataScan scan, double mz, int charge, DoubleRange isolationRange)
+        private double DeterminePurity(ISpectrum spectrum, double mz, int charge, DoubleRange isolationRange)
         {
-            var miniSpectrum = scan.MassSpectrum.Extract(isolationRange);
+            var miniSpectrum = spectrum.Extract(isolationRange);
 
             double expectedSpacing = Constants.C13C12Difference/charge;
             double min = expectedSpacing*0.95;

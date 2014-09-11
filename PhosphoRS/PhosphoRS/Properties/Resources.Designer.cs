@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Coon.Compass.Properties {
+namespace Coon.Compass.PhosphoRS.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Coon.Compass.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Coon.Compass.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Coon.Compass.PhosphoRS.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,16 +57,6 @@ namespace Coon.Compass.Properties {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap coon_blue {
-            get {
-                object obj = ResourceManager.GetObject("coon_blue", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

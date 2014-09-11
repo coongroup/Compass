@@ -146,7 +146,7 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
-        public void Read(IList<Modification> fixedModifications, int numberOfTopHits = 1, bool higherScoresAreBetter = false)
+        public void Read(IList<Modification> fixedModifications, int numberOfTopHits = 1, int minPeptideLength = 6)
         {
             _data.Clear();
           
@@ -170,9 +170,14 @@ namespace Coon.Compass.FdrOptimizer
                             first = false;
                         }
 
+                        string sequence = reader["Peptide"].ToUpper();
+                        if(sequence.Length < minPeptideLength)
+                            continue; ;
+
                         int scanNumber = int.Parse(reader["Spectrum number"]);
 
                         PSM psm = new PSM(scanNumber) {Score = double.Parse(reader["E-value"]), ScoreType = PeptideSpectralMatchScoreType.OmssaEvalue};
+                        
                         SortedMaxSizedContainer<PSM> peptides;
                         if (!_data.TryGetValue(scanNumber, out peptides))
                         {
@@ -187,7 +192,7 @@ namespace Coon.Compass.FdrOptimizer
                         psm.IsDecoy = reader["Defline"].StartsWith("DECOY_");
                         if (HasPPMInfo)
                             psm.PrecursorMassError = double.Parse(reader["Precursor Mass Error (ppm)"]);
-                        psm.SetSequenceAndMods(reader["Peptide"].ToUpper(), fixedModifications, reader["Mods"]);
+                        psm.SetSequenceAndMods(sequence, fixedModifications, reader["Mods"]);
                     }
                 }
             }
@@ -199,7 +204,7 @@ namespace Coon.Compass.FdrOptimizer
             }
         }
 
-        public void UpdatePsmInformation(MSDataFile dataFile, bool is2dFDR = true, bool useMedian = true, double evalueThreshold = 1e-3)
+        public void UpdatePsmInformation(IMSDataFile dataFile, bool is2dFDR = true, bool useMedian = true, double evalueThreshold = 1e-3)
         {
             List<double> errors = new List<double>();
             MaximumPrecursorMassError = 0;
@@ -238,7 +243,7 @@ namespace Coon.Compass.FdrOptimizer
                 int scanNumber = kvp.Key;
                 SortedMaxSizedContainer<PSM> psms = kvp.Value;
                
-                double isolationMZ = dataFile.GetPrecusorMz(scanNumber);
+                double isolationMZ = dataFile.GetPrecursorMz(scanNumber);
                 Polarity polarity = dataFile.GetPolarity(scanNumber);
 
                 foreach (PSM psm in psms)

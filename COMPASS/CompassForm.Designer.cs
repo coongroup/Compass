@@ -50,6 +50,7 @@
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.tsbTagQuant = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
@@ -186,6 +187,7 @@
             this.toolStripButton4,
             this.tsbTagQuant,
             this.toolStripButton1,
+            this.toolStripButton6,
             this.toolStripButton2,
             this.toolStripButton3,
             this.toolStripButton5,
@@ -250,13 +252,22 @@
             this.toolStripButton1.Text = "Protein Hoarder";
             this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
+            // toolStripButton6
+            // 
+            this.toolStripButton6.Image = global::Coon.Compass.Properties.Resources.coon_blue;
+            this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton6.Name = "toolStripButton6";
+            this.toolStripButton6.Size = new System.Drawing.Size(55, 22);
+            this.toolStripButton6.Text = "Lotor";
+            this.toolStripButton6.Click += new System.EventHandler(this.toolStripButton6_Click);
+            // 
             // toolStripButton2
             // 
             this.toolStripButton2.Image = global::Coon.Compass.Properties.Resources.coon_blue;
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Plum;
             this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(55, 22);
-            this.toolStripButton2.Text = "Lotor";
+            this.toolStripButton2.Size = new System.Drawing.Size(87, 22);
+            this.toolStripButton2.Text = "PhosphoRS";
             this.toolStripButton2.Click += new System.EventHandler(this.toolStripButton2_Click);
             // 
             // toolStripButton3
@@ -379,6 +390,7 @@
         private System.Windows.Forms.ToolStripMenuItem highResToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton toolStripButton5;
         private System.Windows.Forms.ToolStripMenuItem sourceCodeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton toolStripButton6;
 
     }
 }

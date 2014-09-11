@@ -82,10 +82,10 @@ namespace Coon.Compass.DtaGenerator
             zedGraphControl1.GraphPane.CurveList.Clear();
             zedGraphControl2.GraphPane.CurveList.Clear();
 
-            var rawSpectrum = _rawFile.GetSpectrum(spectrumNumber);
+            ThermoSpectrum rawSpectrum = _rawFile.GetSpectrum(spectrumNumber);
 
             Polarity polarity = _rawFile.GetPolarity(spectrumNumber);
-            double precursorMZ = _rawFile.GetPrecusorMz(spectrumNumber);
+            double precursorMZ = _rawFile.GetPrecursorMz(spectrumNumber);
             int precursorZ = _rawFile.GetPrecusorCharge(spectrumNumber);
             double precursorMass = Mass.MassFromMz(precursorMZ, precursorZ);
         
@@ -109,15 +109,15 @@ namespace Coon.Compass.DtaGenerator
                 DtaGenerator.CleanETD(mzRangesToRemove, precursorMass, precursorZ, lowMZ, highMZ);
             }
             
-            var cleanSpectrum = rawSpectrum.Filter(mzRangesToRemove);
+            var cleanSpectrum = rawSpectrum.FilterByMZ(mzRangesToRemove);
    
             zedGraphControl1.GraphPane.AddStick("Raw", rawSpectrum.GetMasses(), rawSpectrum.GetIntensities(), Color.Black);
             zedGraphControl2.GraphPane.AddStick("Cleaned", cleanSpectrum.GetMasses(), cleanSpectrum.GetIntensities(), Color.Black);
 
             if (rescale)
             {
-                zedGraphControl1.GraphPane.XAxis.Scale.Min = rawSpectrum.FirstMz;
-                zedGraphControl2.GraphPane.XAxis.Scale.Min = rawSpectrum.FirstMz;
+                zedGraphControl1.GraphPane.XAxis.Scale.Min = rawSpectrum.FirstMZ;
+                zedGraphControl2.GraphPane.XAxis.Scale.Min = rawSpectrum.FirstMZ;
                 zedGraphControl1.GraphPane.XAxis.Scale.Max = rawSpectrum.LastMZ;
                 zedGraphControl2.GraphPane.XAxis.Scale.Max = rawSpectrum.LastMZ;
             }

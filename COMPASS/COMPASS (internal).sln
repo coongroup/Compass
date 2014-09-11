@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "COMPASS (internal)", "COMPASS (internal).csproj", "{1FDBDA24-8AAB-4CE6-A8FE-841057B1C516}"
 EndProject
@@ -45,6 +45,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coondornator.lib", "..\Coondornator\Coondornator.lib\Coondornator.lib.csproj", "{D4581AC5-AD22-4596-BD66-643F4855A3FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coondornator.gui", "..\Coondornator\Coondornator.gui\Coondornator.gui.csproj", "{626E1E63-5B21-43AF-A5BB-F93AA43DF5A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhosphoRS", "..\PhosphoRS\PhosphoRS\PhosphoRS.csproj", "{B3304A4E-7167-4351-AD7C-1212AD0620BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -311,6 +313,18 @@ Global
 		{626E1E63-5B21-43AF-A5BB-F93AA43DF5A9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{626E1E63-5B21-43AF-A5BB-F93AA43DF5A9}.Release|x64.ActiveCfg = Release|Any CPU
 		{626E1E63-5B21-43AF-A5BB-F93AA43DF5A9}.Release|x86.ActiveCfg = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|x64.ActiveCfg = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

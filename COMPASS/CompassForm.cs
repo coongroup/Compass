@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using Coon.Compass.DatabaseMaker;
 using Coon.Compass.Lotor;
+using Coon.Compass.PhosphoRS;
 using Coon.Compass.ProteinHoarder;
 using Coon.Compass.TagQuant;
 using Coon.Compass.Procyon;
@@ -97,8 +98,8 @@ namespace Coon.Compass
 
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
-            var lotorForm = new lotorForm {MdiParent = this};
-            lotorForm.Show();
+            var phosphoForm = new PhosphoRsForm{MdiParent = this};
+            phosphoForm.Show();
         }
 
         private void toolStripButton3_Click(object sender, EventArgs e)
@@ -135,6 +136,12 @@ namespace Coon.Compass
         {
             var procyonForm = new ProcyonForm { MdiParent = this };
             procyonForm.Show();
+        }
+
+        private void toolStripButton6_Click(object sender, EventArgs e)
+        {
+            var lotor = new lotorForm { MdiParent = this };
+            lotor.Show();
         }
 
        

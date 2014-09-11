@@ -84,7 +84,7 @@ namespace Coon.Compass.ProteinHoarder
         public CsvFile(string fileName)
         {
             FilePath = fileName;
-            Protease = CSMSL.Proteomics.Protease.Trypsin.Name;
+            Protease = CSMSL.Proteomics.Protease.GetProtease("Trypsin").Name;
         }
 
         public override string ToString()

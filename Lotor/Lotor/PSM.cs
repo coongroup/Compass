@@ -25,7 +25,7 @@ namespace Coon.Compass.Lotor
         public int[,] BestSiteDeterminingFragments;
         public int[,] SecondBestSiteDeterminingFragments;
 
-        public Spectrum Spectrum { get; private set; }
+        public ISpectrum Spectrum { get; private set; }
          
         public int StartResidue = 1;
 
@@ -53,9 +53,9 @@ namespace Coon.Compass.Lotor
             RawFileName = rawfileName;
         }
 
-        public void SetRawFile(MSDataFile dataFile)
+        public void SetRawFile(IMSDataFile dataFile)
         {
-            MsnDataScan scan = dataFile[ScanNumber] as MsnDataScan;
+            IMsnDataScan scan = dataFile[ScanNumber] as IMsnDataScan;
             IsolationMZ = scan.GetIsolationRange().Mean;
             Spectrum = dataFile.GetSpectrum(ScanNumber);
             ScanWidth = scan.MzRange.Width;
@@ -65,7 +65,6 @@ namespace Coon.Compass.Lotor
         /// The number of isoforms this PSM has
         /// </summary>
         public int Isoforms { get; private set; }
-      
 
         public List<Modification> VariabledModifications;
      

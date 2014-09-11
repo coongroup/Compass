@@ -28,7 +28,7 @@ namespace Coon.Compass.TagQuant
 
         public double Noise { get; set; }
 
-        public QuantPeak(TagInformation tag, IPeak peak, double injectionTime, MsnDataScan scan, double noise = 0, bool isNoiseCapped = false)
+        public QuantPeak(TagInformation tag, IPeak peak, double injectionTime, double noise = 0, bool isNoiseCapped = false)
         {
             Tag = tag;
             if (peak == null)

@@ -12,6 +12,8 @@ using CSMSL.IO.Thermo;
 using CSMSL.Proteomics;
 using LumenWorks.Framework.IO.Csv;
 
+
+
 namespace Coon.Compass.Lotor
 {
     public class Lotor
@@ -32,7 +34,7 @@ namespace Coon.Compass.Lotor
         private readonly bool _separateProteinGroups;
         private readonly bool _reduceSites;
         private readonly bool _phosphoNeutralLoss;
-        private HashSet<MSDataFile> _dataFiles; 
+        private HashSet<IMSDataFile> _dataFiles; 
 
         private int FirstQuantColumn = -1;
         private int LastQuantColumn = -1;
@@ -63,7 +65,7 @@ namespace Coon.Compass.Lotor
             _startTime = DateTime.Now;
             Log("Localization Started...");
 
-            Log("Ignore C Terimal Mods: " + _ignoreCTerminal);
+            Log("Ignore C Terminal Mods: " + _ignoreCTerminal);
             Log("Phospho Neutral Loss: " + _phosphoNeutralLoss);
             Log("Score Threshold: " + _deltaScoreCutoff);
             Log("Product Tolerance: " + _prodTolerance);
@@ -92,7 +94,7 @@ namespace Coon.Compass.Lotor
             }
             finally
             {
-                foreach (MSDataFile dataFile in _dataFiles)
+                foreach (IMSDataFile dataFile in _dataFiles)
                 {
                     dataFile.Dispose();
                 }
@@ -336,7 +338,7 @@ namespace Coon.Compass.Lotor
             return hits;
         }
 
-        private Tuple<int, int, double> LocalizedIsoformSimple(PSM psm)
+        private static Tuple<int, int, double> LocalizedIsoformSimple(PSM psm)
         {
             int length = psm.Isoforms;
             List<PeptideIsoform> isoforms = psm.PeptideIsoforms.ToList();
@@ -375,9 +377,7 @@ namespace Coon.Compass.Lotor
 
             return new Tuple<int, int, double>(bestI, bestJ, double.PositiveInfinity);
         }
-
-
-           
+        
         private List<PSM> LoadAllPSMs(string csvFile, string rawFileDirectory, List<Modification> fixedMods)
         {
             ProgressUpdate(0.0); //force the progressbar to go into marquee mode  
@@ -387,7 +387,7 @@ namespace Coon.Compass.Lotor
                 Directory.EnumerateFiles(rawFileDirectory, "*.raw", SearchOption.AllDirectories)
                     .ToDictionary(Path.GetFileNameWithoutExtension, file => new ThermoRawFile(file));
 
-            _dataFiles = new HashSet<MSDataFile>();
+            _dataFiles = new HashSet<IMSDataFile>();
 
             List<PSM> psms = new List<PSM>();
 
@@ -485,15 +485,7 @@ namespace Coon.Compass.Lotor
         }
              
         #region Statics
-
-        public static double GetPValue(PSM psm, Tolerance prod_tolerance, double cutoff)
-        {
-            // Get the width of the product ion tolerance at the isolation mz;
-            double productToleranceWidth = prod_tolerance.GetRange(psm.IsolationMZ).Width;
-            double cutoffThreshold = psm.Spectrum.GetBasePeakIntensity()*cutoff;
-            return Math.Min(1.0, psm.Spectrum.Count(peak => peak.Intensity >= cutoffThreshold)*2*productToleranceWidth/psm.ScanWidth);
-        }
-
+        
         public static Tuple<int,int, double> LocalizedIsoform(double[,] data)
         {
             double lowestAscore = 0;

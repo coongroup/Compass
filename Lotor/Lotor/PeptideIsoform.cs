@@ -13,12 +13,12 @@ namespace Coon.Compass.Lotor
     {
         private ChemicalFormula H3PO4 = new ChemicalFormula("H3PO4");
 
-        public Spectrum Spectrum;
+        public ISpectrum Spectrum;
         public int Charge;
         public SpectrumFragmentsMatch SpectralMatch;
         public int SiteDeterminingFragments;
 
-        public PeptideIsoform(Peptide peptide, Spectrum spectrum, int charge)
+        public PeptideIsoform(Peptide peptide, ISpectrum spectrum, int charge)
             : base(peptide) 
         {           
             Spectrum = spectrum;

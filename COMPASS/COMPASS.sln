@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OMSSA Navigator", "..\OMSSA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OmssaLib", "..\OmssaLib\OmssaLib.csproj", "{5904AC55-5FC3-4625-8119-14069C53DEF7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhosphoRS", "..\PhosphoRS\PhosphoRS\PhosphoRS.csproj", "{B3304A4E-7167-4351-AD7C-1212AD0620BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -272,6 +274,16 @@ Global
 		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x64.Build.0 = Release|x64
 		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x86.ActiveCfg = Release|x86
 		{5904AC55-5FC3-4625-8119-14069C53DEF7}.Release|x86.Build.0 = Release|x86
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|x86.ActiveCfg = Debug|x86
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Debug|x86.Build.0 = Debug|x86
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|x64.ActiveCfg = Release|Any CPU
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|x86.ActiveCfg = Release|x86
+		{B3304A4E-7167-4351-AD7C-1212AD0620BE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

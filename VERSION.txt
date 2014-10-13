@@ -1,0 +1,244 @@
+COMPASS (Coon OMSSA Proteomic Analysis Software Suite)
+------------------------------------------------------
+
+Wenger CD, Phanstiel DH, Lee MV, Bailey DJ, Coon JJ. 
+"COMPASS: A suite of pre- and post-search proteomics 
+software tools for OMSSA," Proteomics 11:1074–1084 
+(2011)
+
+1.2.17.0 (Wednesday, March 12, 2014)
+- ProteinHoarder -> 2.4.5.0
+  Two bug fixes. Chymotrypsin digestions were defaulting to brute force search, this is
+  because Chymotrypsin cleaves at 'L', but the program was originally converting
+  all 'I' to 'L', thus making the digestion incorrect.
+
+  Multiple proteases support was originally doing sequential digetsions of the the same
+  peptide population. It is now doing digestion on different populations.
+
+1.2.12.0 (Monday, December 9, 2013)
+- FdrOptimizer -> 2.0.3.0
+  Added maximaul ppm error input for capping the maximum ppm error allowed.
+  Added back * to user modifications
+  Went back to slower, but more accurate 2D FDR calculation.
+
+1.2.11.0 (Tuesday, November 12, 2013)
+- Procyon -> 0.0.1.0
+  Added Procyon to Compass
+
+1.2.9.0 (Thursday, October 3, 2013)
+- FdrOptimizer -> 2.0.0.0
+  Combined all the FDR optimizers into one new program.
+  Made the unique peptide generation a user choice, will also be more conservative
+
+- Compass
+  Moved the old FDRs into a separate tool strip
+
+1.2.8.0 (Wednesday, August 18, 2013)
+- TagQuant -> 1.4.0.0
+  Fixed noise band cap bug in which noise band PC values were 100 times to large
+
+- Phosphinator -> 1.0.0.0
+  Made compatible with new TagQuant outputs.
+
+1.2.7.0 (Thursday, August 8, 2013)
+- TagQuant -> 1.1.0.0
+  Completely reworked tag quant
+
+1.2.6.0 (Thursday, August 8, 2013)
+- Lotor -> 1.0.0.0
+  Added program LOcalize TO Residue (Lotor) for PTM localization.
+
+- Replace Matrix package CSML with MathNet.Numerics
+
+1.2.5.0 (Tuesday, August 6, 2013)
+- Protein Hoarder -> 2.4.1.0
+  New algorithm for finding subsumable protein groups greatly speeds up the slowest
+  step of the program.
+
+1.2.4.0 (Monday, August 5, 2013)
+- Protein Hoarder -> 2.4.0.0
+  Enabled semi-digestion searches
+  If the digestion method of mapping fails to find every peptide, it will automatically
+  switch to a brute force string search on the remaining unmapped peptides. 
+
+1.2.3.0 (Thursday, July 11, 2013)
+- DTA Generator Updated -> 1.0.2.0
+  Reenabled logging of precursor information in the text log file
+
+1.2.2.0 (Friday, March 22, 2013)
+- DTA Generators Updated -> 1.0.1.0
+  Would erroneously grab the precursor m/z from the previous MS1 instead of the
+  MS1 scan that actually triggered the MS/MS scan.
+
+1.2.1.0 (Tuesday, Feburary 12, 2013)
+- FDR Optimizer Updated
+  Wasn't handling dual modified sites correctly (i.e. TMT and Acetyl on the same lysine)
+
+1.2.0.0 (Monday, September 10, 2012)
+- Protein Hoarder -> 2.3.0.0
+  Streamelined the results for uniprot-based databases to quickly filter out the
+  Uniprot ID and Gene Names. General improvements as well.
+
+  Removed Protein Herder and Protein Taq Quant from the choices of nodes since they
+  are replaced by Protein Hoarder.
+
+1.1.9.0 (Thursday, August 2, 2012)
+- Protein Hoarder -> 2.2.5.0
+  Error in when the largest peptide identified was also an N-terminal peptide, 
+  the digestion algorithm would miss it.
+
+1.1.7.0 (Thursday, February 23, 2012)
+- Error in Non-batch High Res FDR Optimizer in which it was not correctly getting the
+  right MS1 scans for each MS/MS peptide hit. 
+
+1.1.6.2 (Saturday, January 28, 2012)
+- DTA generator would perform really slowly if there weren't any MS1 scans.
+  Fixed it by checking for all the MS1 scans at the beginning and storing them
+  in a time-saving array for quick look ups.
+
+1.1.6.1 (Friday, January 06, 2012)
+- Protein Hoarder -> 2.2.4.0
+  Fixed a bug in which the peptide start and stop residues would not 
+  be mapped to the representative protein.
+
+1.1.5.3 (Tuesday, November 22, 2011)
+- Protein Hoarder -> 2.2.3.1
+  Included outputs to spit out the number of PSMs and unique
+  peptide sequences for each protein group based on the experiment
+  ids.
+
+1.1.4.0 (Thursday, November 17, 2011)
+- Protein Hoarder -> 2.2.2.0
+  Included interference filtering for quantitation values
+  to exclude PSM that have too much interference in their
+  isolation window (Original Quant Mode)
+
+1.1.3.0 (Thursday, November 10, 2011)
+- Protein Hoarder -> 2.2.1.0
+  Refactored the code to dramtically decreases memory 
+  consumption. It also now includes protein quantitation
+  module so that Protein Tag Quant is no longer needed.
+  Includes experimental details in which proteins can be
+  grouped acrossed experiments but individual quantitation is
+  determined on a experiment-by-experiment basis.
+
+1.1.2.0 (Caturday!, September 17, 2011)
+- Protein Hoarder -> 2.1.1.0
+  Fixed a bug in which Proteins that contain the amino acid
+  character 'X' would not be digested correctly. It now trims
+  all 'X's from the N-term and C-Term of the protein before
+  digestion.
+
+1.1.1.0 (Monday, August 29, 2011)
+- Protein Hoarder improvements. Can read in any omssa
+  csv file now and correctly parses it. 
+
+1.1.0.1 (Monday, August 15, 2011)
+- Added a new program called "Protein Hoarder" which
+  will replace protein herder. This version is considerably
+  faster than protein herder.
+
+1.0.5.1 (Wednesday, August 10, 2011)
+- Forces application to run in 32-bit mode no matter
+  the operating system capacity.
+
+1.0.4.5 (Tuesday, August 09, 2011)
+- TagQuant nows records the noiseband intensity if a
+  certain reporter tag cannot be found.
+
+1.0.4.4 (Monday, April 18, 2011)
+- Modified the way OMSSA Navigator handles input files
+  so the file-extension can be read correctly.
+
+1.0.4.3 (Monday, April 4, 2011)
+- Added support for raw files prior to Xcalibur 2.1 
+  to TagQuant.
+
+1.0.4.2 (Wednesday, March 16, 2011)
+- Fixed bug in OMSSA Navigator for output files with 
+  spaces in their filepaths.
+
+1.0.4.1 (Wednesday, March 2, 2011)
+- Better handling of interference removal in 
+  ProteinTagQuant.
+
+1.0.4.0 (Friday, January 7, 2011)
+- Added limited support for MS^3 and higher spectra 
+  to DTA Generator, FDR Optimizer, and Batch FDR 
+  Optimizer.
+
+1.0.3.4 (Friday, January 7, 2011)
+- Fixed bug in launching Coondornator (internal 
+  version only).
+
+1.0.3.3 (Friday, January 7, 2011)
+- Updated citation and link in about box.
+
+1.0.3.2 (Thursday, January 6, 2011)
+- Fixed bug: when run inside COMPASS, OMSSA Navigator 
+  would crash when closed while a search was running.
+
+1.0.3.1 (Wednesday, January 5, 2011)
+- Added taxids.txt file (configurable list of 
+  taxonomy IDs for limiting OMSSA searches).
+- Updated about box.
+
+1.0.3.0 (Tuesday, January 4, 2011)
+- Added support for specifying taxonomy IDs to search 
+  in OMSSA Navigator.
+- Added support for dragging-and-dropping/browsing 
+  for OMSSA modification .xml files.
+- Fixed minor bug in FDR Optimizers: q-values were 
+  not being output with enough precision. For the 
+  batch versions, this could lead to slightly 
+  incorrect numbers of identifications.
+
+1.0.2.7 (Tuesday, January 4, 2011)
+- Added support for multi-part databases to OMSSA 
+  Navigator.
+
+1.0.2.6 (Tuesday, December 21, 2010)
+- Modified OMSSA Navigator to specify database 
+  filepaths with escaped quotes rather than short 
+  (8.3) filepaths.
+
+1.0.2.5 (Monday, December 20, 2010)
+- Fixed bug in DTA Generator where only two decimal 
+  places were being used for precursors.
+
+1.0.2.4 (Thursday, December 16, 2010)
+- Fixed bug in finding mods.xml in OMSSA Navigator.
+
+1.0.2.3 (Thursday, December 16, 2010)
+- Modified OMSSA Navigator to search files in place 
+  without making temporary copies.
+- Fixed bug where output folder was ignored in OMSSA 
+  Navigator.
+- Fixed searching animation in OMSSA Navigator.
+- Updated citation ("under review" -> "accepted").
+
+1.0.2.2 (Wednesday, December 15, 2010)
+- Fixed bug in summary.csv output of non-batch FDR 
+  Optimizer (FT MS^1 and non-FT MS^1 versions).
+
+1.0.2.1 (Thursday, December 9, 2010)
+- Updated green icon (easier to see).
+
+1.0.2.0 (Monday, December 6, 2010)
+- Added pepXML output option to OMSSA Navigator.
+
+1.0.1.0 (Friday, December 3, 2010)
+- Removed lock mass recalibration, Kenny option, 
+  de-isotoping, fragment intensity filtering, and 
+  top n peaks filtering from DTA Generator.
+
+1.0.0.2 (Friday, December 3, 2010)
+- Fixed logic for recognizing a valid database in 
+  OMSSA Navigator.
+
+1.0.0.1 (Friday, December 3, 2010)
+- Search first forward ion incorrectly labeled as 
+  "-sb" instead of "-sb1" in OMSSA Navigator.
+
+1.0.0.0 (Wednesday, December 1, 2010)
+- Initial release.

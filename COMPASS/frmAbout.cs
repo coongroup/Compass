@@ -46,12 +46,12 @@ namespace Coon.Compass
 
         private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("version history.txt");
+            Process.Start("https://github.com/dbaileychess/Compass/blob/develop/VERSION.txt");
         }
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("gpl-3.0.txt");
+            Process.Start("http://www.gnu.org/licenses/gpl-3.0.txt");
         }
 
         private void label3_Click(object sender, EventArgs e)

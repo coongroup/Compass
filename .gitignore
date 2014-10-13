@@ -46,3 +46,7 @@ Thumbs.db
 #########
 !NuGet.exe
 packages/
+
+# Overrides #
+#############
+!*SQLite.Interop.dll

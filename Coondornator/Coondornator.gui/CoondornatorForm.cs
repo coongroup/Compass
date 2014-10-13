@@ -148,6 +148,9 @@ namespace Compass.Coondornator
                 form.ShowDialog();
             }
 
+            textBox1.Text = DateTime.Now.ToString("yyyyMMddHHmmss");
+           
+
             base.OnLoad(e);
         }
 
@@ -213,6 +216,11 @@ namespace Compass.Coondornator
                         throw new FileNotFoundException("Unable to locate user mod file", userModFilePath);
                     }
                     userModFile = new UserModFile(userModFilePath);
+                }
+
+                if (!_connection.DirectoryExists(_connection.CondorFolder))
+                {
+                    _connection.CreateDirectory(_connection.CondorFolder);
                 }
 
                 string remoteJobDirectory = _connection.CreateDirectory(_connection.CondorFolder + jobName);

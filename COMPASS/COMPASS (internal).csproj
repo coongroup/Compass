@@ -17,7 +17,7 @@
     </TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">.\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <PublishUrl>\\coongrp\Groups\Software\COMPASS %28internal%29\</PublishUrl>
+    <PublishUrl>\\coongrp\GENERAL\Software\internal\COMPASS\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Unc</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -26,13 +26,13 @@
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
+    <MapFileExtensions>false</MapFileExtensions>
     <ErrorReportUrl>https://github.com/dbaileychess/Compass/issues%3fstate=open</ErrorReportUrl>
     <TargetCulture>en-US</TargetCulture>
     <ProductName>COMPASS %28internal%29</ProductName>
     <PublisherName>CoonWare</PublisherName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
-    <ApplicationRevision>14</ApplicationRevision>
+    <ApplicationRevision>15</ApplicationRevision>
     <ApplicationVersion>1.4.3.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>

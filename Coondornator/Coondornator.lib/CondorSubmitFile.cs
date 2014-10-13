@@ -66,8 +66,8 @@ namespace Compass.Coondornator
             sb.AppendLine("universe = vanilla");
             sb.AppendLine("executable = " + executable);
             sb.AppendLine("error = omssa.$(cluster).$(process).err");
-            sb.AppendLine("output = /dev/null");
-            sb.AppendLine("log = /home/Groups/Condor/Logs/omssacl.log");
+            sb.AppendLine("output = " + Coondornator.NullDevice);
+            sb.AppendLine("log = " + Coondornator.CondorMasterLog);
             sb.AppendLine("match_list_length = 5");
             sb.AppendLine("Request_disk = 500000");
             sb.AppendLine("Request_memory = 256");

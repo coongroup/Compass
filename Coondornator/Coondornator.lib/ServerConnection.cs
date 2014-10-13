@@ -60,8 +60,7 @@ namespace Compass.Coondornator
         public Task<IEnumerable<DatabaseFile>> GetBlastDatabases()
         {
             Task<IEnumerable<DatabaseFile>> task = new Task<IEnumerable<DatabaseFile>>(
-                () => ListDirectory(Coondornator.CondorDatabaseDirectory).Where(f => Path.GetExtension(f).Equals(".pin")).Select(f => new DatabaseFile(f))
-                );
+                () => ListDirectory(Coondornator.CondorDatabaseDirectory).Where(f => Path.GetExtension(f).Equals(".pin")).Select(f => new DatabaseFile(f)));
             task.Start();
             return task;
         }
@@ -133,6 +132,11 @@ namespace Compass.Coondornator
             return t;
         }
 
+        public bool DirectoryExists(string remoteDirectory)
+        {
+            return _sftp.Exists(remoteDirectory);
+        }
+
         public string CreateDirectory(string remoteDirectory)
         {
             if (_sftp.Exists(remoteDirectory))
@@ -161,7 +165,7 @@ namespace Compass.Coondornator
 
         public string CondorFolder
         {
-            get { return string.Format("/home/{0}/Condor/", UserName); }
+            get { return Coondornator.UserCondorDirectory + UserName + "/"; }
         }
 
         public void Dispose()

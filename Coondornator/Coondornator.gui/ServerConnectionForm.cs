@@ -49,15 +49,7 @@ namespace Compass.Coondornator
             string host = textBox1.Text;
             string userName = textBox2.Text;
             string password = ServerConnection.EncryptString(ServerConnection.ToSecureString(textBox3.Text));
-
-            if (storeAsDefault)
-            {
-                Properties.Settings.Default.UserName = userName;
-                Properties.Settings.Default.Host = host;
-                Properties.Settings.Default.Password = password;
-                Properties.Settings.Default.Save();
-            }
-
+            
             bool result = await CoondornatorParentForm.ConnectAsync(userName, host, password);
             if (!result)
             {
@@ -65,6 +57,14 @@ namespace Compass.Coondornator
             }
             else
             {
+                if (storeAsDefault)
+                {
+                    Properties.Settings.Default.UserName = userName;
+                    Properties.Settings.Default.Host = host;
+                    Properties.Settings.Default.Password = password;
+                    Properties.Settings.Default.Save();
+                }
+
                 Close();
             }
         }

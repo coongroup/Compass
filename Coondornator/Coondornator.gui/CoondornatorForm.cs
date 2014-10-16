@@ -466,9 +466,18 @@ namespace Compass.Coondornator
             numericUpDown1.Enabled = checkBox1.Checked;
         }
 
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private async void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            tabPage2.BringToFront();
+            if (loadDatabaseDialog.ShowDialog() == DialogResult.OK)
+            {
+                SetStatusLabel("Uploading User Database...");
+                foreach (string file in loadDatabaseDialog.FileNames)
+                {
+                    await _connection.PutFileAsync(new DatabaseFile(file), Coondornator.CondorDatabaseDirectory);
+                }
+                SetStatusLabel("Databases uploaded");
+                UpdateProgress(0);
+            }
         }
     }
 }

@@ -66,6 +66,7 @@
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.openDtaDialog = new System.Windows.Forms.OpenFileDialog();
             this.openUserModFileD = new System.Windows.Forms.OpenFileDialog();
+            this.loadDatabaseDialog = new System.Windows.Forms.OpenFileDialog();
             this.statusStrip1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -475,6 +476,11 @@
             this.openUserModFileD.DefaultExt = "xml";
             this.openUserModFileD.Filter = "Mod File|*.xml|All files|*.*";
             // 
+            // loadDatabaseDialog
+            // 
+            this.loadDatabaseDialog.Filter = "Databases|*.pin;*.phr;*.psq";
+            this.loadDatabaseDialog.Multiselect = true;
+            // 
             // CoondornatorForm
             // 
             this.AllowDrop = true;
@@ -553,6 +559,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.OpenFileDialog loadDatabaseDialog;
     }
 }
 

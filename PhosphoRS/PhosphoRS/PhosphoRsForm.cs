@@ -47,7 +47,9 @@ namespace Coon.Compass.PhosphoRS
             OmssaModification.GroupedModifications["phosphorylation of T"] = Phosphorylation;
             OmssaModification.GroupedModifications["phosphorylation of Y with neutral loss"] = Phosphorylation;
             OmssaModification.GroupedModifications["phosphorylation of Y"] = Phosphorylation;
-
+            OmssaModification.GroupedModifications["phosphorylation with neutral loss on S"] = Phosphorylation;
+            OmssaModification.GroupedModifications["phosphorylation with neutral loss on T"] = Phosphorylation; 
+            OmssaModification.GroupedModifications["phosphorylation with neutral loss on Y"] = Phosphorylation;
             ResetModifications();
         }
 

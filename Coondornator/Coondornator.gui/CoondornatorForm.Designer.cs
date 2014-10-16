@@ -40,7 +40,6 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.submitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.label7 = new System.Windows.Forms.Label();
@@ -56,7 +55,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.label6 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.saveLineTB = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
@@ -120,8 +118,7 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.submitToolStripMenuItem,
-            this.toolStripMenuItem1});
+            this.submitToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(885, 24);
@@ -178,13 +175,6 @@
             this.submitToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
             this.submitToolStripMenuItem.Text = "Submit";
             this.submitToolStripMenuItem.Click += new System.EventHandler(this.submitToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(116, 20);
-            this.toolStripMenuItem1.Text = "Old Coondornator";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // splitContainer1
             // 
@@ -368,7 +358,6 @@
             // 
             // tabPage1
             // 
-            this.tabPage1.Controls.Add(this.label6);
             this.tabPage1.Controls.Add(this.button2);
             this.tabPage1.Controls.Add(this.saveLineTB);
             this.tabPage1.Controls.Add(this.button1);
@@ -383,15 +372,6 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Parameters";
             this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(275, 62);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(170, 13);
-            this.label6.TabIndex = 13;
-            this.label6.Text = "Parameter Line Marker will go here";
             // 
             // button2
             // 
@@ -570,8 +550,6 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.OpenFileDialog openUserModFileD;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.CheckBox checkBox1;

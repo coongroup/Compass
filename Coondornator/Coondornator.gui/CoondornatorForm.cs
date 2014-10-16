@@ -460,12 +460,7 @@ namespace Compass.Coondornator
         }
 
         #endregion
-
-        private void toolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            Process.Start(@"\\coongrp\Groups\Condor\Coondornator\Coondornator.application");      
-        }
-
+        
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             numericUpDown1.Enabled = checkBox1.Checked;

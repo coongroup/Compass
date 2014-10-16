@@ -337,7 +337,12 @@ namespace Coon.Compass.PhosphoRS
             double lastProgress = 0;
             using (var dbConnection = new SQLiteConnection(@"Data Source=" + tempFile+";Version=3;Journal Mode=Off;"))
             {
-                dbConnection.Open();
+                try
+                {
+                    dbConnection.Open();
+                } catch(Exception e) {
+                    SetMessage("Error creating database: " + e.Message);
+                }
 
                 var sql = @"CREATE TABLE IF NOT EXISTS files (
                         id INTEGER PRIMARY KEY ASC, 

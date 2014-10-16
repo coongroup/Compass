@@ -68,6 +68,7 @@ namespace Coon.Compass.PhosphoRS
             neutralLoss = neutralloss;
             _fixedModifications = fixedMods.ToList();
             _dbConnection = new SQLiteConnection(@"Data Source=" + filePath + ";Version=3;Journal Mode=Off;");
+          
             _dbConnection.Open();
             var countPsms = new SQLiteCommand(@"SELECT count(id) FROM psms", _dbConnection);
             _selectPsms = new SQLiteCommand(@"SELECT * FROM psms LIMIT @offset, @limit", _dbConnection);

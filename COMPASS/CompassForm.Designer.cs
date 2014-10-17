@@ -60,6 +60,7 @@
             this.batchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lowResToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.highResToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.getLocalDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -158,7 +159,8 @@
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.aboutCOMPASSToolStripMenuItem,
-            this.sourceCodeToolStripMenuItem});
+            this.sourceCodeToolStripMenuItem,
+            this.getLocalDirectoryToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -166,14 +168,14 @@
             // aboutCOMPASSToolStripMenuItem
             // 
             this.aboutCOMPASSToolStripMenuItem.Name = "aboutCOMPASSToolStripMenuItem";
-            this.aboutCOMPASSToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.aboutCOMPASSToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.aboutCOMPASSToolStripMenuItem.Text = "&About COMPASS";
             this.aboutCOMPASSToolStripMenuItem.Click += new System.EventHandler(this.aboutCompassToolStripMenuItem_Click);
             // 
             // sourceCodeToolStripMenuItem
             // 
             this.sourceCodeToolStripMenuItem.Name = "sourceCodeToolStripMenuItem";
-            this.sourceCodeToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+            this.sourceCodeToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.sourceCodeToolStripMenuItem.Text = "View Source Code";
             this.sourceCodeToolStripMenuItem.Click += new System.EventHandler(this.sourceCodeToolStripMenuItem_Click);
             // 
@@ -338,6 +340,13 @@
             this.highResToolStripMenuItem.Text = "high res";
             this.highResToolStripMenuItem.Click += new System.EventHandler(this.highResToolStripMenuItem_Click);
             // 
+            // getLocalDirectoryToolStripMenuItem
+            // 
+            this.getLocalDirectoryToolStripMenuItem.Name = "getLocalDirectoryToolStripMenuItem";
+            this.getLocalDirectoryToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.getLocalDirectoryToolStripMenuItem.Text = "Get Local Directory";
+            this.getLocalDirectoryToolStripMenuItem.Click += new System.EventHandler(this.getLocalDirectoryToolStripMenuItem_Click);
+            // 
             // CompassForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -391,6 +400,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButton5;
         private System.Windows.Forms.ToolStripMenuItem sourceCodeToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton toolStripButton6;
+        private System.Windows.Forms.ToolStripMenuItem getLocalDirectoryToolStripMenuItem;
 
     }
 }

@@ -468,16 +468,18 @@ namespace Compass.Coondornator
 
         private async void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if (loadDatabaseDialog.ShowDialog() == DialogResult.OK)
-            {
-                SetStatusLabel("Uploading User Database...");
-                foreach (string file in loadDatabaseDialog.FileNames)
-                {
-                    await _connection.PutFileAsync(new DatabaseFile(file), Coondornator.CondorDatabaseDirectory);
-                }
-                SetStatusLabel("Databases uploaded");
-                UpdateProgress(0);
-            }
+            DatabaseManager dm = new DatabaseManager();
+            dm.ShowDialog();
+            //if (loadDatabaseDialog.ShowDialog() == DialogResult.OK)
+            //{
+            //    SetStatusLabel("Uploading User Database...");
+            //    foreach (string file in loadDatabaseDialog.FileNames)
+            //    {
+            //        await _connection.PutFileAsync(new DatabaseFile(file), Coondornator.CondorDatabaseDirectory);
+            //    }
+            //    SetStatusLabel("Databases uploaded");
+            //    UpdateProgress(0);
+            //}
         }
     }
 }

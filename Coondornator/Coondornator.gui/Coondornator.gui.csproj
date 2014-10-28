@@ -55,6 +55,12 @@
     <Compile Include="CoondornatorForm.Designer.cs">
       <DependentUpon>CoondornatorForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DatabaseManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DatabaseManager.Designer.cs">
+      <DependentUpon>DatabaseManager.cs</DependentUpon>
+    </Compile>
     <Compile Include="ServerConnectionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -66,6 +72,9 @@
     <Compile Include="Settings.cs" />
     <EmbeddedResource Include="CoondornatorForm.resx">
       <DependentUpon>CoondornatorForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DatabaseManager.resx">
+      <DependentUpon>DatabaseManager.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ServerConnectionForm.resx">
       <DependentUpon>ServerConnectionForm.cs</DependentUpon>

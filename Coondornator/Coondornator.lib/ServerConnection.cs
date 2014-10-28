@@ -69,7 +69,7 @@ namespace Compass.Coondornator
         {
             return from file in _sftp.ListDirectory(remoteDirectory)
                    select file.FullName;          
-        }               
+        }                
 
         public event EventHandler<ProgressEventArgs> UploadProgress;
         public event EventHandler<FileUploadEventArgs> UploadStart;

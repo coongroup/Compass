@@ -212,11 +212,12 @@ namespace Coon.Compass.DatabaseMaker
 
             // Pick makeblastdb.exe from Application Directory Folder
     
-            process.StartInfo.FileName = Path.Combine(Environment.CurrentDirectory, MakeBlastDBExecutable);
+            process.StartInfo.FileName = Path.Combine(@"\\coongrp\GENERAL\Software\internal\COMPASS\makeblastdb.exe");
+           // process.StartInfo.FileName = Path.Combine(Environment.CurrentDirectory, MakeBlastDBExecutable);
 
             // makeblastdb doesn't like spaces in the filenames...
             // http://stackoverflow.com/questions/15126020/why-multiple-arguments-with-spaces-are-not-interpreted-correctly-in-a-batch-scri
-            process.StartInfo.Arguments = string.Format("-in \\\"\"{0}\"\\\" -out {1} -max_file_sz {2} -logfile {3}", inputFastaFilePath, outputFileName, "2GB", DefaultLogFilename);
+            process.StartInfo.Arguments = string.Format("-in \\\"\"{0}\"\\\" -dbtype prot -out {1} -max_file_sz {2} -logfile {3}", inputFastaFilePath, outputFileName, "2GB", DefaultLogFilename);
 
             process.Start();
             process.WaitForExit();

@@ -124,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="coon_yellow.ico" />
+    <Content Include="makeblastdb.exe" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CSMSL\CSMSL\CSMSL.csproj">

@@ -16,9 +16,16 @@ namespace Compass.Coondornator
         {
             InitializeComponent();
             localMachineOutputDirectoryBox.ForeColor = Color.Gray;
-            monthTextBox.ForeColor = Color.Gray;
-            dayTextBox.ForeColor = Color.Gray;
-            yearTextBox.ForeColor = Color.Gray;
+            SetDate();
+        }
+
+        private void SetDate()
+        {
+            var dateTime = DateTime.Now.ToString("MM/dd/yy");
+            string[] dtParts = dateTime.Split('/');
+            monthTextBox.Text = dtParts[0];
+            dayTextBox.Text = dtParts[1];
+            yearTextBox.Text = dtParts[2];
         }
 
         private void taxIDLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -26,7 +33,7 @@ namespace Compass.Coondornator
             if (MessageBox.Show(
              "Taxonomic ID# should be a 6-digit number with leading zeroes.\n\nExample - Mus musculus Taxonomic ID#: 010090\n\nWould you like more information?", "Taxonomic ID", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                System.Diagnostics.Process.Start("http://www.ncbi.nlm.nih.gov/taxonomy");
+                System.Diagnostics.Process.Start("http://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi");
             }
         }
 
@@ -143,10 +150,45 @@ namespace Compass.Coondornator
 
         private void yearTextBox_Click(object sender, EventArgs e)
         {
-            if (yearTextBox.Text.Equals("YY"))
+            if (yearTextBox.Text.Equals("YYYY"))
             {
                 yearTextBox.Text = "";
                 yearTextBox.ForeColor = Color.Black;
+            }
+        }
+
+        private void excludeNTermCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (excludeNTermCheckBox.Checked)
+            {
+                nTermMethCheckBox.Enabled = true;
+            }
+            if (!excludeNTermCheckBox.Checked)
+            {
+                nTermMethCheckBox.Checked = false;
+                nTermMethCheckBox.Enabled = false;
+            }
+        }
+
+        private void browseButtonOne_Click(object sender, EventArgs e)
+        {
+              openFileDialog1.Filter = "FASTA Database Files (*.fasta)|*.fasta";
+              if (openFileDialog1.ShowDialog() == DialogResult.OK)
+              {
+                  foreach (var file in openFileDialog1.FileNames)
+                  {
+                      fastaTextBox.ForeColor = Color.Black;
+                      fastaTextBox.Text = file;
+                  }
+              }
+        }
+
+        private void localMachineOutputBrowseButton_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                localMachineOutputDirectoryBox.ForeColor = Color.Black;
+                localMachineOutputDirectoryBox.Text = folderBrowserDialog1.SelectedPath.ToString();
             }
         }
     }
